@@ -1,0 +1,39 @@
+# Dependências e builds
+node_modules/
+.pnpm-store/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# Segredos e configuração local (nunca versionar)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Testes e relatórios
+playwright-report/
+test-results/
+blob-report/
+
+# Dados locais do PostgreSQL e dumps
+pgdata/
+*.dump
+*.sql.gz
+
+# Logs e sistema
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea/
