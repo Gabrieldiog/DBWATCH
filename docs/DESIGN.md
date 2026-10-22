@@ -163,6 +163,8 @@ Botões dizem exatamente o que fazem ("Aprovar acesso", "Revogar acesso"), e a c
 | --- | --- |
 | `assets/brand/dbwatch-logo.png` (1254 px, com margem) | Arte original e material de apresentação |
 | `assets/brand/dbwatch-icon.png` (1024 px, cantos transparentes) | Base para os demais tamanhos |
+| `assets/brand/dbwatch-icon-animado.gif` (320 px, 60 quadros, 3,6 s em loop, 2,2 MB) | Cabeçalho do README; quem usa `prefers-reduced-motion` vê a versão estática |
+| `assets/brand/suri.gif` (1254 px, 120 quadros, 17 MB) | Animação original, usada como fonte; não deve ser referenciada direto em páginas |
 | `assets/brand/dbwatch-icon-512.png` | README e slides |
 | `assets/brand/dbwatch-icon-192.png` | PWA e ícone de atalho |
 | `assets/brand/dbwatch-icon-64.png`, `-32.png` | Favicon e cabeçalho da aplicação |

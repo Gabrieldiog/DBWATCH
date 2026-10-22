@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="docs/assets/brand/dbwatch-icon-512.png" alt="Logo do DBWATCH: silhueta de um suricato sentinela sobre um banco de dados, recortada contra um radar" width="200">
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/brand/dbwatch-icon-512.png">
+  <img src="docs/assets/brand/dbwatch-icon-animado.gif" alt="Logo do DBWATCH: silhueta de um suricato sentinela sobre um banco de dados, recortada contra um radar" width="200">
+</picture>
 
 # DBWATCH
 
