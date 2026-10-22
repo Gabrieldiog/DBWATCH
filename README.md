@@ -13,6 +13,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-19D3D0?style=flat-square&logo=typescript&logoColor=white&labelColor=050E1E)](docs/DECISIONS.md)
 [![InovaTech 2026](https://img.shields.io/badge/InovaTech-2026_·_UniGoiás-FEB344?style=flat-square&labelColor=050E1E)](#-contexto-acadêmico)
 
+[O que é](#-o-que-é-o-dbwatch) •
 [Visão geral](#-visão-geral) •
 [Arquitetura](#-arquitetura) •
 [Segurança](#-segurança-o-backend-nunca-confia-no-front) •
@@ -30,17 +31,35 @@
 > **Estado atual: planejamento concluído, implementação começando.**
 > Este README descreve o sistema **projetado**. A tabela [Status de implementação](#-status-de-implementação) mostra o que já existe e o que ainda é plano. Nada aqui afirma que uma funcionalidade funciona antes de ela estar implementada e testada.
 
-## 👀 Por que um suricato?
+## 💡 O que é o DBWATCH?
 
-Nos grupos de suricatos, sempre há um **sentinela**: ele fica em pé num ponto alto, vigiando, enquanto o resto do grupo trabalha. Quando vê perigo, dá o alarme. O DBWATCH tem esse papel diante do banco de dados: fica sobre ele, controla quem entra, observa o que acontece e registra tudo.
+O **DBWATCH** é uma plataforma que **controla quem pode entrar nos bancos de dados de uma empresa** e **vigia o que acontece lá dentro**, guardando um histórico de tudo que não pode ser apagado nem alterado sem que se perceba.
 
-Os três LEDs do cilindro na logo são a linguagem visual de todo o produto:
+Ele junta duas coisas que normalmente vivem separadas:
 
-| Cor | Significado no DBWATCH |
-| :-: | --- |
-| 🟢 Verde-sinal | Saudável: transação confirmada, acesso concedido |
-| 🟠 Âmbar | Atenção: espera por lock, solicitação pendente, acesso perto de expirar |
-| 🔴 Coral | Falha ou bloqueio: deadlock, rollback, acesso negado |
+- **um PAM** (*Privileged Access Management*), que é o "porteiro" dos acessos privilegiados: ninguém tem a chave para sempre. Quem precisa pede, explica o motivo, outra pessoa aprova, e o acesso **expira sozinho**;
+- **um monitor de PostgreSQL**, que é o "vigia": mostra em tempo real as sessões abertas, quem está travando quem (locks), quando o banco precisou abortar uma transação (deadlock) e quantas operações foram desfeitas (rollback).
+
+Entre os dois fica a **auditoria**, o "livro de registro": cada pedido, aprovação, negação, consulta e falha vira um registro protegido, ligado aos eventos do banco por um identificador comum.
+
+### Um exemplo concreto
+
+> São 2h da manhã e o fechamento financeiro travou. O Diego, desenvolvedor de plantão, precisa olhar a tabela de lançamentos.
+>
+> 1. No DBWATCH, ele **pede acesso de leitura** ao banco "financeiro" por 30 minutos, com a justificativa "investigar o incidente INC‑42".
+> 2. O Bruno, DBA líder, recebe o pedido e **aprova**. O Diego não conseguiria aprovar o próprio pedido: o banco de dados recusaria.
+> 3. O Diego executa as consultas permitidas e, no monitor, os dois veem **uma transação travando as outras**.
+> 4. Depois de 30 minutos, o acesso **some sozinho**.
+> 5. Na semana seguinte, a Eva, da auditoria, filtra pelo incidente e vê **toda a história**: quem pediu, quem aprovou, o que foi consultado e quando. Ela ainda pode **provar** que ninguém mexeu nesse histórico.
+
+### Para quem é
+
+| Pessoa | O que ganha |
+| --- | --- |
+| Desenvolvedor ou analista | Acesso rápido e justificado quando precisa, sem depender de uma senha compartilhada |
+| DBA ou líder técnico | Controle de quem entra, por quanto tempo, e visão dos locks e deadlocks |
+| Auditor ou segurança | Resposta confiável para "quem fez o quê, quando e com autorização de quem" |
+| Professores e estudantes | Conceitos de persistência (transações, isolamento, locks, deadlocks, constraints e índices) **acontecendo de verdade**, num produto real |
 
 ## 🔭 Visão geral
 
@@ -412,6 +431,18 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | [DESIGN.md](docs/DESIGN.md) | Identidade visual, tokens de cor dos modos claro e escuro, tipografia e motion |
 | [DEMO.md](docs/DEMO.md) | Roteiro da apresentação no InovaTech, com plano B |
 | [CHANGELOG.md](CHANGELOG.md) | Mudanças por versão |
+
+## 👀 Por que um suricato?
+
+Nos grupos de suricatos, sempre há um **sentinela**: ele fica em pé num ponto alto, vigiando, enquanto o resto do grupo trabalha. Quando vê perigo, dá o alarme. O DBWATCH tem esse papel diante do banco de dados: fica sobre ele, controla quem entra, observa o que acontece e registra tudo.
+
+Os três LEDs do cilindro na logo são a linguagem visual de todo o produto:
+
+| Cor | Significado no DBWATCH |
+| :-: | --- |
+| 🟢 Verde-sinal | Saudável: transação confirmada, acesso concedido |
+| 🟠 Âmbar | Atenção: espera por lock, solicitação pendente, acesso perto de expirar |
+| 🔴 Coral | Falha ou bloqueio: deadlock, rollback, acesso negado |
 
 ## 🎓 Contexto acadêmico
 
