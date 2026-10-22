@@ -30,7 +30,7 @@
 > **Estado atual: planejamento concluído, implementação começando.**
 > Este README descreve o sistema **projetado**. A tabela [Status de implementação](#-status-de-implementação) mostra o que já existe e o que ainda é plano. Nada aqui afirma que uma funcionalidade funciona antes de ela estar implementada e testada.
 
-## 🦦 Por que um suricato?
+## 👀 Por que um suricato?
 
 Nos grupos de suricatos, sempre há um **sentinela**: ele fica em pé num ponto alto, vigiando, enquanto o resto do grupo trabalha. Quando vê perigo, dá o alarme. O DBWATCH tem esse papel diante do banco de dados: fica sobre ele, controla quem entra, observa o que acontece e registra tudo.
 
