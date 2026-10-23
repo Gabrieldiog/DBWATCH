@@ -9,10 +9,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { loadEnv } from '../src/config/env';
+import { urlFor } from './support/db';
 
 const UUID = /^[0-9a-f-]{36}$/;
-const databaseUrl = process.env.TEST_DATABASE_URL;
-if (!databaseUrl) throw new Error('Defina TEST_DATABASE_URL (veja .env.example)');
+// A API roda com o papel de menor privilégio, como em produção
+const databaseUrl = urlFor('dbwatch_app');
 
 @Controller('boom')
 class BoomController {

@@ -75,7 +75,9 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 - **Testes:** smoke de `/api/health`; teste do filtro de erros.
 - **Pronto quando:** `pnpm install && docker compose up -d && pnpm dev` funciona do zero; CI verde.
 
-### PK-02 · Banco base, papéis e harness de testes
+### PK-02 · Banco base, papéis e harness de testes ✅
+
+> **Registro de QA (23/10/2026):** 17/17 testes contra PostgreSQL 16 real (9 novos de banco: unicidade por `lower(email)`, CHECKs, FK `RESTRICT`, autoatribuição de papel barrada, catálogo de permissões, privilégios negados por papel com `42501`, banco-alvo somente leitura com `25006` e T-MIG-01 sem diferença entre banco e `schema.prisma`). Simulação do CI num PostgreSQL limpo: papéis + migration do zero + suíte verde. Teste de mutação: um `GRANT DELETE` indevido para `dbwatch_app` faz a suíte falhar. O seed de usuários foi para o PK-04 (precisa do hash Argon2id). O banco de testes não é recriado a cada execução: os testes geram dados únicos e as migrations são reaplicadas de forma idempotente.
 
 - **Objetivo:** fundação de persistência com menor privilégio desde o início.
 - **Inclui:** `infra/postgres/init` (papéis e bancos); schemas; Prisma schema de `iam` (users, roles, permissions, role_permissions, user_roles); primeira migration; seed; harness `pnpm test:db` contra PostgreSQL real com banco recriado por execução.
@@ -154,5 +156,6 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 | --- | --- | --- |
 | PK-00 | ✅ Concluído | 22/10/2026 |
 | PK-01 | ✅ Concluído | 23/10/2026 |
-| PK-02 | ⏳ Próximo | — |
-| PK-03 a PK-15 | 📋 Planejado | — |
+| PK-02 | ✅ Concluído | 23/10/2026 |
+| PK-03 | ⏳ Próximo | — |
+| PK-04 a PK-15 | 📋 Planejado | — |

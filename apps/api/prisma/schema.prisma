@@ -1,0 +1,82 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["iam"]
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+
+  @@map("user_status")
+  @@schema("iam")
+}
+
+model User {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email            String
+  displayName      String     @map("display_name")
+  passwordHash     String     @map("password_hash")
+  status           UserStatus @default(ACTIVE)
+  failedLoginCount Int        @default(0) @map("failed_login_count")
+  lockedUntil      DateTime?  @map("locked_until") @db.Timestamptz(6)
+  lastLoginAt      DateTime?  @map("last_login_at") @db.Timestamptz(6)
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  roles            UserRole[] @relation("UserRoles")
+  rolesGranted     UserRole[] @relation("RolesGrantedBy")
+
+  @@map("users")
+  @@schema("iam")
+}
+
+model Role {
+  id          Int              @id @db.SmallInt
+  code        String           @unique
+  name        String
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+  @@schema("iam")
+}
+
+model Permission {
+  code        String           @id
+  description String
+  roles       RolePermission[]
+
+  @@map("permissions")
+  @@schema("iam")
+}
+
+model RolePermission {
+  roleId         Int        @map("role_id") @db.SmallInt
+  permissionCode String     @map("permission_code")
+  role           Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  permission     Permission @relation(fields: [permissionCode], references: [code], onDelete: Restrict)
+
+  @@id([roleId, permissionCode])
+  @@map("role_permissions")
+  @@schema("iam")
+}
+
+model UserRole {
+  userId      String   @map("user_id") @db.Uuid
+  roleId      Int      @map("role_id") @db.SmallInt
+  grantedById String?  @map("granted_by") @db.Uuid
+  grantedAt   DateTime @default(now()) @map("granted_at") @db.Timestamptz(6)
+  user        User     @relation("UserRoles", fields: [userId], references: [id], onDelete: Restrict)
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  grantedBy   User?    @relation("RolesGrantedBy", fields: [grantedById], references: [id], onDelete: Restrict)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+  @@schema("iam")
+}
