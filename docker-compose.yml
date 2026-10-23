@@ -1,0 +1,32 @@
+x-postgres: &postgres
+  image: postgres:16-alpine
+  environment:
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+  # Parâmetros usados pelo monitor e pelo laboratório de concorrência
+  command: >
+    postgres -c log_lock_waits=on -c deadlock_timeout=1s -c track_io_timing=on
+  healthcheck:
+    test: ['CMD-SHELL', 'pg_isready -U postgres']
+    interval: 2s
+    timeout: 3s
+    retries: 30
+
+services:
+  postgres:
+    <<: *postgres
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: dbwatch
+    ports: ['127.0.0.1:5432:5432']
+    volumes: ['pgdata:/var/lib/postgresql/data']
+
+  postgres-test:
+    <<: *postgres
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: dbwatch_test
+    ports: ['127.0.0.1:5433:5432']
+    tmpfs: ['/var/lib/postgresql/data']
+
+volumes:
+  pgdata:

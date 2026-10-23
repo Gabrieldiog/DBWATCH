@@ -63,7 +63,9 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 
 - **Entregue:** diagnóstico, documentos de `docs/`, identidade visual, validação real do DDL principal num PostgreSQL 16.
 
-### PK-01 · Monorepo e ambiente local
+### PK-01 · Monorepo e ambiente local ✅
+
+> **Registro de QA (23/10/2026):** `pnpm lint` e `pnpm typecheck` sem erros; `pnpm test` com 8/8 testes passando contra PostgreSQL 16 real; `pnpm build` dos dois apps ok; fluxo navegador → Next → `/api` → Nest → PostgreSQL verificado com o banco no ar (200) e parado (503), com reconexão automática. Teste de mutação: vazar a mensagem do erro no filtro faz o teste correspondente falhar. Decisões do spike em [ADR-018](DECISIONS.md#adr-018--somente-versões-estáveis). `packages/contracts` foi adiado para o PK-04, quando surge o primeiro DTO compartilhado.
 
 - **Objetivo:** qualquer pessoa clona o repositório e roda tudo com poucos comandos.
 - **Inclui:** `pnpm-workspace`; `apps/api` (NestJS) e `apps/web` (Next.js) mínimos; `packages/contracts`; TypeScript `strict`; ESLint e Prettier; Vitest; `docker-compose.yml` com PostgreSQL 16 e parâmetros do lab; `.env.example`; `GET /api/health` que consulta o banco; filtro global de erros; `correlation_id`; logger JSON; GitHub Actions (lint, typecheck, test).
@@ -151,5 +153,6 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 | Pack | Status | Data |
 | --- | --- | --- |
 | PK-00 | ✅ Concluído | 22/10/2026 |
-| PK-01 | ⏳ Aguardando aprovação do planejamento | — |
-| PK-02 a PK-15 | 📋 Planejado | — |
+| PK-01 | ✅ Concluído | 23/10/2026 |
+| PK-02 | ⏳ Próximo | — |
+| PK-03 a PK-15 | 📋 Planejado | — |

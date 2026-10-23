@@ -19,11 +19,11 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 | 011 | Catálogo de consultas em vez de SQL livre ou credenciais efêmeras | Proposta |
 | 012 | Monitor por amostragem, sem guardar o texto das queries | Proposta |
 | 013 | Laboratório com conexões dedicadas e papel isolado | Proposta |
-| 014 | Vitest + PostgreSQL real via Compose nos testes | Proposta |
+| 014 | Vitest + PostgreSQL real via Compose nos testes | Aceita |
 | 015 | SSE para tempo real | Proposta |
 | 016 | Tailwind + Radix primitives + Motion na interface | Proposta |
 | 017 | Tipografia: Sora + IBM Plex Sans + IBM Plex Mono | Proposta |
-| 018 | Somente versões estáveis, fixadas no lockfile | Proposta |
+| 018 | Somente versões estáveis, fixadas no lockfile | Aceita |
 
 ---
 
@@ -112,7 +112,7 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 
 - **Decisão:** **Vitest** em toda a monorepo (com SWC para os decorators do Nest); um serviço `postgres-test` com `tmpfs` no Compose e no CI.
 - **Alternativas:** Jest (padrão do Nest, mais lento e com configuração ESM mais chata); Testcontainers (excelente isolamento, mas uma dependência a mais quando o Compose já resolve).
-- **Consequências:** um único runner. *Hipótese a validar no PK-01:* integração do Vitest com o Nest via SWC. Plano B: Jest só na API.
+- **Consequências:** um único runner. **Validado no PK-01:** Vitest 5 + `unplugin-swc` emite os metadados de decorators e a injeção de dependência do Nest funciona nos testes.
 
 ### ADR-015 · SSE para tempo real
 
@@ -136,4 +136,15 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 
 - **Contexto:** em 22/10/2026, a *dist-tag* `latest` do pacote `prisma` no npm apontava para uma versão **RC** (`8.0.0-rc.24`), enquanto o `@prisma/client` estável estava na linha 7.x. O TypeScript `latest` era a 7.0, uma geração nova do compilador.
 - **Decisão:** fixar no lockfile **apenas versões estáveis e compatíveis entre si**, escolhidas no PK-01 a partir das matrizes oficiais de compatibilidade (NestJS × TypeScript × Prisma). Nada de `latest`, `^` em pacotes críticos ou versões RC.
-- **Consequências:** atualizações viram decisões explícitas. Um spike no PK-01 valida a combinação antes de qualquer código de negócio.
+- **Consequências:** atualizações viram decisões explícitas.
+- **Resultado do spike (PK-01, 23/10/2026):**
+
+  | Pacote | Versão | Observação |
+  | --- | --- | --- |
+  | TypeScript | 6.0.3 | A 7.0 não é suportada pela CLI do Nest (`~6.0.2`) nem pelo typescript-eslint (`<6.1`) |
+  | NestJS | 12.2.0 | Logger JSON nativo (`ConsoleLogger({ json: true })`) |
+  | Next.js / React | 16.4.2 / 19.3.1 | — |
+  | pg | 8.23.1 | — |
+  | Vitest / unplugin-swc / @swc/core | 5.0.5 / 2.0.0 / 1.16.20 | O script de instalação do `@swc/core` fica bloqueado pelo pnpm; o binário pré-compilado basta |
+  | Prisma (PK-02) | 7.10.1 | A tag `latest` do npm aponta para a 8.0 RC |
+  | ESLint / typescript-eslint | 10.13.0 / 8.72.0 | — |

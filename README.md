@@ -9,7 +9,7 @@
 
 **Gerenciamento de acessos privilegiados e monitoramento de PostgreSQL, com cada ação registrada em uma trilha de auditoria protegida.**
 
-[![Status](https://img.shields.io/badge/status-planejamento_concluído-2EEDC0?style=flat-square&labelColor=050E1E)](docs/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-em_desenvolvimento-2EEDC0?style=flat-square&labelColor=050E1E)](docs/ROADMAP.md)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-19D3D0?style=flat-square&logo=postgresql&logoColor=white&labelColor=050E1E)](docs/DATA_MODEL.md)
 [![NestJS](https://img.shields.io/badge/API-NestJS-FD6A62?style=flat-square&logo=nestjs&logoColor=white&labelColor=050E1E)](docs/ARCHITECTURE.md)
 [![Next.js](https://img.shields.io/badge/Web-Next.js-E4EEF7?style=flat-square&logo=nextdotjs&logoColor=white&labelColor=050E1E)](docs/DESIGN.md)
@@ -31,7 +31,7 @@
 ---
 
 > [!IMPORTANT]
-> **Estado atual: planejamento concluído, implementação começando.**
+> **Estado atual: fundação pronta (PK-01), implementação em andamento.**
 > Este README descreve o sistema **projetado**. A tabela [Status de implementação](#-status-de-implementação) mostra o que já existe e o que ainda é plano. Nada aqui afirma que uma funcionalidade funciona antes de ela estar implementada e testada.
 
 ## 💡 O que é o DBWATCH?
@@ -365,34 +365,32 @@ dbwatch/
 └── package.json
 ```
 
-> Hoje o repositório contém apenas a documentação e a identidade visual. A estrutura acima é criada no pack **PK-01**.
+> Já existem `apps/api`, `apps/web`, o Docker Compose e o CI (PK-01). Os módulos de domínio, `packages/contracts` e `infra/` chegam nos packs seguintes.
 
 ## 🚀 Como executar
 
-> [!NOTE]
-> Disponível a partir do pack **PK-01**. Os comandos abaixo são o contrato que o PK-01 precisa cumprir.
-
-**Pré-requisitos:** Node.js 22 LTS, pnpm 10, Docker com Compose v2 e Git.
+**Pré-requisitos:** Node.js 22.13 ou mais novo, pnpm 10, Docker com Compose v2 e Git.
 
 ```bash
 git clone https://github.com/Gabrieldiog/DBWATCH.git
 cd DBWATCH
-cp .env.example .env            # gere senhas locais; nunca use credenciais reais
+cp .env.example .env                   # troque as senhas; nunca use credenciais reais
 pnpm install
-docker compose up -d postgres   # PostgreSQL 16 com papéis e bancos criados
-pnpm db:migrate                 # aplica as migrations
-pnpm db:seed                    # usuários e dados fictícios de demonstração
-pnpm dev                        # web em http://localhost:3000 · API em http://localhost:3000/api
+docker compose up -d --wait            # PostgreSQL 16 (porta 5432) e banco de testes (5433)
+pnpm dev                               # web em http://localhost:3000 · API em http://localhost:3000/api
 ```
 
-| Comando | O que faz |
-| --- | --- |
-| `pnpm test` | Testes de unidade |
-| `pnpm test:db` | Testes de constraints, triggers e RLS contra PostgreSQL real |
-| `pnpm test:integration` | API e banco, incluindo segurança e concorrência |
-| `pnpm test:e2e` | Fluxos no navegador com Playwright |
-| `pnpm lint` · `pnpm typecheck` | Qualidade estática |
-| `pnpm lab:<cenario>` | Executa um experimento do laboratório pelo terminal |
+Abra http://localhost:3000: a página mostra o estado **real** do PostgreSQL, medido pela API. A rota `GET /api/health` responde `200` com o banco no ar e `503` quando ele cai.
+
+| Comando | O que faz | Disponível |
+| --- | --- | --- |
+| `pnpm dev` | API (NestJS) e web (Next.js) com recarga automática | ✅ |
+| `pnpm test` | Testes da API, incluindo integração contra o PostgreSQL de testes | ✅ |
+| `pnpm lint` · `pnpm typecheck` | Qualidade estática | ✅ |
+| `pnpm build` | Build de produção dos dois apps | ✅ |
+| `pnpm db:migrate` · `pnpm db:seed` | Migrations e dados fictícios | PK-02 |
+| `pnpm test:e2e` | Fluxos no navegador com Playwright | PK-10 |
+| `pnpm lab:<cenario>` | Experimentos do laboratório pelo terminal | PK-09 |
 
 ## 🗺️ Roadmap
 
@@ -411,8 +409,8 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | --- | --- |
 | Diagnóstico, arquitetura e planejamento | ✅ Concluído |
 | Identidade visual (logo, paleta, tipografia) | ✅ Concluído |
-| Monorepo e ambiente local (PK-01) | ⏳ Próximo |
-| Banco, papéis e migrations (PK-02) | 📋 Planejado |
+| Monorepo e ambiente local (PK-01) | ✅ Concluído |
+| Banco, papéis e migrations (PK-02) | ⏳ Próximo |
 | Auditoria protegida (PK-03) | 📋 Planejado |
 | Autenticação e RBAC (PK-04, PK-05) | 📋 Planejado |
 | Solicitações, aprovações e concessões (PK-06, PK-07) | 📋 Planejado |

@@ -105,7 +105,7 @@ flowchart LR
 O helper `runInTransaction(fn, { isolation, label })`:
 
 1. Abre a transação com o nível de isolamento pedido (padrão `READ COMMITTED`).
-2. Executa `SET LOCAL application_name = 'dbwatch:<correlation_id>'` para que a transação apareça identificada em `pg_stat_activity` (*hipótese a validar no PK-01: confirmar que a mudança aparece imediatamente na view*).
+2. Executa `SET LOCAL application_name = 'dbwatch:<correlation_id>'` para que a transação apareça identificada em `pg_stat_activity` (**validado no PK-01** por teste automatizado: o nome aparece na view durante a transação e some após o `COMMIT`).
 3. Executa a função.
 4. Ao terminar, registra um evento da aplicação (`TX_COMMIT` ou `TX_ROLLBACK`, duração e SQLSTATE), **numa conexão separada**.
 5. Em `40001` (serialization failure) ou `40P01` (deadlock), repete a transação até 3 vezes, com espera aleatória crescente, apenas em operações marcadas como idempotentes.
