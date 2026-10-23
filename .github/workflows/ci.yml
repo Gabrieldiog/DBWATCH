@@ -22,6 +22,11 @@ jobs:
           --health-cmd "pg_isready -U postgres" --health-interval 2s --health-retries 30
     env:
       TEST_DATABASE_URL: postgres://postgres:ci-somente-teste@127.0.0.1:5433/dbwatch_test
+      DBWATCH_MIGRATOR_PASSWORD: ci-migrator
+      DBWATCH_APP_PASSWORD: ci-app
+      DBWATCH_MONITOR_PASSWORD: ci-monitor
+      DBWATCH_LAB_PASSWORD: ci-lab
+      DBWATCH_TARGET_RO_PASSWORD: ci-target
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -30,6 +35,13 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Cria os papéis do banco (mesmo script do Compose)
+        run: sh infra/postgres/init/01-roles.sh
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5433
+          PGPASSWORD: ci-somente-teste
+          POSTGRES_DB: dbwatch_test
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

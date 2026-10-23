@@ -394,6 +394,16 @@ O laboratório de índices compara `EXPLAIN (ANALYZE, BUFFERS)` sem índice, com
 
 Cada papel tem a **própria senha**, definida no `.env`. A API recebe uma URL de conexão por papel.
 
+### Privilégios efetivos no schema `iam` (PK-02)
+
+| Tabela | `dbwatch_app` | Motivo |
+| --- | --- | --- |
+| `users` | `SELECT`, `INSERT`, `UPDATE` | Usuários são desativados, nunca apagados |
+| `user_roles` | `SELECT`, `INSERT`, `DELETE` | Atribuir e remover papéis |
+| `roles`, `permissions`, `role_permissions` | `SELECT` | Catálogo muda só por migration |
+
+Além disso, `user_roles_no_self_grant_ck` impede que alguém atribua um papel a si mesmo, e os demais papéis (`dbwatch_monitor`, `dbwatch_lab`, `dbwatch_target_ro`) não têm acesso ao `iam`.
+
 ## 6. Migrations
 
 - **Prisma Migrate** gera e versiona as migrations em `apps/api/prisma/migrations/`.
@@ -402,7 +412,7 @@ Cada papel tem a **própria senha**, definida no `.env`. A API recebe uma URL de
 - Os papéis do banco são de nível de cluster e são criados por `infra/postgres/init/` com as senhas do ambiente. As migrations cuidam dos `GRANT`.
 - **Teste de migrations** no CI: banco vazio → `migrate deploy` → `migrate diff` deve retornar vazio (o schema bate com o modelo).
 
-*Hipótese a validar no PK-01:* o suporte estável do Prisma a múltiplos schemas (`schemas = ["iam", "pam", ...]`). Plano B: um único schema `public` com prefixos (`iam_users`, `pam_requests`…), sem nenhuma outra mudança no desenho.
+**Validado no PK-02:** o Prisma 7.10.1 suporta múltiplos schemas (`schemas = ["iam"]` + `@@schema`). Na versão 7, a URL do banco fica em `prisma.config.ts`, apontando para o papel `dbwatch_migrator`. O `migrate diff` ignora as CHECKs e o índice de expressão escritos à mão, então o T-MIG-01 não dá falso alarme.
 
 ## 7. Dados de demonstração (seed)
 

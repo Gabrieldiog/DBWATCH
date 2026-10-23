@@ -31,7 +31,7 @@
 ---
 
 > [!IMPORTANT]
-> **Estado atual: fundação pronta (PK-01), implementação em andamento.**
+> **Estado atual: fundação e banco com papéis prontos (PK-01 e PK-02), implementação em andamento.**
 > Este README descreve o sistema **projetado**. A tabela [Status de implementação](#-status-de-implementação) mostra o que já existe e o que ainda é plano. Nada aqui afirma que uma funcionalidade funciona antes de ela estar implementada e testada.
 
 ## 💡 O que é o DBWATCH?
@@ -376,7 +376,8 @@ git clone https://github.com/Gabrieldiog/DBWATCH.git
 cd DBWATCH
 cp .env.example .env                   # troque as senhas; nunca use credenciais reais
 pnpm install
-docker compose up -d --wait            # PostgreSQL 16 (porta 5432) e banco de testes (5433)
+docker compose up -d --wait            # PostgreSQL 16 (5432) e testes (5433), já com os papéis do banco
+pnpm db:migrate                        # aplica as migrations com o papel dbwatch_migrator
 pnpm dev                               # web em http://localhost:3000 · API em http://localhost:3000/api
 ```
 
@@ -385,10 +386,11 @@ Abra http://localhost:3000: a página mostra o estado **real** do PostgreSQL, me
 | Comando | O que faz | Disponível |
 | --- | --- | --- |
 | `pnpm dev` | API (NestJS) e web (Next.js) com recarga automática | ✅ |
-| `pnpm test` | Testes da API, incluindo integração contra o PostgreSQL de testes | ✅ |
+| `pnpm test` | Testes da API e do banco (constraints, privilégios por papel, migrations) contra o PostgreSQL de testes | ✅ |
 | `pnpm lint` · `pnpm typecheck` | Qualidade estática | ✅ |
 | `pnpm build` | Build de produção dos dois apps | ✅ |
-| `pnpm db:migrate` · `pnpm db:seed` | Migrations e dados fictícios | PK-02 |
+| `pnpm db:migrate` · `pnpm db:status` | Aplica e confere as migrations | ✅ |
+| `pnpm db:seed` | Usuários fictícios de demonstração | PK-04 |
 | `pnpm test:e2e` | Fluxos no navegador com Playwright | PK-10 |
 | `pnpm lab:<cenario>` | Experimentos do laboratório pelo terminal | PK-09 |
 
@@ -410,8 +412,8 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Diagnóstico, arquitetura e planejamento | ✅ Concluído |
 | Identidade visual (logo, paleta, tipografia) | ✅ Concluído |
 | Monorepo e ambiente local (PK-01) | ✅ Concluído |
-| Banco, papéis e migrations (PK-02) | ⏳ Próximo |
-| Auditoria protegida (PK-03) | 📋 Planejado |
+| Banco, papéis e migrations (PK-02) | ✅ Concluído |
+| Auditoria protegida (PK-03) | ⏳ Próximo |
 | Autenticação e RBAC (PK-04, PK-05) | 📋 Planejado |
 | Solicitações, aprovações e concessões (PK-06, PK-07) | 📋 Planejado |
 | Monitor e laboratório (PK-08, PK-09) | 📋 Planejado |
