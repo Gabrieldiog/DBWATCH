@@ -120,8 +120,8 @@ code {
   font-weight: 800;
 }
 .wordmark span {
-  font-weight: 300;
-  letter-spacing: 0.14em;
+  font-weight: 400;
+  letter-spacing: 0.08em;
 }
 .nav {
   display: flex;
@@ -240,7 +240,7 @@ code {
   }
 }
 .pulse-label {
-  font: 600 1.55rem var(--font-display), sans-serif;
+  font: 600 1.3rem var(--font-display), sans-serif;
   margin: 0;
 }
 .pulse-meta {
@@ -270,8 +270,9 @@ code {
   background: var(--fail);
 }
 .strip li[data-kind='gap'] {
-  background: transparent;
-  border-bottom: 2px dashed var(--muted);
+  background: var(--muted);
+  border-radius: 0;
+  animation: none;
 }
 /* Capacidade da ronda: mostra onde as próximas leituras vão entrar, sem inventar dado */
 .strip li[data-kind='empty'] {
@@ -373,6 +374,9 @@ code {
   }
   .nav a {
     padding-block: 12px;
+  }
+  .lede {
+    font-size: 1.1rem;
   }
   .ledger li {
     grid-template-columns: minmax(0, 1fr);

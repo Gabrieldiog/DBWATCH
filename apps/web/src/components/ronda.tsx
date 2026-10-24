@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { barHeight, type Mark, MAX_MARKS, pushMark, summarize } from '../lib/ronda';
+import { axisStart, barHeight, type Mark, MAX_MARKS, pushMark, summarize } from '../lib/ronda';
 
 type Reading = { kind: 'pending' } | { kind: 'up' | 'down' | 'unreachable'; latencyMs?: number; at: Date; seq: number };
 
@@ -22,7 +22,7 @@ export function Ronda() {
     function record(next: Exclude<Reading, { kind: 'pending' }>) {
       if (!active) return;
       setReading(next);
-      setMarks((prev) => pushMark(prev, { seq: next.seq, kind: next.kind, latencyMs: next.latencyMs }));
+      setMarks((prev) => pushMark(prev, { seq: next.seq, kind: next.kind, latencyMs: next.latencyMs, at: next.at.getTime() }));
     }
 
     async function measure() {
@@ -111,12 +111,12 @@ export function Ronda() {
         ))}
       </ol>
       <div className="strip-axis" aria-hidden>
-        <span>há 5 min</span>
+        <span className="mono">{axisStart(marks, (at) => time.format(at))}</span>
         <span>agora</span>
       </div>
       <p className="strip-legend">
-        Cada barra é uma leitura real. Altura: tempo de resposta (escala logarítmica). Vermelho: falha. Tracejado
-        grosso: período com a aba escondida.
+        Cada barra é uma leitura real. Altura: tempo de resposta (escala logarítmica até 1 s). Vermelho: falha. Traço
+        cinza: período com a aba escondida.
       </p>
     </section>
   );

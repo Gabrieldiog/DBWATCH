@@ -9,7 +9,7 @@ import { themeInitScript } from '../lib/theme';
 import './globals.css';
 
 // Baixadas no build e servidas pelo próprio app: o navegador do visitante não consulta o Google
-const display = Sora({ subsets: ['latin'], weight: ['300', '600', '800'], variable: '--font-display' });
+const display = Sora({ subsets: ['latin'], weight: ['400', '600', '800'], variable: '--font-display' });
 const text = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-text' });
 const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono' });
 
