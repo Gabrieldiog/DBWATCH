@@ -9,6 +9,7 @@
     "test": "prisma generate && vitest run",
     "db:migrate": "prisma migrate deploy",
     "db:status": "prisma migrate status",
+    "db:seed": "prisma generate && node --env-file-if-exists=../../.env -r @swc-node/register src/seed.ts",
     "generate": "prisma generate",
     "test:report": "prisma generate && vitest run --reporter=default --reporter=json --outputFile.json=../../reports/tests/api.json"
   },
@@ -16,8 +17,10 @@
     "@nestjs/common": "12.2.0",
     "@nestjs/core": "12.2.0",
     "@nestjs/platform-express": "12.2.0",
+    "@nestjs/swagger": "12.0.4",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
+    "argon2": "0.45.1",
     "pg": "8.23.1",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",

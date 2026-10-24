@@ -14,6 +14,7 @@
     "format": "prettier --write .",
     "db:migrate": "pnpm --filter @dbwatch/api db:migrate",
     "db:status": "pnpm --filter @dbwatch/api db:status",
+    "db:seed": "pnpm --filter @dbwatch/api db:seed",
     "test:report": "pnpm -r test:report"
   },
   "devDependencies": {

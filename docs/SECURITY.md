@@ -69,13 +69,17 @@ flowchart LR
 | Item | Decisão |
 | --- | --- |
 | Hash de senha | **Argon2id**, parâmetros do OWASP Password Storage Cheat Sheet (memória ≥ 19 MiB, `t = 2`, `p = 1`). Os parâmetros ficam no próprio hash, o que permite aumentá-los no futuro |
-| Política de senha | Mínimo de 12 caracteres, sem regras de composição forçada (seguindo o NIST 800-63B). Bloqueio de senhas iguais ao e-mail |
+| Política de senha | Mínimo de 12 caracteres, sem regras de composição forçada (seguindo o NIST 800-63B). Bloqueio de senhas iguais ao e-mail. Vale na criação e troca de senha (PK-05); os usuários de demonstração recebem senhas aleatórias de 16 caracteres |
 | Sessão | Token aleatório de 32 bytes (`crypto.randomBytes`), enviado só no cookie; no banco fica `sha256(token)` |
-| Cookie | `__Host-dbwatch_session`; `HttpOnly; Secure; SameSite=Strict; Path=/` |
+| Cookie | Em produção, `__Host-dbwatch_session` com `HttpOnly; Secure; SameSite=Strict; Path=/`. Em desenvolvimento (`http://localhost`), `dbwatch_session` sem `Secure`, porque o navegador recusaria o prefixo `__Host-` |
+| CSRF | Além do `SameSite=Strict`, todo método que altera estado exige `Origin` igual a `APP_ORIGIN`; caso contrário, 403 |
+| Rate limit | 20 tentativas de login por IP por minuto (`LOGIN_RATE_LIMIT`), em memória. O excesso recebe 429 antes de chegar ao banco e não vai para a auditoria, para que um ataque em massa não a inunde |
+| Enumeração de usuários | E-mail inexistente recebe a mesma resposta e paga o mesmo custo do Argon2 que uma senha errada |
+| Cabeçalhos | `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (exceto o Swagger em `/api/docs`), `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` |
 | Expiração | 30 min de inatividade e 8 h absolutas. `last_seen_at` é atualizado no máximo uma vez por minuto, para não gerar escrita a cada requisição |
 | Logout | Revoga a sessão no banco (`revoked_at`) e apaga o cookie |
 | Encerrar sessões | O administrador pode revogar todas as sessões de um usuário. Desativar um usuário revoga suas sessões na mesma transação |
-| Bloqueio | `failed_login_count` e `locked_until` em `iam.users`, atualizados com `UPDATE … RETURNING` atômico. Tentativas são auditadas |
+| Bloqueio | 5 falhas seguidas bloqueiam a conta por 15 min. `failed_login_count` e `locked_until` em `iam.users`, atualizados com `UPDATE … RETURNING` atômico. Cada negação é auditada com o motivo (`senha_incorreta`, `conta_bloqueada`, `conta_desativada`, `credenciais_invalidas`) |
 
 > **Por que sessão no servidor e não JWT?** Num PAM, revogar um acesso precisa ter efeito **imediato**. Um JWT continua válido até expirar. Com a sessão no banco, revogar é um `UPDATE`, e a próxima requisição já é recusada. Ver ADR-005 em [DECISIONS.md](DECISIONS.md).
 
@@ -122,6 +126,8 @@ Observações:
 | Um superusuário do PostgreSQL pode desabilitar triggers e alterar a auditoria | A alteração é **detectada** pela cadeia de hash, mas não impedida | Ancorar o último hash fora do banco periodicamente |
 | A cadeia de hash não detecta a remoção das **últimas** linhas (truncar o final) | Um atacante com superusuário pode apagar o final da cadeia sem quebrar o que sobra | Âncora externa com o hash e a posição mais recentes |
 | Sem MFA no MVP | Uma senha forte é o único fator | TOTP como evolução natural |
+| Rate limit em memória | Reinicia com a API e não é compartilhado entre instâncias | Suficiente para a instância única; com várias, mover o contador para o banco |
+| Bloqueio por conta permite travar a conta de alguém de propósito | Quem sabe o e-mail pode errar a senha 5 vezes | O bloqueio é curto (15 min) e o rate limit por IP reduz o alcance |
 | Instância única na VPS | Sem alta disponibilidade | Fora do escopo acadêmico |
 | As consultas controladas não substituem um proxy de banco real | O usuário não usa o próprio cliente SQL | Credenciais efêmeras (ver ARCHITECTURE §3.6) |
 

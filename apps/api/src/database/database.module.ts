@@ -9,7 +9,7 @@ export class DatabaseModule {
     return {
       module: DatabaseModule,
       providers: [{ provide: ENV, useValue: env }, PrismaService],
-      exports: [PrismaService],
+      exports: [ENV, PrismaService],
     };
   }
 }
