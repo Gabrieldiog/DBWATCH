@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { barHeight, type Mark, pushMark, summarize } from '../lib/ronda';
+import { barHeight, type Mark, MAX_MARKS, pushMark, summarize } from '../lib/ronda';
 
 type Reading = { kind: 'pending' } | { kind: 'up' | 'down' | 'unreachable'; latencyMs?: number; at: Date; seq: number };
 
@@ -103,10 +103,21 @@ export function Ronda() {
         Últimas {readings} leituras: {totals.up} com o banco no ar e {totals.failed} com falha.
       </p>
       <ol className="strip" aria-hidden>
+        {Array.from({ length: MAX_MARKS - marks.length }, (_, i) => (
+          <li key={`vazio-${i}`} data-kind="empty" />
+        ))}
         {marks.map((m) => (
           <li key={m.seq} data-kind={m.kind} style={{ height: barHeight(m) }} />
         ))}
       </ol>
+      <div className="strip-axis" aria-hidden>
+        <span>há 5 min</span>
+        <span>agora</span>
+      </div>
+      <p className="strip-legend">
+        Cada barra é uma leitura real. Altura: tempo de resposta (escala logarítmica). Vermelho: falha. Tracejado
+        grosso: período com a aba escondida.
+      </p>
     </section>
   );
 }

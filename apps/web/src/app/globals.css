@@ -1,15 +1,15 @@
 /* Tokens: cada cor com o valor claro e o escuro (contrastes AA conferidos em docs/DESIGN.md) */
 :root {
   color-scheme: light dark;
-  --bg: light-dark(#eef1ec, #1f2723);
-  --surface: light-dark(#f8faf7, #27312c);
-  --line: light-dark(#7f8c84, #66756e);
+  --bg: light-dark(#eef1ec, #26302b);
+  --surface: light-dark(#f8faf7, #303b35);
+  --line: light-dark(#7f8c84, #6e7d76);
   --ink: light-dark(#14201b, #e8eeea);
-  --muted: light-dark(#4f5e57, #a6b6ae);
-  --accent: light-dark(#0d6b5e, #6acdb9);
-  --ok: light-dark(#1f7a4d, #79d49f);
-  --warn: light-dark(#8a5700, #e8b969);
-  --fail: light-dark(#b3302e, #f4958b);
+  --muted: light-dark(#4f5e57, #aebdb5);
+  --accent: light-dark(#0d6b5e, #72d4c0);
+  --ok: light-dark(#1f7a4d, #82daa7);
+  --warn: light-dark(#8a5700, #edc073);
+  --fail: light-dark(#b3302e, #f79f95);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 :root[data-theme='light'] {
@@ -48,9 +48,12 @@ h2 {
   font-size: 1.55rem;
   margin: 0 0 6px;
 }
+/* Verde é reservado para estado; links usam a tinta com sublinhado */
 a {
-  color: var(--accent);
-  text-underline-offset: 3px;
+  color: var(--ink);
+  text-decoration-color: var(--muted);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
 }
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -85,17 +88,40 @@ code {
   display: flex;
   align-items: center;
   gap: 32px;
-  min-height: 68px;
+  min-height: 84px;
   flex-wrap: wrap;
 }
+/* Marca: a borda fica afastada do conteúdo, como um selo que flutua sobre a página */
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-block: 10px;
+  padding: 5px 16px 5px 5px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  outline: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+  outline-offset: 4px;
+  background: var(--surface);
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--ink) 45%, transparent);
   color: var(--ink);
   text-decoration: none;
-  font: 600 1.1rem var(--font-display), sans-serif;
-  letter-spacing: 0.04em;
+}
+.brand img {
+  border-radius: 11px;
+}
+.wordmark {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.3rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.wordmark b {
+  font-weight: 800;
+}
+.wordmark span {
+  font-weight: 300;
+  letter-spacing: 0.14em;
 }
 .nav {
   display: flex;
@@ -107,9 +133,12 @@ code {
   text-decoration: none;
   padding-block: 20px;
 }
+.nav a {
+  white-space: nowrap;
+}
 .nav a[aria-current='page'] {
   color: var(--ink);
-  box-shadow: inset 0 -3px var(--accent);
+  box-shadow: inset 0 -3px var(--ink);
 }
 .page {
   padding-block: 56px 112px;
@@ -221,7 +250,7 @@ code {
 .strip {
   display: flex;
   align-items: flex-end;
-  gap: 3px;
+  gap: 2px;
   height: 64px;
   margin: 24px 0 0;
   padding: 0 0 4px;
@@ -229,7 +258,8 @@ code {
   border-bottom: 1px solid var(--line);
 }
 .strip li {
-  flex: 0 0 10px;
+  flex: 1 1 0;
+  max-width: 18px;
   border-radius: 2px 2px 0 0;
   background: var(--ok);
   transform-origin: bottom;
@@ -242,6 +272,24 @@ code {
 .strip li[data-kind='gap'] {
   background: transparent;
   border-bottom: 2px dashed var(--muted);
+}
+/* Capacidade da ronda: mostra onde as próximas leituras vão entrar, sem inventar dado */
+.strip li[data-kind='empty'] {
+  background: transparent;
+  border-bottom: 1px dashed color-mix(in srgb, var(--line) 60%, transparent);
+  animation: none;
+}
+.strip-axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+.strip-legend {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 8px 0 0;
 }
 @keyframes rise {
   from {
@@ -266,7 +314,6 @@ code {
   border-bottom: 1px solid var(--line);
 }
 .ledger .id {
-  color: var(--accent);
   font-weight: 500;
 }
 .ledger .title {
@@ -314,6 +361,18 @@ code {
   .topbar-inner,
   .page {
     padding-inline: 20px;
+  }
+  .topbar-inner {
+    gap: 12px 20px;
+    padding-block: 8px;
+  }
+  .nav {
+    gap: 20px;
+    flex-basis: 100%;
+    order: 3;
+  }
+  .nav a {
+    padding-block: 12px;
   }
   .ledger li {
     grid-template-columns: minmax(0, 1fr);

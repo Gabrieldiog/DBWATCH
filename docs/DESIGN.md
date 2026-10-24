@@ -16,7 +16,8 @@ Princípios:
 2. **Cor só onde há estado.** Verde para o que está garantido, âmbar para espera, coral para falha. O resto é tinta e papel.
 3. **Movimento só quando algo real acontece.** O único elemento animado da visão geral é a **Ronda**: a cada leitura real da API (5 s), o indicador pulsa e uma nova barra entra na faixa das últimas 60 leituras (altura = latência em escala logarítmica, cor = resultado). Tempo com a aba escondida vira um vão, nunca dado inventado.
 4. **Legível no projetor.** Base de 18 px, títulos de linha em 20 px, coluna de até 1280 px.
-5. **Registro com identificador.** Cada garantia tem um código fixo (IAM-01, AUD-02…) e uma barra com um segmento por teste real, cheio só se o teste passou.
+5. **Marca no cabeçalho.** Logo de 44 px e nome com "DB" em Sora 800 e "WATCH" em Sora 300 espaçado, dentro de um selo com borda dupla afastada (`outline-offset`) e sombra suave, que parece flutuar sobre a página.
+6. **Registro com identificador.** Cada garantia tem um código fixo (IAM-01, AUD-02…) e uma barra com um segmento por teste real, cheio só se o teste passou.
 
 ## 2. Cores
 
@@ -31,7 +32,7 @@ Tokens definidos uma única vez com `light-dark()` do CSS. Os contrastes foram *
 | `--line` | `#7F8C84` | Linhas do registro (perto de 3:1 para não sumir no projetor) | 3,1 |
 | `--ink` | `#14201B` | Texto principal | 14,7 / 16,0 |
 | `--muted` | `#4F5E57` | Texto secundário | 6,0 / 6,5 |
-| `--accent` | `#0D6B5E` | Links, foco, aba atual | 5,6 / 6,1 |
+| `--accent` | `#0D6B5E` | Só o contorno de foco do teclado (verde é reservado para estado; links e menu usam `--ink` com sublinhado) | 5,6 / 6,1 |
 | `--ok` | `#1F7A4D` | Garantido, no ar, passou | 4,7 / 5,1 |
 | `--warn` | `#8A5700` | Pendente, espera por lock | 5,4 / 5,8 |
 | `--fail` | `#B3302E` | Falha, fora do ar, negado | 5,5 / 5,9 |
@@ -42,15 +43,15 @@ Grafite esverdeado, sem azul profundo e sem neon.
 
 | Token | Hex | Contraste sobre `bg` / `surface` |
 | --- | --- | --- |
-| `--bg` | `#1F2723` | — (luminância 0,019, o dobro do primeiro escuro) |
-| `--surface` | `#27312C` | — |
-| `--line` | `#66756E` | 3,2 |
-| `--ink` | `#E8EEEA` | 13,0 / 11,4 |
-| `--muted` | `#A6B6AE` | 7,2 / 6,4 |
-| `--accent` | `#6ACDB9` | 8,1 / 7,1 |
-| `--ok` | `#79D49F` | 8,6 / 7,5 |
-| `--warn` | `#E8B969` | 8,4 / 7,4 |
-| `--fail` | `#F4958B` | 6,9 / 6,1 |
+| `--bg` | `#26302B` | — (luminância 0,027, quase o triplo do primeiro escuro) |
+| `--surface` | `#303B35` | — |
+| `--line` | `#6E7D76` | 3,2 sobre o fundo |
+| `--ink` | `#E8EEEA` | 11,6 / 9,9 |
+| `--muted` | `#AEBDB5` | 7,0 / 6,0 |
+| `--accent` | `#72D4C0` | 7,7 / 6,6 |
+| `--ok` | `#82DAA7` | 8,1 / 7,0 |
+| `--warn` | `#EDC073` | 8,0 / 6,9 |
+| `--fail` | `#F79F95` | 6,7 / 5,7 |
 
 ### Semântica de estados
 

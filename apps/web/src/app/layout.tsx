@@ -9,7 +9,7 @@ import { themeInitScript } from '../lib/theme';
 import './globals.css';
 
 // Baixadas no build e servidas pelo próprio app: o navegador do visitante não consulta o Google
-const display = Sora({ subsets: ['latin'], weight: ['600'], variable: '--font-display' });
+const display = Sora({ subsets: ['latin'], weight: ['300', '600', '800'], variable: '--font-display' });
 const text = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-text' });
 const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono' });
 
@@ -27,9 +27,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <header className="topbar">
           <div className="topbar-inner">
-            <Link href="/" className="brand">
-              <Image src="/dbwatch-icon.png" alt="" width={28} height={28} priority />
-              DBWATCH
+            <Link href="/" className="brand" aria-label="DBWATCH, ir para a visão geral">
+              <Image src="/dbwatch-icon.png" alt="" width={44} height={44} priority />
+              <span className="wordmark" aria-hidden>
+                <b>DB</b>
+                <span>WATCH</span>
+              </span>
             </Link>
             <NavLinks />
             <ThemeToggle />
