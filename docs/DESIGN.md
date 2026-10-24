@@ -28,7 +28,7 @@ Tokens definidos uma única vez com `light-dark()` do CSS. Os contrastes foram *
 | --- | --- | --- | --- |
 | `--bg` | `#EEF1EC` | Fundo, papel com leve tom de sálvia (frio, sem creme) | — |
 | `--surface` | `#F8FAF7` | Controle selecionado, áreas destacadas | — |
-| `--line` | `#7F8C84` | Linhas do registro (perto de 3:1 para não sumir no projetor) | 3,0 |
+| `--line` | `#7F8C84` | Linhas do registro (perto de 3:1 para não sumir no projetor) | 3,1 |
 | `--ink` | `#14201B` | Texto principal | 14,7 / 16,0 |
 | `--muted` | `#4F5E57` | Texto secundário | 6,0 / 6,5 |
 | `--accent` | `#0D6B5E` | Links, foco, aba atual | 5,6 / 6,1 |
@@ -44,7 +44,7 @@ Grafite esverdeado, sem azul profundo e sem neon.
 | --- | --- | --- |
 | `--bg` | `#1F2723` | — (luminância 0,019, o dobro do primeiro escuro) |
 | `--surface` | `#27312C` | — |
-| `--line` | `#66756E` | ~3 |
+| `--line` | `#66756E` | 3,2 |
 | `--ink` | `#E8EEEA` | 13,0 / 11,4 |
 | `--muted` | `#A6B6AE` | 7,2 / 6,4 |
 | `--accent` | `#6ACDB9` | 8,1 / 7,1 |
