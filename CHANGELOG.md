@@ -7,6 +7,13 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-10 (parcial) · Fundação visual**
+  - Nova direção visual sem a estética genérica de "painel escuro com neon": modo claro em papel de sálvia como padrão e modo escuro em grafite esverdeado, com contraste AA calculado.
+  - Fontes Sora, IBM Plex Sans e IBM Plex Mono via `next/font`, servidas pelo próprio app.
+  - Seletor de tema (sistema, claro e escuro) com escolha salva e sem "piscar" ao carregar.
+  - Cabeçalho com navegação; visão geral com indicador ao vivo do PostgreSQL (pulso só em leitura real, pausa com a aba escondida, tempo-limite de 4 s) e garantias ligadas aos testes que as comprovam.
+  - Página `/testes` no novo visual e testes unitários do tema e da contagem por arquivo.
+
 - **PK-03 · Auditoria persistente**
   - Schema `audit` com `audit_log` append-only: triggers barram `UPDATE`, `DELETE` e `TRUNCATE` (até para o dono da tabela) e o papel da API só tem `INSERT` e `SELECT`.
   - Cadeia de hash SHA-256 serializada por advisory lock, com verificador (`audit.verify_chain()`) que aponta adulteração, linha apagada e buraco na numeração.

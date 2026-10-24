@@ -2,71 +2,70 @@
 
 > Status: **proposta para aprovação** (PK-00). Implementação no PK-10.
 
-## 1. Conceito: o sentinela no escuro
+## 1. Conceito: o livro de ronda do sentinela
 
 <img src="assets/brand/dbwatch-icon-192.png" alt="Logo do DBWATCH" width="96" align="right">
 
-A logo mostra um **suricato em pose de sentinela**, visto só como silhueta, recortado contra a luz de um radar e em pé sobre um banco de dados. O único detalhe visível é o **olho aceso**: você não vê o vigia, mas ele está vendo você.
+A logo mostra um **suricato em pose de sentinela**, visto só como silhueta contra a luz de um radar, em pé sobre um banco de dados. O sentinela vigia e **anota o que viu**: a interface é o livro dessa ronda.
 
-A interface herda três ideias dessa imagem:
+> **Revisão do PK-10 (25/10/2026):** a primeira paleta (fundo azul quase preto com um acento verde-neon) foi descartada. É um dos visuais mais batidos em painéis técnicos e não diferenciava o produto. A nova direção é sóbria, com modo claro como padrão e personalidade na tipografia e nos dados reais, não em brilhos.
 
-1. **Escuridão com pontos de luz.** No modo escuro, a tela é calma e profunda, e a cor só aparece onde há informação: um estado, um alerta, um dado vivo.
-2. **O radar como gesto.** Círculos concêntricos, varredura e o pulso são a linguagem de "observando agora".
-3. **Os três LEDs como semântica.** Verde-sinal, âmbar e coral significam a mesma coisa em todas as telas.
+Princípios:
+
+1. **Registro, não painel de nave espacial.** Listas em linhas, como num livro de ocorrências, em vez de cartões com sombra. Cada linha tem o fato e a prova (por exemplo, "9 de 9 testes").
+2. **Cor só onde há estado.** Verde para o que está garantido, âmbar para espera, coral para falha. O resto é tinta e papel.
+3. **Movimento só quando algo real acontece.** O único elemento animado da visão geral é o pulso do indicador do banco, disparado a cada leitura real da API.
 
 ## 2. Cores
 
-As cores foram extraídas da logo e ajustadas até passar no contraste **WCAG AA** (≥ 4,5:1 para texto normal). Os valores de contraste abaixo foram **calculados**, não estimados.
+Tokens definidos uma única vez com `light-dark()` do CSS. Os contrastes foram **calculados** e passam no **WCAG AA** (≥ 4,5:1) nos dois temas.
 
-### Modo escuro (padrão)
+### Modo claro (padrão): papel de sálvia
 
 | Token | Hex | Uso | Contraste sobre `bg` / `surface` |
 | --- | --- | --- | --- |
-| `--bg` | `#050E1E` | Fundo da aplicação | — |
-| `--surface` | `#0B1A30` | Painéis, tabelas | — |
-| `--surface-raised` | `#10233F` | Diálogos, menus | — |
-| `--border` | `#1C3150` | Divisórias, contornos | — |
-| `--text` | `#E4EEF7` | Texto principal | 16,4 / 14,8 |
-| `--text-muted` | `#8EA3BF` | Texto secundário | 7,5 / 6,8 |
-| `--signal` | `#2EEDC0` | Saudável, sucesso, ação principal | 12,9 / 11,6 |
-| `--scan` | `#19D3D0` | Links, foco, dados "ao vivo" | 10,4 / 9,4 |
-| `--amber` | `#FEB344` | Atenção, espera por lock, pendente | 10,8 / 9,8 |
-| `--coral` | `#FD6A62` | Erro, deadlock, negado, rollback | 6,8 / 6,2 |
+| `--bg` | `#EEF1EC` | Fundo, papel com leve tom de sálvia (frio, sem creme) | — |
+| `--surface` | `#F8FAF7` | Controle selecionado, áreas destacadas | — |
+| `--line` | `#B9C4BA` | Linhas do registro (decorativas) | 1,6 |
+| `--ink` | `#14201B` | Texto principal | 14,7 / 16,0 |
+| `--muted` | `#4F5E57` | Texto secundário | 6,0 / 6,5 |
+| `--accent` | `#0D6B5E` | Links, foco, aba atual | 5,6 / 6,1 |
+| `--ok` | `#1F7A4D` | Garantido, no ar, passou | 4,7 / 5,1 |
+| `--warn` | `#8A5700` | Pendente, espera por lock | 5,4 / 5,8 |
+| `--fail` | `#B3302E` | Falha, fora do ar, negado | 5,5 / 5,9 |
 
-### Modo claro
+### Modo escuro: turno da noite
 
-O claro não é o escuro invertido: é o **"turno do dia"**. O fundo é uma névoa fria (nada de creme), e as cores de estado ficam mais escuras para manter o contraste.
+Grafite esverdeado, sem azul profundo e sem neon.
 
 | Token | Hex | Contraste sobre `bg` / `surface` |
 | --- | --- | --- |
-| `--bg` | `#EEF5F8` | — |
-| `--surface` | `#FFFFFF` | — |
-| `--surface-raised` | `#FFFFFF` + sombra | — |
-| `--border` | `#D3E1EA` | — |
-| `--text` | `#06122A` | 16,9 / 18,6 |
-| `--text-muted` | `#4A5D78` | 6,1 / 6,7 |
-| `--signal` | `#05735F` | 5,3 / 5,8 |
-| `--scan` | `#00717C` | 5,2 / 5,8 |
-| `--amber` | `#9A5B00` | 4,9 / 5,4 |
-| `--coral` | `#C42D35` | 5,1 / 5,6 |
+| `--bg` | `#151A18` | — |
+| `--surface` | `#1C2320` | — |
+| `--line` | `#3A4741` | 1,8 (decorativa) |
+| `--ink` | `#E6ECE8` | 14,7 / 13,4 |
+| `--muted` | `#9DAEA6` | 7,6 / 6,9 |
+| `--accent` | `#5CC2AE` | 8,2 / 7,5 |
+| `--ok` | `#6CCB93` | 8,9 / 8,1 |
+| `--warn` | `#E2B05A` | 8,9 / 8,1 |
+| `--fail` | `#F08A80` | 7,3 / 6,6 |
 
 ### Semântica de estados
 
-| Estado no domínio | Cor | Ícone (nunca só a cor) |
+| Estado no domínio | Token | Marca (nunca só a cor) |
 | --- | --- | --- |
-| Concessão ativa, commit, verificação íntegra | `--signal` | ● sinal cheio |
-| Pedido pendente, lock wait, concessão perto de expirar | `--amber` | ◐ meio cheio |
-| Negado, rollback, deadlock, cadeia quebrada | `--coral` | ✕ |
-| Dado observado no PostgreSQL ao vivo | `--scan` | ◎ radar |
-| Expirado, revogado, cancelado | `--text-muted` | ○ vazio |
+| Garantido, no ar, teste aprovado, concessão ativa | `--ok` | ✓ ou ● |
+| Pendente, espera por lock, concessão perto de expirar | `--warn` | ◐ |
+| Falha, fora do ar, negado, rollback, deadlock | `--fail` | ✕ |
+| Expirado, revogado, sem dados | `--muted` | – |
 
-**A cor nunca é a única pista:** todo estado também tem ícone e texto, para quem tem daltonismo e para o projetor, que distorce cores.
+**A cor nunca é a única pista:** todo estado também tem marca e texto, para quem tem daltonismo e para o projetor, que distorce cores.
 
 ### Tema
 
-- O padrão segue `prefers-color-scheme`. Um botão alterna claro, escuro e sistema, e a escolha fica salva.
-- Tokens em CSS variables (`:root` e `[data-theme="dark"]`), mapeados no Tailwind.
-- Um script mínimo no `<head>` aplica o tema antes da primeira pintura, para evitar o "piscar" de tema errado.
+- Três opções: **Sistema** (padrão, segue `prefers-color-scheme`), **Claro** e **Escuro**. A escolha fica salva no navegador.
+- Um script mínimo no `<head>` aplica o tema salvo antes da primeira pintura, evitando o "piscar" de tema errado (verificado com o JavaScript do React bloqueado).
+- Sem Tailwind por enquanto: as poucas telas cabem em CSS puro com tokens (ver ADR-016).
 
 ## 3. Tipografia
 

@@ -21,7 +21,7 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 | 013 | Laboratório com conexões dedicadas e papel isolado | Proposta |
 | 014 | Vitest + PostgreSQL real via Compose nos testes | Aceita |
 | 015 | SSE para tempo real | Proposta |
-| 016 | Tailwind + Radix primitives + Motion na interface | Proposta |
+| 016 | CSS com tokens agora; Radix e Motion quando houver componentes que precisem | Aceita (revisada) |
 | 017 | Tipografia: Sora + IBM Plex Sans + IBM Plex Mono | Proposta |
 | 018 | Somente versões estáveis, fixadas no lockfile | Aceita |
 | 019 | Auditoria fora do `schema.prisma`, acessada só por SQL explícito | Aceita |
@@ -127,6 +127,7 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 - **Decisão:** Tailwind com tokens próprios (CSS variables) para os temas; Radix primitives **só** para componentes com acessibilidade difícil (diálogo, menu, abas, tooltip); **Motion** para animações com significado.
 - **Alternativas:** um kit visual pronto (deixaria a interface com cara de template, que é o oposto da identidade buscada); CSS puro para animações complexas (como a coreografia do grafo de locks).
 - **Consequências:** uma identidade própria, sem abrir mão de acessibilidade. Toda animação respeita `prefers-reduced-motion`.
+- **Revisão no PK-10 (25/10/2026):** as telas atuais cabem em ~200 linhas de CSS com tokens e `light-dark()`, então o Tailwind não foi adotado: seria uma dependência e uma camada de configuração sem ganho agora. Radix entra quando surgirem diálogo, menu e abas (PK-11), e Motion quando houver coreografia que o CSS não resolve bem (grafo de locks e linha do tempo do laboratório, PK-12). A animação atual (pulso do banco) é CSS puro.
 
 ### ADR-017 · Tipografia
 

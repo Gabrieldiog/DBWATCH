@@ -124,7 +124,10 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 - **Inclui:** schema `lab`; orquestrador de duas sessões; seis cenários; `lab.runs`; scripts SQL equivalentes em `infra/lab/`.
 - **Testes:** T-LAB-01 a T-LAB-06.
 
-### PK-10 · Front: fundação visual
+### PK-10 · Front: fundação visual 🔶 parcial
+
+> **Registro de QA (25/10/2026):** nova direção visual (ver [DESIGN.md](DESIGN.md)); fontes Sora, IBM Plex Sans e IBM Plex Mono via `next/font`, servidas pelo próprio app; temas claro, escuro e sistema com escolha salva e sem "piscar"; cabeçalho com navegação; visão geral com indicador ao vivo do banco e garantias ligadas aos testes reais; página `/testes` no novo visual. axe (WCAG 2.1 AA + boas práticas): 0 violações nas duas páginas e nos dois temas. Sem rolagem horizontal em 390 px e 1280 px. 8 testes unitários na web. **Fica para depois do PK-04:** tela de login e tratamento de sessão expirada, que dependem da autenticação real; componentes de formulário, diálogo e toast entram com as telas que os usam (PK-11).
+
 
 - **Inclui:** tokens de [DESIGN.md](DESIGN.md); fontes locais; modo claro e escuro com troca persistida; layout do console; componentes base (botão, campo, tabela, badge de estado, diálogo, toast); tela de login com a animação do radar; tratamento global de erro e de sessão expirada.
 - **Testes:** T-E2E-01 (login), T-A11Y-01 (login e shell).

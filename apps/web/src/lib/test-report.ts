@@ -61,3 +61,24 @@ export function mergeReports(reports: VitestReport[]): VitestReport | null {
     testResults: reports.flatMap((r) => r.testResults),
   };
 }
+
+export type FileTally = { passed: number; total: number };
+
+export function tallyByFile(report: VitestReport): Record<string, FileTally> {
+  const tally: Record<string, FileTally> = {};
+  for (const result of report.testResults) {
+    const file = result.name.split('/apps/')[1] ?? result.name;
+    const passed = result.assertionResults.filter((a) => a.status === 'passed').length;
+    tally[file] = { passed, total: result.assertionResults.length };
+  }
+  return tally;
+}
+
+// Caminhos literais: o empacotador sabe exatamente o que ler e não arrasta o projeto inteiro
+export async function loadProjectReport(): Promise<VitestReport | null> {
+  const loaded = await Promise.all([
+    loadReport('../../reports/tests/api.json'),
+    loadReport('../../reports/tests/web.json'),
+  ]);
+  return mergeReports(loaded.filter((r): r is VitestReport => r !== null));
+}

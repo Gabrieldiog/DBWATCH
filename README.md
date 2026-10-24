@@ -419,7 +419,8 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Autenticação e RBAC (PK-04, PK-05) | ⏳ Próximo |
 | Solicitações, aprovações e concessões (PK-06, PK-07) | 📋 Planejado |
 | Monitor e laboratório (PK-08, PK-09) | 📋 Planejado |
-| Interface web (PK-10 a PK-12) | 📋 Planejado |
+| Fundação visual: temas claro e escuro, tipografia, visão geral ao vivo (PK-10) | 🔶 Parcial (login após o PK-04) |
+| Telas do PAM, monitor e laboratório (PK-11, PK-12) | 📋 Planejado |
 | QA final, deploy e release (PK-13 a PK-15) | 📋 Planejado |
 
 ## 📚 Documentação

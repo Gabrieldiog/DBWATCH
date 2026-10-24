@@ -2,7 +2,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { categoryOf, groupByCategory, loadReport, mergeReports, type VitestReport } from '../src/lib/test-report';
+import { categoryOf, groupByCategory, loadReport, mergeReports, tallyByFile, type VitestReport } from '../src/lib/test-report';
 
 const report: VitestReport = {
   numTotalTests: 3,
@@ -60,5 +60,14 @@ describe('mergeReports (unitário)', () => {
     expect(merged).toMatchObject({ numTotalTests: 6, numFailedTests: 2, startTime: 5 });
     expect(merged?.testResults).toHaveLength(4);
     expect(mergeReports([])).toBeNull();
+  });
+});
+
+describe('tallyByFile (unitário)', () => {
+  it('conta testes aprovados e totais por arquivo', () => {
+    expect(tallyByFile(report)).toEqual({
+      'api/test/db/audit.spec.ts': { passed: 1, total: 2 },
+      'api/test/env.unit.spec.ts': { passed: 1, total: 1 },
+    });
   });
 });
