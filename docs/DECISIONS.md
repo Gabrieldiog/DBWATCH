@@ -14,7 +14,7 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 | 006 | Argon2id para senhas | Proposta |
 | 007 | Zod como contrato único entre web e API | Proposta |
 | 008 | Mesma origem via proxy reverso | Proposta |
-| 009 | Auditoria append-only com cadeia de hash serializada por advisory lock | Proposta |
+| 009 | Auditoria append-only com cadeia de hash serializada por advisory lock | Aceita |
 | 010 | Estado da concessão calculado pelo tempo | Proposta |
 | 011 | Catálogo de consultas em vez de SQL livre ou credenciais efêmeras | Proposta |
 | 012 | Monitor por amostragem, sem guardar o texto das queries | Proposta |
@@ -24,6 +24,8 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 | 016 | Tailwind + Radix primitives + Motion na interface | Proposta |
 | 017 | Tipografia: Sora + IBM Plex Sans + IBM Plex Mono | Proposta |
 | 018 | Somente versões estáveis, fixadas no lockfile | Aceita |
+| 019 | Auditoria fora do `schema.prisma`, acessada só por SQL explícito | Aceita |
+| 020 | Página de testes lê o relatório gerado, nunca executa testes | Aceita |
 
 ---
 
@@ -83,7 +85,7 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 
 - **Decisão:** grants mínimos + triggers que bloqueiam `UPDATE`/`DELETE`/`TRUNCATE` + cadeia SHA-256 calculada num trigger `BEFORE INSERT`, serializada por `pg_advisory_xact_lock` e ordenada por `chain_position`. Exige `READ COMMITTED`.
 - **Alternativas:** só grants (não detecta superusuário); assinatura por linha na aplicação (a chave estaria no mesmo servidor); serviço externo de log imutável (fora do escopo).
-- **Consequências:** as inserções na auditoria são serializadas, o que é aceitável no volume do MVP e documentado. O hash usa o *epoch* do horário para não depender do fuso da sessão. **Validado em PostgreSQL 16.15** (ver [DATA_MODEL](DATA_MODEL.md)).
+- **Consequências:** as inserções na auditoria são serializadas, o que é aceitável no volume do MVP e documentado. O hash usa o *epoch* do horário para não depender do fuso da sessão. **Validado em PostgreSQL 16.15** (ver [DATA_MODEL](DATA_MODEL.md)) e **implementado no PK-03**: a fórmula do hash fica numa única função (`audit.row_digest`), usada pelo trigger e pelo verificador, e inclui o IP. O verificador também detecta linhas apagadas do meio da cadeia (elo quebrado ou buraco na numeração). Em transações `SERIALIZABLE`/`REPEATABLE READ`, o sucesso é auditado logo após o `COMMIT`, numa transação própria.
 
 ### ADR-010 · Estado da concessão calculado pelo tempo
 
@@ -148,3 +150,16 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
   | Vitest / unplugin-swc / @swc/core | 5.0.5 / 2.0.0 / 1.16.20 | O script de instalação do `@swc/core` fica bloqueado pelo pnpm; o binário pré-compilado basta |
   | Prisma (PK-02) | 7.10.1 | A tag `latest` do npm aponta para a 8.0 RC |
   | ESLint / typescript-eslint | 10.13.0 / 8.72.0 | — |
+
+### ADR-019 · Auditoria fora do schema.prisma
+
+- **Contexto:** a tabela de auditoria é append-only, protegida por triggers e grants, e tem identidade `GENERATED ALWAYS`.
+- **Decisão:** o schema `audit` é criado por SQL escrito à mão na migration e acessado apenas por SQL explícito e parametrizado (`AuditService`). O `schema.prisma` lista só `iam`.
+- **Alternativas:** modelar `AuditLog` no Prisma (o ORM ofereceria `update()` e `delete()`, que nunca podem funcionar, e o `migrate diff` tentaria "corrigir" a identidade e os triggers).
+- **Consequências:** o T-MIG-01 continua sem falso alarme; o acesso à auditoria fica concentrado num único serviço, fácil de revisar.
+
+### ADR-020 · Página de testes
+
+- **Decisão:** `pnpm test:report` gera relatórios JSON do Vitest em `reports/tests/` (fora do Git) e a rota `/testes` apenas lê esses arquivos.
+- **Alternativas:** um botão que executa a suíte pelo navegador (daria a qualquer visitante a capacidade de rodar comandos no servidor).
+- **Consequências:** a página mostra sempre um resultado real e datado. Sem relatório, ela diz isso em vez de inventar números.

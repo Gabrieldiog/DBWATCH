@@ -85,7 +85,9 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 - **Testes:** T-DB-01, T-DB-02, T-DB-12 (grants por papel), T-MIG-01.
 - **Pronto quando:** as migrations aplicam do zero e `migrate diff` retorna vazio; testes de banco verdes.
 
-### PK-03 · Auditoria persistente
+### PK-03 · Auditoria persistente ✅
+
+> **Registro de QA (24/10/2026):** 42/42 testes (38 da API, 4 da web): 6 unitários do mapeamento de falhas, 8 de banco (append-only até para o dono da tabela, privilégios por papel, adulteração e remoção de linha detectadas como superusuário em outro fuso, recusa fora de `READ COMMITTED`, 20 inserções concorrentes formando cadeia contínua) e 7 de integração da transação auditada. Testes de mutação: gravar a falha dentro da transação faz 3 testes falharem; um teste quebrado de propósito aparece em vermelho na página `/testes`. O spike do Prisma 7 mostrou que o `DETAIL` do PostgreSQL traz a linha inteira (inclusive hash de senha), por isso a auditoria guarda só SQLSTATE e constraint. **Mudança de escopo:** `GET /api/audit` e `GET /api/audit/verify` foram para o PK-05, porque expor a auditoria antes do guard de permissões violaria o "nega por padrão". Entrou a página `/testes`, que mostra o relatório real da suíte.
 
 - **Inclui:** `audit.audit_log`; triggers append-only e de cadeia; `AuditService` (dentro da transação no sucesso, fora dela na falha); `GET /api/audit` paginado por cursor; `GET /api/audit/verify`.
 - **Testes:** T-DB-07 a T-DB-11, T-INT-08, T-INT-09.
@@ -157,5 +159,6 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 | PK-00 | ✅ Concluído | 22/10/2026 |
 | PK-01 | ✅ Concluído | 23/10/2026 |
 | PK-02 | ✅ Concluído | 23/10/2026 |
-| PK-03 | ⏳ Próximo | — |
-| PK-04 a PK-15 | 📋 Planejado | — |
+| PK-03 | ✅ Concluído | 24/10/2026 |
+| PK-04 | ⏳ Próximo | — |
+| PK-05 a PK-15 | 📋 Planejado | — |

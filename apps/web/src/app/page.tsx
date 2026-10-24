@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 type Health = { status: string; database: { status: 'up' | 'down'; latencyMs?: number } };
 
@@ -29,6 +30,9 @@ export default async function Home() {
         <p role="status" style={{ color: up ? '#2EEDC0' : '#FD6A62' }}>
           {up ? '●' : '✕'} {label}
         </p>
+        <Link href="/testes" style={{ color: '#19D3D0' }}>
+          Ver os testes automatizados
+        </Link>
       </div>
     </main>
   );

@@ -1,12 +1,12 @@
 import { Controller, Get, Logger, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { DatabaseService } from '../database/database.service';
+import { PrismaService } from '../database/prisma.service';
 
 @Controller('health')
 export class HealthController {
   private readonly logger = new Logger(HealthController.name);
 
-  constructor(private readonly db: DatabaseService) {}
+  constructor(private readonly db: PrismaService) {}
 
   // Rota pública: não expõe versão do PostgreSQL nem detalhes do erro
   @Get()
