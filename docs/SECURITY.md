@@ -118,6 +118,7 @@ Observações:
 
 | Limite | Impacto | Possível evolução |
 | --- | --- | --- |
+| O `DETAIL` dos erros do PostgreSQL traz a linha inteira que falhou (inclusive `password_hash`) | Registrar a mensagem completa vazaria dados na auditoria e nos logs | **Mitigado no PK-03:** a auditoria e os logs guardam só SQLSTATE e nome da constraint; teste unitário garante |
 | Um superusuário do PostgreSQL pode desabilitar triggers e alterar a auditoria | A alteração é **detectada** pela cadeia de hash, mas não impedida | Ancorar o último hash fora do banco periodicamente |
 | A cadeia de hash não detecta a remoção das **últimas** linhas (truncar o final) | Um atacante com superusuário pode apagar o final da cadeia sem quebrar o que sobra | Âncora externa com o hash e a posição mais recentes |
 | Sem MFA no MVP | Uma senha forte é o único fator | TOTP como evolução natural |

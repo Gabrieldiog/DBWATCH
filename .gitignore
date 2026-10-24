@@ -42,3 +42,6 @@ Thumbs.db
 next-env.d.ts
 # Cliente gerado pelo Prisma
 apps/api/src/generated/
+
+# Relatórios de teste gerados localmente (pnpm test:report)
+reports/

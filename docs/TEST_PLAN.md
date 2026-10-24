@@ -17,6 +17,13 @@
 | Acessibilidade | `@axe-core/playwright` | Telas principais, nos modos claro e escuro | Em PR e antes de release |
 | Exploratório | Navegador real com gravação de vídeo | Ambiente local e VPS | Ao fim dos packs de interface e no PK-13 |
 
+### Convenções
+
+- `*.unit.spec.ts`: testes unitários, sem banco de dados.
+- `test/db/`: testes que falam direto com o PostgreSQL usando cada papel (`dbwatch_app`, `dbwatch_monitor`…).
+- Os demais `*.spec.ts`: integração (Nest + Prisma + PostgreSQL real).
+- `pnpm test:report` gera o relatório exibido na página `/testes`.
+
 ### Isolamento entre testes
 
 - Testes de banco e de integração rodam num **banco recriado a cada execução da suíte**, com migrations aplicadas do zero (o que também testa as migrations).

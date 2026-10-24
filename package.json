@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "db:migrate": "pnpm --filter @dbwatch/api db:migrate",
-    "db:status": "pnpm --filter @dbwatch/api db:status"
+    "db:status": "pnpm --filter @dbwatch/api db:status",
+    "test:report": "pnpm -r test:report"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

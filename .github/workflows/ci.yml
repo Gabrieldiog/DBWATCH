@@ -22,6 +22,7 @@ jobs:
           --health-cmd "pg_isready -U postgres" --health-interval 2s --health-retries 30
     env:
       TEST_DATABASE_URL: postgres://postgres:ci-somente-teste@127.0.0.1:5433/dbwatch_test
+      MIGRATOR_DATABASE_URL: postgres://dbwatch_migrator:ci-migrator@127.0.0.1:5433/dbwatch_test
       DBWATCH_MIGRATOR_PASSWORD: ci-migrator
       DBWATCH_APP_PASSWORD: ci-app
       DBWATCH_MONITOR_PASSWORD: ci-monitor

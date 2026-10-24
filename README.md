@@ -31,7 +31,7 @@
 ---
 
 > [!IMPORTANT]
-> **Estado atual: fundação e banco com papéis prontos (PK-01 e PK-02), implementação em andamento.**
+> **Estado atual: fundação, papéis do banco e auditoria protegida prontos (PK-01 a PK-03), implementação em andamento.**
 > Este README descreve o sistema **projetado**. A tabela [Status de implementação](#-status-de-implementação) mostra o que já existe e o que ainda é plano. Nada aqui afirma que uma funcionalidade funciona antes de ela estar implementada e testada.
 
 ## 💡 O que é o DBWATCH?
@@ -386,7 +386,8 @@ Abra http://localhost:3000: a página mostra o estado **real** do PostgreSQL, me
 | Comando | O que faz | Disponível |
 | --- | --- | --- |
 | `pnpm dev` | API (NestJS) e web (Next.js) com recarga automática | ✅ |
-| `pnpm test` | Testes da API e do banco (constraints, privilégios por papel, migrations) contra o PostgreSQL de testes | ✅ |
+| `pnpm test` | Testes unitários, de banco (constraints, privilégios, auditoria) e de integração contra o PostgreSQL de testes | ✅ |
+| `pnpm test:report` | Roda a suíte e gera o relatório exibido em http://localhost:3000/testes | ✅ |
 | `pnpm lint` · `pnpm typecheck` | Qualidade estática | ✅ |
 | `pnpm build` | Build de produção dos dois apps | ✅ |
 | `pnpm db:migrate` · `pnpm db:status` | Aplica e confere as migrations | ✅ |
@@ -413,8 +414,9 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Identidade visual (logo, paleta, tipografia) | ✅ Concluído |
 | Monorepo e ambiente local (PK-01) | ✅ Concluído |
 | Banco, papéis e migrations (PK-02) | ✅ Concluído |
-| Auditoria protegida (PK-03) | ⏳ Próximo |
-| Autenticação e RBAC (PK-04, PK-05) | 📋 Planejado |
+| Auditoria protegida (PK-03) | ✅ Concluído (rotas HTTP no PK-05) |
+| Página de testes automatizados (`/testes`) | ✅ Concluído |
+| Autenticação e RBAC (PK-04, PK-05) | ⏳ Próximo |
 | Solicitações, aprovações e concessões (PK-06, PK-07) | 📋 Planejado |
 | Monitor e laboratório (PK-08, PK-09) | 📋 Planejado |
 | Interface web (PK-10 a PK-12) | 📋 Planejado |
