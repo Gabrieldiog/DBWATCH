@@ -1,26 +1,30 @@
 import Link from 'next/link';
-import { HealthPulse } from '../components/health-pulse';
+import { Ronda } from '../components/ronda';
 import { loadProjectReport, tallyByFile } from '../lib/test-report';
 
 export const dynamic = 'force-dynamic';
 
 const GUARANTEES = [
   {
+    id: 'IAM-01',
     file: 'api/test/db/iam.spec.ts',
     title: 'Cada papel do banco só faz o que precisa',
     detail: 'A API não apaga usuários nem altera permissões, e ninguém atribui um papel a si mesmo.',
   },
   {
+    id: 'AUD-02',
     file: 'api/test/db/audit.spec.ts',
     title: 'A auditoria não aceita alteração nem exclusão',
     detail: 'Nem o dono da tabela consegue. Adulteração feita por superusuário é apontada pela cadeia de hash.',
   },
   {
+    id: 'TRX-03',
     file: 'api/test/audit/audited-transaction.spec.ts',
     title: 'Falhas continuam registradas depois do ROLLBACK',
     detail: 'O sucesso é gravado junto com a ação; a falha, numa transação separada.',
   },
   {
+    id: 'ERR-04',
     file: 'api/test/health.spec.ts',
     title: 'Erros não expõem detalhes internos',
     detail: 'A resposta traz só um código de suporte, nunca stack trace ou SQL.',
@@ -39,7 +43,7 @@ export default async function Home() {
         sem que alguém perceba.
       </p>
 
-      <HealthPulse />
+      <Ronda />
 
       <section className="section" aria-labelledby="garantias">
         <h2 id="garantias">O que já está garantido</h2>
@@ -50,18 +54,29 @@ export default async function Home() {
         <ul className="ledger">
           {GUARANTEES.map((g) => {
             const t = tally[g.file];
-            const ok = t !== undefined && t.passed === t.total;
             return (
-              <li key={g.file}>
-                <span aria-hidden className={t ? (ok ? 'mark-ok' : 'mark-fail') : undefined}>
-                  {t ? (ok ? '✓' : '✕') : '–'}
-                </span>
+              <li key={g.id}>
+                <span className="id mono">{g.id}</span>
                 <span>
-                  {g.title}
-                  <small>{g.detail}</small>
+                  <span className="title">{g.title}</span>
+                  <span className="detail">{g.detail}</span>
                 </span>
-                <span className="end mono">
-                  {t ? `${t.passed} de ${t.total} testes` : 'sem relatório'}
+                <span className="end">
+                  {t ? (
+                    <>
+                      {/* Um segmento por teste real: cheio só se o teste passou */}
+                      <span className="segments" aria-hidden>
+                        {Array.from({ length: t.total }, (_, i) => (
+                          <i key={i} data-ok={i < t.passed ? '' : undefined} />
+                        ))}
+                      </span>
+                      <span className="mono">
+                        {t.passed} de {t.total} testes
+                      </span>
+                    </>
+                  ) : (
+                    'sem relatório'
+                  )}
                 </span>
               </li>
             );

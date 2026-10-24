@@ -10,6 +10,8 @@ const dateTime = new Intl.DateTimeFormat('pt-BR', {
   timeZone: 'America/Sao_Paulo',
 });
 
+const sentenceCase = (text: string) => text.charAt(0).toLocaleUpperCase('pt-BR') + text.slice(1);
+
 export default async function TestsPage() {
   const report = await loadProjectReport();
 
@@ -48,17 +50,17 @@ export default async function TestsPage() {
               {category.title} <span className="mono hint">{tests.length}</span>
             </h2>
             <p className="hint">{category.hint}</p>
-            <ul className="ledger">
+            <ul className="ledger tests">
               {tests.map((t) => (
                 <li key={`${t.file}-${t.group}-${t.title}`}>
                   <span aria-hidden className={t.passed ? 'mark-ok' : 'mark-fail'}>
                     {t.passed ? '✓' : '✕'}
                   </span>
                   <span>
-                    {t.title}
-                    <small>
+                    <span className="title">{sentenceCase(t.title)}</span>
+                    <span className="detail">
                       {t.group}, em <code>{t.file}</code>
-                    </small>
+                    </span>
                   </span>
                   <span className="end mono">
                     <span className="sr-only">{t.passed ? 'passou em' : 'falhou em'} </span>

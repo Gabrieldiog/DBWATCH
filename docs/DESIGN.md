@@ -14,7 +14,9 @@ Princípios:
 
 1. **Registro, não painel de nave espacial.** Listas em linhas, como num livro de ocorrências, em vez de cartões com sombra. Cada linha tem o fato e a prova (por exemplo, "9 de 9 testes").
 2. **Cor só onde há estado.** Verde para o que está garantido, âmbar para espera, coral para falha. O resto é tinta e papel.
-3. **Movimento só quando algo real acontece.** O único elemento animado da visão geral é o pulso do indicador do banco, disparado a cada leitura real da API.
+3. **Movimento só quando algo real acontece.** O único elemento animado da visão geral é a **Ronda**: a cada leitura real da API (5 s), o indicador pulsa e uma nova barra entra na faixa das últimas 60 leituras (altura = latência em escala logarítmica, cor = resultado). Tempo com a aba escondida vira um vão, nunca dado inventado.
+4. **Legível no projetor.** Base de 18 px, títulos de linha em 20 px, coluna de até 1280 px.
+5. **Registro com identificador.** Cada garantia tem um código fixo (IAM-01, AUD-02…) e uma barra com um segmento por teste real, cheio só se o teste passou.
 
 ## 2. Cores
 
@@ -26,7 +28,7 @@ Tokens definidos uma única vez com `light-dark()` do CSS. Os contrastes foram *
 | --- | --- | --- | --- |
 | `--bg` | `#EEF1EC` | Fundo, papel com leve tom de sálvia (frio, sem creme) | — |
 | `--surface` | `#F8FAF7` | Controle selecionado, áreas destacadas | — |
-| `--line` | `#B9C4BA` | Linhas do registro (decorativas) | 1,6 |
+| `--line` | `#7F8C84` | Linhas do registro (perto de 3:1 para não sumir no projetor) | 3,0 |
 | `--ink` | `#14201B` | Texto principal | 14,7 / 16,0 |
 | `--muted` | `#4F5E57` | Texto secundário | 6,0 / 6,5 |
 | `--accent` | `#0D6B5E` | Links, foco, aba atual | 5,6 / 6,1 |
@@ -40,15 +42,15 @@ Grafite esverdeado, sem azul profundo e sem neon.
 
 | Token | Hex | Contraste sobre `bg` / `surface` |
 | --- | --- | --- |
-| `--bg` | `#151A18` | — |
-| `--surface` | `#1C2320` | — |
-| `--line` | `#3A4741` | 1,8 (decorativa) |
-| `--ink` | `#E6ECE8` | 14,7 / 13,4 |
-| `--muted` | `#9DAEA6` | 7,6 / 6,9 |
-| `--accent` | `#5CC2AE` | 8,2 / 7,5 |
-| `--ok` | `#6CCB93` | 8,9 / 8,1 |
-| `--warn` | `#E2B05A` | 8,9 / 8,1 |
-| `--fail` | `#F08A80` | 7,3 / 6,6 |
+| `--bg` | `#1F2723` | — (luminância 0,019, o dobro do primeiro escuro) |
+| `--surface` | `#27312C` | — |
+| `--line` | `#66756E` | ~3 |
+| `--ink` | `#E8EEEA` | 13,0 / 11,4 |
+| `--muted` | `#A6B6AE` | 7,2 / 6,4 |
+| `--accent` | `#6ACDB9` | 8,1 / 7,1 |
+| `--ok` | `#79D49F` | 8,6 / 7,5 |
+| `--warn` | `#E8B969` | 8,4 / 7,4 |
+| `--fail` | `#F4958B` | 6,9 / 6,1 |
 
 ### Semântica de estados
 

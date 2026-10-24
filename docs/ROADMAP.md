@@ -151,6 +151,12 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 - **Inclui:** compose de produção; Caddy com HTTPS; PostgreSQL sem porta pública; `.env` no servidor; backup com `pg_dump`; checklist de deploy e de rollback.
 - **Bloqueado por:** questão Q-1 do [PRD](PRD.md#7-questões-em-aberto).
 
+### PK-16 · Landing page de apresentação (no fim do projeto)
+
+- **Objetivo:** página pública que explica o que o DBWATCH faz, como funciona, como instalar com `docker compose` e o que ele garante, com capturas reais do painel e o vídeo explicativo.
+- **Regra:** só promete o que existir na data; o que for plano aparece como "em desenvolvimento". A visão geral atual passa para `/painel` e a landing ocupa `/`.
+- **Depende de:** telas do PAM e do monitor prontas (PK-11, PK-12) e do vídeo produzido à parte.
+
 ### PK-15 · Release v1.0.0 e ensaio
 
 - **Inclui:** CHANGELOG; notas de release; README final com capturas de tela; três ensaios do [DEMO.md](DEMO.md); vídeo de backup.
