@@ -9,6 +9,7 @@ const ids = new WeakMap<Request, string>();
 export interface RequestContext {
   correlationId: string;
   ip?: string;
+  userId?: string;
 }
 
 // Leva o contexto da requisição até a auditoria sem passar parâmetro por todas as camadas
@@ -29,6 +30,12 @@ export function getCorrelationId(req: Request): string {
 
 export function currentContext(): RequestContext | undefined {
   return storage.getStore();
+}
+
+// Chamado pelo guard de sessão: a partir daqui, a auditoria sabe quem é o autor
+export function setContextUser(userId: string): void {
+  const store = storage.getStore();
+  if (store) store.userId = userId;
 }
 
 export function runWithContext<T>(context: RequestContext, fn: () => T): T {

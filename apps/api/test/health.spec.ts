@@ -2,13 +2,11 @@ import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
 import { Controller, Get } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import { Test } from '@nestjs/testing';
 import { Client } from 'pg';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { AppModule } from '../src/app.module';
-import { configureApp } from '../src/app.setup';
-import { loadEnv } from '../src/config/env';
+import { Public } from '../src/auth/public.decorator';
+import { createApp } from './support/app';
 import { urlFor } from './support/db';
 
 const UUID = /^[0-9a-f-]{36}$/;
@@ -17,35 +15,28 @@ const databaseUrl = urlFor('dbwatch_app');
 
 @Controller('boom')
 class BoomController {
+  @Public()
   @Get()
   fail(): never {
     throw new Error('senha=segredo123 vazou');
   }
 }
 
-async function createApp(url: string): Promise<NestExpressApplication> {
-  const moduleRef = await Test.createTestingModule({
-    imports: [AppModule.forRoot(loadEnv({ DATABASE_URL: url }))],
-    controllers: [BoomController],
-  }).compile();
-  const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
-  configureApp(app);
-  await app.init();
-  return app;
-}
-
 describe('API com PostgreSQL real', () => {
   let app: NestExpressApplication;
   beforeAll(async () => {
-    app = await createApp(databaseUrl);
+    app = await createApp(databaseUrl, {}, [BoomController]);
   });
   afterAll(() => app.close());
 
-  it('GET /api/health responde 200 quando o banco está no ar', async () => {
+  it('GET /api/health responde 200 quando o banco está no ar, com cabeçalhos de segurança (T-SEC-07)', async () => {
     const res = await request(app.getHttpServer()).get('/api/health').expect(200);
     expect(res.body).toMatchObject({ status: 'ok', database: { status: 'up' } });
     expect(res.headers['x-request-id']).toMatch(UUID);
     expect(res.headers['x-powered-by']).toBeUndefined();
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(res.headers['content-security-policy']).toBe("default-src 'none'; frame-ancestors 'none'");
   });
 
   it('propaga um X-Request-Id válido e descarta um malicioso', async () => {
@@ -60,6 +51,13 @@ describe('API com PostgreSQL real', () => {
     const res = await request(app.getHttpServer()).get('/api/boom').expect(500);
     expect(res.body.correlationId).toBe(res.headers['x-request-id']);
     expect(JSON.stringify(res.body)).not.toMatch(/segredo123|Error|at /);
+  });
+
+  it('Swagger em /api/docs descreve as rotas de autenticação', async () => {
+    const res = await request(app.getHttpServer()).get('/api/docs-json').expect(200);
+    expect(Object.keys(res.body.paths)).toEqual(expect.arrayContaining(['/api/health', '/api/auth/login', '/api/auth/me']));
+    const page = await request(app.getHttpServer()).get('/api/docs').expect(200);
+    expect(page.headers['content-security-policy']).toBeUndefined();
   });
 
   it('rota inexistente responde 404 com correlationId', async () => {

@@ -378,10 +378,13 @@ cp .env.example .env                   # troque as senhas; nunca use credenciais
 pnpm install
 docker compose up -d --wait            # PostgreSQL 16 (5432) e testes (5433), já com os papéis do banco
 pnpm db:migrate                        # aplica as migrations com o papel dbwatch_migrator
+pnpm db:seed                           # usuários de demonstração; as senhas aparecem só no terminal
 pnpm dev                               # web em http://localhost:3000 · API em http://localhost:3000/api
 ```
 
 Abra http://localhost:3000: a página mostra o estado **real** do PostgreSQL, medido pela API. A rota `GET /api/health` responde `200` com o banco no ar e `503` quando ele cai.
+
+A documentação interativa da API fica em http://localhost:3000/api/docs (Swagger). Entre com um usuário do `pnpm db:seed` em `POST /api/auth/login` e o cookie de sessão passa a valer para as outras rotas.
 
 | Comando | O que faz | Disponível |
 | --- | --- | --- |
@@ -391,7 +394,7 @@ Abra http://localhost:3000: a página mostra o estado **real** do PostgreSQL, me
 | `pnpm lint` · `pnpm typecheck` | Qualidade estática | ✅ |
 | `pnpm build` | Build de produção dos dois apps | ✅ |
 | `pnpm db:migrate` · `pnpm db:status` | Aplica e confere as migrations | ✅ |
-| `pnpm db:seed` | Usuários fictícios de demonstração | PK-04 |
+| `pnpm db:seed` | Usuários fictícios de demonstração, um por papel, com senhas aleatórias | ✅ |
 | `pnpm test:e2e` | Fluxos no navegador com Playwright | PK-10 |
 | `pnpm lab:<cenario>` | Experimentos do laboratório pelo terminal | PK-09 |
 
@@ -416,7 +419,8 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Banco, papéis e migrations (PK-02) | ✅ Concluído |
 | Auditoria protegida (PK-03) | ✅ Concluído (rotas HTTP no PK-05) |
 | Página de testes automatizados (`/testes`) | ✅ Concluído |
-| Autenticação e RBAC (PK-04, PK-05) | ⏳ Próximo |
+| Autenticação com sessão no servidor e Swagger (PK-04) | ✅ Concluído |
+| Permissões e rotas da auditoria (PK-05) | ⏳ Próximo |
 | Solicitações, aprovações e concessões (PK-06, PK-07) | 📋 Planejado |
 | Monitor e laboratório (PK-08, PK-09) | 📋 Planejado |
 | Interface web (PK-10 a PK-12) | 📋 Planejado |

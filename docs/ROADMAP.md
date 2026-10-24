@@ -28,19 +28,21 @@ flowchart LR
 
 ## 2. Calendário proposto
 
+> **Revisão de 24/10:** o backend vem primeiro e o front fica para depois, quando todas as regras já estiverem garantidas e testadas na API. O redesenho do front parte de referências visuais escolhidas pelo Gabriel.
+
 | Datas | Packs | Marco |
 | --- | --- | --- |
-| 22/10 (qua) | PK-00 | Planejamento aprovado |
-| 23 a 24/10 | PK-01, PK-02 | `docker compose up` + migrations + testes de banco rodando |
-| 25 a 27/10 | PK-03, PK-04 | Login funcionando, com auditoria protegida |
-| 28 a 30/10 | PK-05, PK-06, PK-10 | Fluxo pedir → aprovar pela API; shell visual pronto |
-| 31/10 a 02/11 | PK-07, PK-11 | **Marco 1:** PAM completo de ponta a ponta na interface |
-| 03 a 05/11 | PK-08, PK-09 | Monitor coletando; laboratório rodando |
-| 06 a 07/11 | PK-12 | **Marco 2:** dashboard e laboratório animados |
-| 08/11 | PK-13 | QA final, E2E e revisão de segurança |
-| 09/11 | PK-14 | Deploy na VPS · **congelamento de código** |
+| 22 a 24/10 | PK-00 a PK-04 | Planejamento, ambiente, banco, auditoria e login ✅ |
+| 25 a 29/10 | PK-05 | Permissões, rotas da auditoria, sessões ativas e ACL de login |
+| 29 a 31/10 | PK-06 | Pedir → aprovar pela API, com aprovação em 2 níveis e retry de concorrência |
+| 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
+| 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
+| 04 a 05/11 | PK-09 | Laboratório rodando |
+| 05 a 08/11 | PK-10 a PK-12 | **Marco 2:** console com menu lateral, cards e gráficos legíveis |
+| 09/11 | PK-13, PK-14 | QA final e deploy na VPS · **congelamento de código** |
 | 10/11 | PK-15 | Ensaio completo × 3, release v1.0.0, vídeo de backup |
 | **11/11** | — | **Apresentação no InovaTech** |
+| Se sobrar tempo | PK-16 | Landing page com motion |
 
 ## 3. Linha de corte do MVP
 
@@ -93,30 +95,32 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 - **Testes:** T-DB-07 a T-DB-11, T-INT-08, T-INT-09.
 - **Pronto quando:** a adulteração simulada é detectada num teste automatizado.
 
-### PK-04 · Autenticação
+### PK-04 · Autenticação ✅
 
-- **Inclui:** Argon2id; `iam.sessions`; login, logout e `GET /api/auth/me`; bloqueio; rate limit; `SessionGuard`; verificação de `Origin`; cabeçalhos de segurança.
-- **Testes:** T-AUTH-01 a T-AUTH-08.
+> **Registro de QA (24/10/2026):** 64/64 testes (60 da API, 4 da web), 22 deles novos: 5 unitários (token, hash, cookie, schema de login e rate limit), 3 de banco em `iam.sessions` (hash de 32 bytes, `DELETE` negado à API, período válido) e 14 de integração cobrindo T-AUTH-01 a T-AUTH-08, T-SEC-04 e T-SEC-07, além do seed e do Swagger. Simulação do CI num PostgreSQL recriado do zero: verde. Testes de mutação: remover o custo do Argon2 para e-mail inexistente, o limite de ociosidade, a checagem de usuário ativo, o ator no contexto da auditoria, o incremento atômico do contador ou o `HttpOnly` do cookie faz um teste falhar em cada caso. Teste manual com a API rodando: login, `/me`, logout e Swagger conferidos com `curl`; nenhuma senha no log.
+
+- **Inclui:** Argon2id; `iam.sessions`; login, logout e `GET /api/auth/me`; bloqueio; rate limit; `SessionGuard`; verificação de `Origin`; cabeçalhos de segurança; Swagger em `/api/docs`; `reason` em cada login negado; `pnpm db:seed` com os usuários de demonstração.
+- **Testes:** T-AUTH-01 a T-AUTH-08, T-SEC-04, T-SEC-07.
 
 ### PK-05 · Autorização (RBAC)
 
-- **Inclui:** `PermissionGuard` global (nega por padrão); `@RequirePermission`; CRUD de usuários e atribuição de papéis; proteção do último ADMIN; matriz de autorização gerada a partir das rotas.
+- **Inclui:** `PermissionGuard` global (nega por padrão); `@RequirePermission`; CRUD de usuários e atribuição de papéis; proteção do último ADMIN; matriz de autorização gerada a partir das rotas; `GET /api/audit` e `GET /api/audit/verify`; diff antes/depois nas ações do admin; sessões ativas e encerrar sessões; ACL de login por IP e horário com prioridade (`inet`/`cidr` e índice GiST).
 - **Testes:** T-SEC-01, T-SEC-02, T-IAM-01 a T-IAM-05.
 
 ### PK-06 · Recursos, solicitações e aprovações
 
-- **Inclui:** `pam.resources`, `pam.access_requests`; máquina de estados; CHECKs; aprovação concorrente segura; RLS (*Should*).
+- **Inclui:** `pam.resources`, `pam.access_requests`; máquina de estados; CHECKs; aprovação concorrente segura; aprovação em 2 níveis para recursos HIGH; retry automático em `40P01` e `40001`; RLS (*Should*).
 - **Testes:** T-PAM-01 a T-PAM-06, T-CONC-01, T-SEC-03, T-SEC-05.
 
 ### PK-07 · Concessões e consultas controladas
 
-- **PK-07a (Must):** `pam.access_grants` com EXCLUDE; revogação; job de auditoria das expirações.
+- **PK-07a (Must):** `pam.access_grants` com EXCLUDE; revogação; job de auditoria das expirações; aviso antes de expirar; break-glass (*Could*).
 - **PK-07b (Should):** `dbwatch_target` com dados fictícios; `pam.query_templates`; executor somente leitura; `pam.query_executions`.
 - **Testes:** T-PAM-07 a T-PAM-10, T-DB-05, T-SEC-06.
 
 ### PK-08 · Coletor do monitor
 
-- **Inclui:** amostras de `pg_stat_activity`, `pg_locks`, `pg_stat_database` e `pg_stat_user_tables`; `monitor.app_events` via `runInTransaction`; view `event_feed`; endpoints de leitura; SSE; retenção.
+- **Inclui:** amostras de `pg_stat_activity`, `pg_locks`, `pg_stat_database` e `pg_stat_user_tables`; `monitor.app_events` via `runInTransaction`; view `event_feed`; endpoints de leitura; SSE; retenção; alertas (lock acima de 5 s, transação parada, deadlock novo).
 - **Testes:** T-MON-01 a T-MON-05.
 
 ### PK-09 · Laboratório de concorrência
@@ -152,6 +156,12 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 
 - **Inclui:** CHANGELOG; notas de release; README final com capturas de tela; três ensaios do [DEMO.md](DEMO.md); vídeo de backup.
 
+### PK-16 · Landing page *(se sobrar tempo)*
+
+- **Inclui:** página pública de apresentação do projeto, com motion.
+
+> **Referência estudada:** o JumpServer (PAM de código aberto, GPL v3) foi lido só como fonte de **ideias**; nenhum código foi copiado. As ideias aproveitadas aparecem nos packs acima. Ver [ADR-022](DECISIONS.md#adr-022--jumpserver-só-como-referência-de-ideias).
+
 ## 5. Status
 
 | Pack | Status | Data |
@@ -160,5 +170,6 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 | PK-01 | ✅ Concluído | 23/10/2026 |
 | PK-02 | ✅ Concluído | 23/10/2026 |
 | PK-03 | ✅ Concluído | 24/10/2026 |
-| PK-04 | ⏳ Próximo | — |
-| PK-05 a PK-15 | 📋 Planejado | — |
+| PK-04 | ✅ Concluído | 24/10/2026 |
+| PK-05 | ⏳ Próximo | — |
+| PK-06 a PK-16 | 📋 Planejado | — |

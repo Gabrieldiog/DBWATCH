@@ -26,6 +26,8 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 | 018 | Somente versões estáveis, fixadas no lockfile | Aceita |
 | 019 | Auditoria fora do `schema.prisma`, acessada só por SQL explícito | Aceita |
 | 020 | Página de testes lê o relatório gerado, nunca executa testes | Aceita |
+| 021 | Documentação da API com Swagger em `/api/docs` | Aceita |
+| 022 | JumpServer só como referência de ideias, sem código | Aceita |
 
 ---
 
@@ -163,3 +165,16 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 - **Decisão:** `pnpm test:report` gera relatórios JSON do Vitest em `reports/tests/` (fora do Git) e a rota `/testes` apenas lê esses arquivos.
 - **Alternativas:** um botão que executa a suíte pelo navegador (daria a qualquer visitante a capacidade de rodar comandos no servidor).
 - **Consequências:** a página mostra sempre um resultado real e datado. Sem relatório, ela diz isso em vez de inventar números.
+
+### ADR-021 · Swagger em `/api/docs`
+
+- **Contexto:** o backend vem antes do front; até lá, a banca e o time precisam ver e exercitar a API.
+- **Decisão:** `@nestjs/swagger` gera o OpenAPI a partir dos próprios controllers. A página fica em `/api/docs` e pode ser desligada com `API_DOCS=off`. O login no Swagger usa o mesmo cookie de sessão.
+- **Alternativas:** documentar à mão (desatualiza); Postman (fora do repositório).
+- **Consequências:** a documentação nunca diverge das rotas, e um teste confere que as rotas aparecem. A página é a única exceção à CSP `default-src 'none'` da API.
+
+### ADR-022 · JumpServer só como referência de ideias
+
+- **Contexto:** o JumpServer é um PAM maduro, mas é licenciado em GPL v3.
+- **Decisão:** estudar a arquitetura e os fluxos e reescrever do zero o que fizer sentido, sem copiar código. Ideias aproveitadas: motivo em cada login negado, diff antes/depois nas ações do admin, sessões ativas, aprovação em 2 níveis, ACL de login por IP e horário, aviso antes de expirar.
+- **Consequências:** o DBWATCH continua com licença própria; cada ideia passa pelos nossos critérios (regra também no banco e teste contra PostgreSQL real).

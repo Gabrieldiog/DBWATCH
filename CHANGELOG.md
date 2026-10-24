@@ -7,6 +7,16 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-04 · Autenticação**
+  - Login com Argon2id e sessão guardada no servidor (`iam.sessions`): o cookie `HttpOnly` e `SameSite=Strict` leva um token aleatório de 256 bits, e o banco guarda só o SHA-256 dele.
+  - `POST /api/auth/login`, `POST /api/auth/logout` (revoga no banco) e `GET /api/auth/me` com papéis e permissões efetivas.
+  - Expiração por 30 min de inatividade e 8 h absolutas; usuário desativado perde a sessão na hora.
+  - Bloqueio após 5 falhas com contador atômico, rate limit por IP, mesma resposta e mesmo custo para e-mail inexistente; cada negação auditada com o motivo.
+  - Guard global que nega por padrão (`@Public()` só no health e no login), verificação de `Origin` contra CSRF e cabeçalhos de segurança (CSP, `nosniff`, `X-Frame-Options`).
+  - Swagger em `/api/docs`.
+  - `pnpm db:seed`: cinco usuários de demonstração, um por papel, com senhas aleatórias mostradas só no terminal; o próprio seed é auditado.
+  - Constraints em `iam.sessions` (hash de 32 bytes, período válido) e a API sem permissão de `DELETE` nas sessões.
+
 - **PK-03 · Auditoria persistente**
   - Schema `audit` com `audit_log` append-only: triggers barram `UPDATE`, `DELETE` e `TRUNCATE` (até para o dono da tabela) e o papel da API só tem `INSERT` e `SELECT`.
   - Cadeia de hash SHA-256 serializada por advisory lock, com verificador (`audit.verify_chain()`) que aponta adulteração, linha apagada e buraco na numeração.

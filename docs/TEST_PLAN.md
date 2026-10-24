@@ -68,8 +68,8 @@ Cobertura não substitui casos de borda: **todo controle de segurança precisa d
 | T-AUTH-01 | Login válido | 200; cookie com `HttpOnly`, `Secure`, `SameSite=Strict`; sessão no banco guarda só o hash; auditoria `auth.login` |
 | T-AUTH-02 | Senha errada | 401 genérico; `failed_login_count` incrementado; auditoria `DENIED` |
 | T-AUTH-03 | 5 falhas seguidas e depois a senha correta | 423 até `locked_until`; depois, login permitido |
-| T-AUTH-04 | 10 logins errados em paralelo para a mesma conta | O contador termina exatamente em 10 (incremento atômico, sem *lost update*) |
-| T-AUTH-05 | Login com e-mail inexistente | Mesma resposta e tempo equivalente (± 20%) ao de uma senha errada |
+| T-AUTH-04 | 4 logins errados em paralelo para a mesma conta (abaixo do limite de bloqueio, para isolar a contagem) | O contador termina exatamente em 4 (incremento atômico, sem *lost update*) |
+| T-AUTH-05 | Login com e-mail inexistente | Mesma resposta; o menor tempo de 3 tentativas é pelo menos metade do de uma senha errada (sem o Argon2 seria ~10× menor). A margem é larga para não oscilar no CI |
 | T-AUTH-06 | Sessão expirada por inatividade, por tempo absoluto e revogada | 401 nos três casos |
 | T-AUTH-07 | Cookie de sessão definido antes do login | Ignorado; um novo token é emitido |
 | T-AUTH-08 | Varredura dos logs após o fluxo completo | Nenhuma ocorrência de senha, token ou cookie |

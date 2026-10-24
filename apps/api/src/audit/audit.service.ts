@@ -33,12 +33,14 @@ export class AuditService {
     if (leaked) throw new Error(`Metadado proibido na auditoria: ${leaked}`);
 
     const context = currentContext();
+    // Sem ator explícito, usa o usuário da sessão; null explícito marca ação anônima (ex.: login falho)
+    const actorId = entry.actorId !== undefined ? entry.actorId : (context?.userId ?? null);
     const db = tx ?? this.prisma;
     await db.$executeRaw`
       INSERT INTO audit.audit_log
         (actor_id, action, resource_type, resource_id, outcome, reason, correlation_id, ip, metadata)
       VALUES (
-        ${entry.actorId ?? null}::uuid, ${entry.action}, ${entry.resourceType ?? null},
+        ${actorId}::uuid, ${entry.action}, ${entry.resourceType ?? null},
         ${entry.resourceId ?? null}, ${entry.outcome}::audit.audit_outcome, ${entry.reason ?? null},
         ${context?.correlationId ?? null}::uuid, ${context?.ip ?? null}::inet,
         ${JSON.stringify(metadata)}::jsonb

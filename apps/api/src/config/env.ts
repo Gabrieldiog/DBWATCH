@@ -5,6 +5,10 @@ const envSchema = z.object({
   API_HOST: z.string().default('127.0.0.1'),
   API_PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+  // Origem do front: requisições que alteram estado vindas de outra origem são recusadas (CSRF)
+  APP_ORIGIN: z.url().default('http://localhost:3000'),
+  LOGIN_RATE_LIMIT: z.coerce.number().int().min(1).default(20),
+  API_DOCS: z.enum(['on', 'off']).default('on'),
 });
 
 export type Env = z.infer<typeof envSchema>;

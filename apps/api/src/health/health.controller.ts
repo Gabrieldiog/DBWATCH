@@ -1,5 +1,6 @@
 import { Controller, Get, Logger, Res } from '@nestjs/common';
 import type { Response } from 'express';
+import { Public } from '../auth/public.decorator';
 import { PrismaService } from '../database/prisma.service';
 
 @Controller('health')
@@ -9,6 +10,7 @@ export class HealthController {
   constructor(private readonly db: PrismaService) {}
 
   // Rota pública: não expõe versão do PostgreSQL nem detalhes do erro
+  @Public()
   @Get()
   async check(@Res({ passthrough: true }) res: Response) {
     try {
