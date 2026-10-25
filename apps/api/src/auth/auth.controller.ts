@@ -3,7 +3,7 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
-import { RateLimiter } from '../common/security';
+import { clientIp, RateLimiter } from '../common/security';
 import type { Env } from '../config/env';
 import { ENV } from '../database/prisma.service';
 import { AuthService } from './auth.service';
@@ -52,7 +52,7 @@ export class AuthController {
     }
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) throw new BadRequestException('Informe e-mail e senha válidos');
-    const token = await this.auth.login(parsed.data, { ip: req.ip, userAgent: req.header('user-agent') });
+    const token = await this.auth.login(parsed.data, { ip: clientIp(req), userAgent: req.header('user-agent') });
     res.cookie(this.cookie, token, {
       httpOnly: true,
       secure: this.production,

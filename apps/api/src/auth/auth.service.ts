@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service';
 import { AuditedTransaction } from '../audit/audited-transaction';
 import { PrismaService } from '../database/prisma.service';
@@ -58,6 +58,13 @@ export class AuthService {
     const valid = await verifyPassword(user.password_hash, input.password);
     if (user.status !== 'ACTIVE') return this.deny(user.id, 'conta_desativada');
     if (!valid) return this.registerFailure(user.id);
+    // ACL só depois da senha certa: quem não sabe a senha não descobre que existe regra de IP ou horário
+    const [rule] = await this.prisma.$queryRaw<{ action: string; rule_id: string }[]>`
+      SELECT action::text, rule_id FROM iam.login_acl_decision(${user.id}::uuid, ${client.ip ?? null}::inet)`;
+    if (rule?.action === 'DENY') {
+      await this.audit.record({ action: 'auth.login', outcome: 'DENIED', actorId: user.id, reason: 'acl_negado', metadata: { regra: rule.rule_id } });
+      throw new ForbiddenException('Login não permitido deste local ou horário');
+    }
 
     const token = newSessionToken();
     await this.audited.run({ action: 'auth.login', actorId: user.id, resourceType: 'session' }, async (tx) => {

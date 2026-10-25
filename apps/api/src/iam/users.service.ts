@@ -1,11 +1,8 @@
-import {
-  BadRequestException, ConflictException, ForbiddenException, HttpException, Injectable, NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { type AuditTarget, AuditedTransaction } from '../audit/audited-transaction';
-import { describeFailure, sqlStateOf } from '../audit/failure';
 import { hashPassword } from '../auth/credentials';
 import { PrismaService, type Tx } from '../database/prisma.service';
+import { toHttpError } from './db-errors';
 import type { NewUser } from './users.schemas';
 
 const PUBLIC_FIELDS = { id: true, email: true, displayName: true, status: true, lastLoginAt: true } as const;
@@ -70,19 +67,11 @@ export class UsersService {
     return role;
   }
 
-  // As regras vivem no banco; aqui só traduzimos o SQLSTATE para uma resposta HTTP clara
   private async run<T>(target: AuditTarget, work: (tx: Tx) => Promise<T>, conflict = 'Já existe um usuário com esse e-mail'): Promise<T> {
     try {
       return await this.audited.run(target, work);
     } catch (err) {
-      if (err instanceof HttpException) throw err;
-      const state = sqlStateOf(err);
-      if (state === 'DW001') throw new UnprocessableEntityException('O sistema precisa de pelo menos um ADMIN ativo');
-      if (describeFailure(err).reason.includes('user_roles_no_self_grant_ck')) throw new ForbiddenException('Ninguém atribui papel a si mesmo');
-      if (state === '23505') throw new ConflictException(conflict);
-      if (state === '23503') throw new NotFoundException('Usuário não encontrado');
-      if (state === '23514') throw new BadRequestException('Dados inválidos');
-      throw err;
+      throw toHttpError(err, conflict);
     }
   }
 }

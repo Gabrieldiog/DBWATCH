@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { hashToken, loginSchema, newSessionToken, readCookie, sessionCookieName } from '../../src/auth/credentials';
-import { RateLimiter } from '../../src/common/security';
+import { clientIp, RateLimiter } from '../../src/common/security';
 
 describe('credenciais e utilitários de sessão', () => {
   it('token de sessão tem 256 bits e o hash guardado tem 32 bytes', () => {
@@ -29,6 +29,13 @@ describe('credenciais e utilitários de sessão', () => {
     expect(loginSchema.safeParse({ email: 'ana@dbwatch.test', password: 'x', admin: true }).success).toBe(false);
     expect(loginSchema.safeParse({ email: 'ana@dbwatch.test', password: '' }).success).toBe(false);
     expect(loginSchema.safeParse({ email: 'ana@dbwatch.test', password: 'x'.repeat(201) }).success).toBe(false);
+  });
+});
+
+describe('clientIp', () => {
+  it('normaliza IPv4 mapeado em IPv6 para casar com faixas IPv4 da ACL', () => {
+    const ip = (value?: string) => clientIp({ ip: value } as Parameters<typeof clientIp>[0]);
+    expect([ip('::ffff:10.0.0.1'), ip('10.0.0.1'), ip('2001:db8::1'), ip(undefined)]).toEqual(['10.0.0.1', '10.0.0.1', '2001:db8::1', undefined]);
   });
 });
 
