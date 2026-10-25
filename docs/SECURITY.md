@@ -107,6 +107,8 @@ Observações:
 - **O `ADMIN` não lê a auditoria por padrão.** Quem administra não deveria ser quem fiscaliza (separação de funções). Um usuário pode ter os dois papéis, mas essa atribuição fica registrada.
 - Um usuário pode ter vários papéis; as permissões efetivas são a união delas.
 - As permissões são carregadas por sessão e reavaliadas a cada requisição, e não guardadas no cliente.
+- **O sistema nunca fica sem ADMIN ativo.** A regra mora no banco: triggers em `iam.user_roles` (remoção do papel) e `iam.users` (desativação) checam se sobra algum ADMIN ativo e, se não, abortam com o SQLSTATE próprio `DW001`, que a API traduz para 422. Um `pg_advisory_xact_lock` serializa essas mudanças, para que duas remoções simultâneas não passem juntas.
+- Desativar um usuário revoga todas as sessões dele na mesma transação. Mudanças de status e de papel entram na auditoria com o antes e o depois.
 - Toda rota declara o acesso: `@Public()`, `@Authenticated()` (só sessão) ou `@RequirePermission(...)`. Uma rota sem declaração responde 403, ou seja, esquecer o decorator nunca abre acesso. Cada 403 vira um registro `authz.denied` na auditoria, com a rota e a permissão que faltou.
 
 ## 6. Segredos e ambientes

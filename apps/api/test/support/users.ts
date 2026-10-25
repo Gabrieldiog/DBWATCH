@@ -9,7 +9,7 @@ export const TEST_PASSWORD = 'senha-de-teste-forte';
 let hash: Promise<string> | undefined;
 
 // Cria um usuário com os papéis pedidos e devolve o cookie de uma sessão nova
-export async function loginAs(app: NestExpressApplication, roles: string[]): Promise<{ id: string; cookie: string }> {
+export async function loginAs(app: NestExpressApplication, roles: string[]): Promise<{ id: string; email: string; cookie: string }> {
   hash ??= hashPassword(TEST_PASSWORD);
   const email = `${roles.join('-').toLowerCase() || 'sem-papel'}-${randomUUID()}@dbwatch.test`;
   const id = await withClient('admin', async (db) => {
@@ -21,5 +21,5 @@ export async function loginAs(app: NestExpressApplication, roles: string[]): Pro
     return rows[0]!.id;
   });
   const res = await request(app.getHttpServer()).post('/api/auth/login').set('Origin', ORIGIN).send({ email, password: TEST_PASSWORD });
-  return { id, cookie: (res.headers['set-cookie'] as unknown as string[])[0]!.split(';')[0]! };
+  return { id, email, cookie: (res.headers['set-cookie'] as unknown as string[])[0]!.split(';')[0]! };
 }
