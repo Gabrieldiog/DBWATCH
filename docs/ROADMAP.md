@@ -36,7 +36,8 @@ flowchart LR
 | 25/10 | PK-05a, PK-05b | Permissões por rota, rotas da auditoria e administração de usuários |
 | 25/10 | PK-05c | Sessões ativas e encerrar sessões |
 | 25/10 | PK-05d | ACL de login por IP e horário |
-| 29 a 31/10 | PK-06 | Pedir → aprovar pela API, com aprovação em 2 níveis e retry de concorrência |
+| 25/10 | PK-06a | Recursos, pedidos de acesso e fila do aprovador |
+| 26 a 31/10 | PK-06b, PK-06c | Aprovar e rejeitar com concorrência segura; 2 níveis para HIGH e RLS |
 | 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
 | 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
 | 04 a 05/11 | PK-09 | Laboratório rodando |
@@ -137,8 +138,23 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 ### PK-06 · Recursos, solicitações e aprovações
 
-- **Inclui:** `pam.resources`, `pam.access_requests`; máquina de estados; CHECKs; aprovação concorrente segura; aprovação em 2 níveis para recursos HIGH; retry automático em `40P01` e `40001`; RLS (*Should*).
-- **Testes:** T-PAM-01 a T-PAM-06, T-CONC-01, T-SEC-03, T-SEC-05.
+Dividido em três packs para caber no limite de 400 linhas cada.
+
+#### PK-06a · Recursos e pedidos ✅
+
+> **Registro de QA (25/10/2026):** 93/93 testes (89 da API, 4 da web), num PostgreSQL de testes recriado do zero e de novo num banco já usado. Novos: T-PAM-01, T-PAM-02, T-SEC-05, um pendente por pessoa e recurso, fila sem os próprios pedidos e o banco barrando autoaprovação, decisão sem autor e `DELETE`. Testes de mutação: sem o trigger de limites, sem o UNIQUE parcial, sem a CHECK de separação de funções, fila mostrando os próprios pedidos e schema aceitando `status` fazem testes falharem. Teste manual com o seed: o solicitante pede "Clientes", o pedido repetido recebe 409, 90 min num recurso de 60 recebe 422, e o aprovador vê o pedido na fila.
+
+- **Inclui:** schema `pam` com `resources` e `access_requests`; CHECKs (justificativa, duração, separação de funções, decisão com autor); UNIQUE parcial de pendentes; índice parcial da fila; trigger que barra recurso inativo e duração acima do máximo (SQLSTATEs `DW002` e `DW003`); `GET /api/resources`, `POST /api/requests`, `GET /api/requests/mine`, `GET /api/requests/queue`; três recursos fictícios no seed.
+
+#### PK-06b · Aprovar e rejeitar
+
+- **Inclui:** UPDATE condicional; concessão criada na mesma transação; retry automático em `40P01` e `40001`.
+- **Testes:** T-PAM-03 a T-PAM-06, T-CONC-01.
+
+#### PK-06c · Aprovação em 2 níveis e RLS
+
+- **Inclui:** dois aprovadores diferentes para recursos HIGH; RLS em `access_requests` (*Should*).
+- **Testes:** T-SEC-03.
 
 ### PK-07 · Concessões e consultas controladas
 
@@ -203,5 +219,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-05b | ✅ Concluído | 25/10/2026 |
 | PK-05c | ✅ Concluído | 25/10/2026 |
 | PK-05d | ✅ Concluído | 25/10/2026 |
-| PK-06 | ⏳ Próximo | — |
+| PK-06a | ✅ Concluído | 25/10/2026 |
+| PK-06b | ⏳ Próximo | — |
+| PK-06c | 📋 Planejado | — |
 | PK-07 a PK-16 | 📋 Planejado | — |

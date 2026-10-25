@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["iam"]
+  schemas  = ["iam", "pam"]
 }
 
 enum UserStatus {
@@ -34,6 +34,8 @@ model User {
   sessions         Session[]
   aclRules         LoginAcl[] @relation("AclUser")
   aclCreated       LoginAcl[] @relation("AclCreatedBy")
+  requests         AccessRequest[] @relation("Requester")
+  decisions        AccessRequest[] @relation("Decider")
 
   @@map("users")
   @@schema("iam")
@@ -129,4 +131,67 @@ model LoginAcl {
   @@index([priority])
   @@map("login_acl")
   @@schema("iam")
+}
+
+enum Sensitivity {
+  LOW
+  MEDIUM
+  HIGH
+
+  @@map("sensitivity")
+  @@schema("pam")
+}
+
+enum AccessLevel {
+  READ
+  WRITE
+
+  @@map("access_level")
+  @@schema("pam")
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+
+  @@map("request_status")
+  @@schema("pam")
+}
+
+model Resource {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String          @unique
+  databaseName    String          @map("database_name")
+  sensitivity     Sensitivity
+  maxGrantMinutes Int             @map("max_grant_minutes")
+  active          Boolean         @default(true)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  requests        AccessRequest[]
+
+  @@map("resources")
+  @@schema("pam")
+}
+
+model AccessRequest {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requesterId      String        @map("requester_id") @db.Uuid
+  resourceId       String        @map("resource_id") @db.Uuid
+  accessLevel      AccessLevel   @map("access_level")
+  requestedMinutes Int           @map("requested_minutes")
+  justification    String
+  status           RequestStatus @default(PENDING)
+  decidedById      String?       @map("decided_by") @db.Uuid
+  decidedAt        DateTime?     @map("decided_at") @db.Timestamptz(6)
+  decisionNote     String?       @map("decision_note")
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  requester        User          @relation("Requester", fields: [requesterId], references: [id], onDelete: Restrict)
+  decidedBy        User?         @relation("Decider", fields: [decidedById], references: [id], onDelete: Restrict)
+  resource         Resource      @relation(fields: [resourceId], references: [id], onDelete: Restrict)
+
+  @@index([requesterId, createdAt(sort: Desc)])
+  @@map("access_requests")
+  @@schema("pam")
 }

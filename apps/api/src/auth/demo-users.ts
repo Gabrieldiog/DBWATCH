@@ -10,6 +10,12 @@ export const DEMO_USERS = [
   { email: 'eva.auditora@dbwatch.test', displayName: 'Eva Auditora', role: 'AUDITOR' },
 ] as const;
 
+const DEMO_RESOURCES = [
+  { name: 'Catálogo de produtos', databaseName: 'dbwatch_target', sensitivity: 'LOW' as const, maxGrantMinutes: 120 },
+  { name: 'Clientes', databaseName: 'dbwatch_target', sensitivity: 'MEDIUM' as const, maxGrantMinutes: 60 },
+  { name: 'Financeiro', databaseName: 'dbwatch_target', sensitivity: 'HIGH' as const, maxGrantMinutes: 30 },
+];
+
 export interface SeededUser {
   email: string;
   role: string;
@@ -26,6 +32,8 @@ export async function seedDemoUsers(audited: AuditedTransaction): Promise<Seeded
     }),
   );
   return audited.run({ action: 'iam.seed_demo', resourceType: 'user', metadata: { users: prepared.length } }, async (tx) => {
+    // Recursos fictícios do banco-alvo; skipDuplicates mantém o seed idempotente
+    await tx.resource.createMany({ data: DEMO_RESOURCES, skipDuplicates: true });
     const result: SeededUser[] = [];
     for (const u of prepared) {
       const existing = await tx.user.findFirst({ where: { email: { equals: u.email, mode: 'insensitive' } } });
