@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-06a · Recursos e pedidos de acesso**
+  - Schema `pam` com recursos e pedidos; o banco garante justificativa de 20 a 500 caracteres, um pedido pendente por pessoa e recurso (UNIQUE parcial), duração dentro do máximo do recurso (trigger) e que ninguém decide o próprio pedido (CHECK).
+  - `GET /api/resources`, `POST /api/requests`, `GET /api/requests/mine` e `GET /api/requests/queue`, com o pedido auditado.
+  - Três recursos fictícios no `pnpm db:seed`.
+
 - **PK-05d · ACL de login**
   - Regras de login por faixa de IP, usuário, dia da semana e horário, com prioridade, decididas por uma função do PostgreSQL e indexadas com GiST.
   - CHECKs no banco: faixa sem bits de host, janela válida e nenhuma regra que negue todos sempre.

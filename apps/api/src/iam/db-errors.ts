@@ -15,6 +15,8 @@ export function toHttpError(err: unknown, conflict = 'Registro já existe'): unk
   if (err instanceof HttpException) return err;
   const state = sqlStateOf(err);
   if (state === 'DW001') return new UnprocessableEntityException('O sistema precisa de pelo menos um ADMIN ativo');
+  if (state === 'DW002') return new UnprocessableEntityException('Recurso inativo');
+  if (state === 'DW003') return new UnprocessableEntityException('Duração acima do máximo permitido para o recurso');
   const constraint = /sqlstate:\w+ (\w+)/.exec(describeFailure(err).reason)?.[1];
   if (constraint && BY_CONSTRAINT[constraint]) return BY_CONSTRAINT[constraint]();
   if (state === '23505') return new ConflictException(conflict);
