@@ -7,6 +7,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-05c · Sessões ativas**
+  - Cada usuário vê as próprias sessões (com a atual marcada) e encerra as outras; sessão de outra pessoa responde 404.
+  - O admin vê e encerra todas as sessões de um usuário, com a contagem registrada na auditoria.
+
 - **PK-05b · Administração de usuários**
   - `GET /api/users`, `POST /api/users` (senha com 12+ caracteres, diferente do e-mail), `PATCH /api/users/:id/status`, `POST /api/users/:id/roles` e `DELETE /api/users/:id/roles/:role`.
   - Desativar revoga todas as sessões na mesma transação; a auditoria guarda o antes e o depois.

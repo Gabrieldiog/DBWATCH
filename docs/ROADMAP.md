@@ -34,7 +34,8 @@ flowchart LR
 | --- | --- | --- |
 | 22 a 24/10 | PK-00 a PK-04 | Planejamento, ambiente, banco, auditoria e login ✅ |
 | 25/10 | PK-05a, PK-05b | Permissões por rota, rotas da auditoria e administração de usuários |
-| 26 a 29/10 | PK-05c | Sessões ativas e ACL de login por IP e horário |
+| 25/10 | PK-05c | Sessões ativas e encerrar sessões |
+| 26 a 29/10 | PK-05d | ACL de login por IP e horário |
 | 29 a 31/10 | PK-06 | Pedir → aprovar pela API, com aprovação em 2 níveis e retry de concorrência |
 | 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
 | 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
@@ -121,9 +122,15 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** criar e desativar usuários (desativar revoga as sessões na mesma transação); atribuir e remover papéis; proteção do último ADMIN com lock; diff antes/depois na auditoria.
 - **Testes:** T-IAM-01 a T-IAM-05.
 
-#### PK-05c · Sessões ativas e ACL de login
+#### PK-05c · Sessões ativas ✅
 
-- **Inclui:** listar e encerrar sessões; ACL de login por IP e horário com prioridade (`inet`/`cidr` e índice GiST).
+> **Registro de QA (25/10/2026):** 83/83 testes (79 da API, 4 da web), num PostgreSQL de testes recriado do zero. Novos: listar e encerrar a própria sessão, sessão ociosa fora da lista, sessão de outra pessoa respondendo 404 (sem revelar que existe) e admin derrubando todas as sessões de um usuário com a contagem na auditoria. Testes de mutação: sem o filtro de dono, lista com sessão ociosa, `current` errado e auditoria sem contagem fazem um teste falhar em cada caso. Teste manual: o mesmo usuário em dois navegadores encerra o outro, que passa a receber 401.
+
+- **Inclui:** `GET /api/auth/sessions` e `DELETE /api/auth/sessions/:id` (as próprias), `GET` e `DELETE /api/users/:id/sessions` (admin). A regra de "sessão ativa" é a mesma do login, definida num único lugar.
+
+#### PK-05d · ACL de login
+
+- **Inclui:** regras de permitir ou negar login por faixa de IP e horário, com prioridade (`inet`/`cidr` e índice GiST), avaliadas no banco.
 
 ### PK-06 · Recursos, solicitações e aprovações
 
@@ -191,5 +198,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-04 | ✅ Concluído | 24/10/2026 |
 | PK-05a | ✅ Concluído | 25/10/2026 |
 | PK-05b | ✅ Concluído | 25/10/2026 |
-| PK-05c | 📋 Planejado | — |
+| PK-05c | ✅ Concluído | 25/10/2026 |
+| PK-05d | ⏳ Próximo | — |
 | PK-06 a PK-16 | 📋 Planejado | — |

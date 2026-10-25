@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Pa
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import type { z } from 'zod';
+import { AuthService } from '../auth/auth.service';
 import { RequirePermission } from '../auth/permissions';
 import { currentUser } from '../auth/session.guard';
 import { newUserSchema, roleSchema, statusSchema } from './users.schemas';
@@ -17,7 +18,10 @@ function parse<T extends z.ZodType>(schema: T, body: unknown): z.infer<T> {
 @ApiCookieAuth()
 @Controller('users')
 export class UsersController {
-  constructor(private readonly users: UsersService) {}
+  constructor(
+    private readonly users: UsersService,
+    private readonly auth: AuthService,
+  ) {}
 
   @Get()
   @RequirePermission('user:manage')
@@ -38,6 +42,20 @@ export class UsersController {
   @ApiOperation({ summary: 'Ativa ou desativa; desativar revoga todas as sessões na mesma transação' })
   setStatus(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) {
     return this.users.setStatus(id, parse(statusSchema, body).status);
+  }
+
+  @Get(':id/sessions')
+  @RequirePermission('user:manage')
+  @ApiOperation({ summary: 'Sessões ativas de um usuário' })
+  sessions(@Param('id', ParseUUIDPipe) id: string) {
+    return this.auth.listSessions(id);
+  }
+
+  @Delete(':id/sessions')
+  @RequirePermission('user:manage')
+  @ApiOperation({ summary: 'Encerra todas as sessões de um usuário (ex.: suspeita de senha vazada)' })
+  revokeSessions(@Param('id', ParseUUIDPipe) id: string) {
+    return this.auth.revokeAllSessions(id);
   }
 
   @Post(':id/roles')
