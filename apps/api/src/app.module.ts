@@ -6,13 +6,14 @@ import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthController } from './health/health.controller';
+import { IamModule } from './iam/iam.module';
 
 @Module({})
 export class AppModule {
   static forRoot(env: Env): DynamicModule {
     return {
       module: AppModule,
-      imports: [DatabaseModule.forRoot(env), AuditModule, AuthModule],
+      imports: [DatabaseModule.forRoot(env), AuditModule, AuthModule, IamModule],
       controllers: [HealthController],
       providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
     };

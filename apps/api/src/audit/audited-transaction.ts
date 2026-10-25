@@ -20,6 +20,7 @@ export class AuditedTransaction {
     private readonly audit: AuditService,
   ) {}
 
+  // O target é lido depois do trabalho: o chamador pode completar metadata (ex.: diff antes/depois)
   async run<T>(target: AuditTarget, work: (tx: Tx) => Promise<T>, options: TransactionOptions = {}): Promise<T> {
     const label = `dbwatch:${currentContext()?.correlationId ?? 'interno'}`;
     // A cadeia de hash exige READ COMMITTED; em outros níveis o sucesso é gravado após o COMMIT

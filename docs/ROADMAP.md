@@ -114,7 +114,9 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** guard global que exige `@Public()`, `@Authenticated()` ou `@RequirePermission(...)` em toda rota e nega o resto; permissões carregadas com a sessão a cada requisição; negações auditadas como `authz.denied`; `GET /api/audit` (filtros e paginação por cursor) e `GET /api/audit/verify`.
 - **Testes:** T-SEC-01, T-SEC-02, T-SEC-06.
 
-#### PK-05b · Administração de usuários
+#### PK-05b · Administração de usuários ✅
+
+> **Registro de QA (25/10/2026):** 79/79 testes (75 da API, 4 da web), num PostgreSQL de testes recriado do zero e de novo num banco já usado. Novos: T-IAM-01 a T-IAM-05. O T-IAM-04 abre duas transações reais que removem o papel ADMIN uma da outra: com o trigger, a segunda espera o lock e é barrada (`DW001`). Testes de mutação: **sem o advisory lock, as duas passam e o banco fica sem ADMIN**; desativar sem revogar sessões, não traduzir o `DW001`, não gravar quem deu o papel e aceitar senha curta fazem um teste falhar em cada caso. Teste manual com a admin do seed: criar, dar papel, desativar e tentar remover o próprio papel de única ADMIN (422).
 
 - **Inclui:** criar e desativar usuários (desativar revoga as sessões na mesma transação); atribuir e remover papéis; proteção do último ADMIN com lock; diff antes/depois na auditoria.
 - **Testes:** T-IAM-01 a T-IAM-05.
@@ -188,6 +190,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-03 | ✅ Concluído | 24/10/2026 |
 | PK-04 | ✅ Concluído | 24/10/2026 |
 | PK-05a | ✅ Concluído | 25/10/2026 |
-| PK-05b | ⏳ Em andamento | — |
+| PK-05b | ✅ Concluído | 25/10/2026 |
 | PK-05c | 📋 Planejado | — |
 | PK-06 a PK-16 | 📋 Planejado | — |

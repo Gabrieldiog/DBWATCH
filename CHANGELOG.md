@@ -7,6 +7,12 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-05b · Administração de usuários**
+  - `GET /api/users`, `POST /api/users` (senha com 12+ caracteres, diferente do e-mail), `PATCH /api/users/:id/status`, `POST /api/users/:id/roles` e `DELETE /api/users/:id/roles/:role`.
+  - Desativar revoga todas as sessões na mesma transação; a auditoria guarda o antes e o depois.
+  - Trigger com advisory lock garante pelo menos um ADMIN ativo, mesmo com remoções simultâneas.
+  - Erros do banco traduzidos para HTTP: e-mail repetido 409, autoatribuição de papel 403, último ADMIN 422.
+
 - **PK-05a · Permissões por rota e rotas da auditoria**
   - Guard global que nega por padrão: toda rota declara `@Public()`, `@Authenticated()` ou `@RequirePermission(...)`, e um teste percorre todas as rotas para garantir isso.
   - Permissões lidas junto com a sessão a cada requisição; cada 403 é auditado como `authz.denied`.
