@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-05a · Permissões por rota e rotas da auditoria**
+  - Guard global que nega por padrão: toda rota declara `@Public()`, `@Authenticated()` ou `@RequirePermission(...)`, e um teste percorre todas as rotas para garantir isso.
+  - Permissões lidas junto com a sessão a cada requisição; cada 403 é auditado como `authz.denied`.
+  - `GET /api/audit` com filtros e paginação por cursor, e `GET /api/audit/verify`, que verifica a cadeia de hash e registra a própria verificação. Só o AUDITOR tem acesso (separação de funções).
+
 - **PK-04 · Autenticação**
   - Login com Argon2id e sessão guardada no servidor (`iam.sessions`): o cookie `HttpOnly` e `SameSite=Strict` leva um token aleatório de 256 bits, e o banco guarda só o SHA-256 dele.
   - `POST /api/auth/login`, `POST /api/auth/logout` (revoga no banco) e `GET /api/auth/me` com papéis e permissões efetivas.

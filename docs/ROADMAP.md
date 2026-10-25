@@ -33,7 +33,8 @@ flowchart LR
 | Datas | Packs | Marco |
 | --- | --- | --- |
 | 22 a 24/10 | PK-00 a PK-04 | Planejamento, ambiente, banco, auditoria e login ✅ |
-| 25 a 29/10 | PK-05 | Permissões, rotas da auditoria, sessões ativas e ACL de login |
+| 25/10 | PK-05a, PK-05b | Permissões por rota, rotas da auditoria e administração de usuários |
+| 26 a 29/10 | PK-05c | Sessões ativas e ACL de login por IP e horário |
 | 29 a 31/10 | PK-06 | Pedir → aprovar pela API, com aprovação em 2 níveis e retry de concorrência |
 | 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
 | 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
@@ -104,8 +105,23 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 
 ### PK-05 · Autorização (RBAC)
 
-- **Inclui:** `PermissionGuard` global (nega por padrão); `@RequirePermission`; CRUD de usuários e atribuição de papéis; proteção do último ADMIN; matriz de autorização gerada a partir das rotas; `GET /api/audit` e `GET /api/audit/verify`; diff antes/depois nas ações do admin; sessões ativas e encerrar sessões; ACL de login por IP e horário com prioridade (`inet`/`cidr` e índice GiST).
-- **Testes:** T-SEC-01, T-SEC-02, T-IAM-01 a T-IAM-05.
+Dividido em três packs para caber no limite de 400 linhas cada.
+
+#### PK-05a · Permissões por rota e rotas da auditoria ✅
+
+> **Registro de QA (25/10/2026):** 74/74 testes (70 da API, 4 da web), 10 novos, num PostgreSQL de testes recriado do zero: T-SEC-01 (todas as rotas declaram acesso), T-SEC-02 (matriz de 4 rotas × 6 perfis), T-SEC-06 (injeção nos filtros), catálogo de permissões igual ao do banco, rota esquecida negada em execução, negação auditada, papel novo valendo na requisição seguinte, paginação por cursor sem repetir linhas, filtros e verificação da cadeia. Testes de mutação: liberar rota sem decorator, ignorar a permissão, cursor com `<=`, filtro ignorado e schema sem `.strict()` fazem um teste falhar em cada caso. Teste manual com os usuários do seed: a auditora lê e verifica a trilha; a admin recebe 403.
+
+- **Inclui:** guard global que exige `@Public()`, `@Authenticated()` ou `@RequirePermission(...)` em toda rota e nega o resto; permissões carregadas com a sessão a cada requisição; negações auditadas como `authz.denied`; `GET /api/audit` (filtros e paginação por cursor) e `GET /api/audit/verify`.
+- **Testes:** T-SEC-01, T-SEC-02, T-SEC-06.
+
+#### PK-05b · Administração de usuários
+
+- **Inclui:** criar e desativar usuários (desativar revoga as sessões na mesma transação); atribuir e remover papéis; proteção do último ADMIN com lock; diff antes/depois na auditoria.
+- **Testes:** T-IAM-01 a T-IAM-05.
+
+#### PK-05c · Sessões ativas e ACL de login
+
+- **Inclui:** listar e encerrar sessões; ACL de login por IP e horário com prioridade (`inet`/`cidr` e índice GiST).
 
 ### PK-06 · Recursos, solicitações e aprovações
 
@@ -171,5 +187,7 @@ Cada pack segue o ciclo **SPEC → implementação → QA → registro**. Um pac
 | PK-02 | ✅ Concluído | 23/10/2026 |
 | PK-03 | ✅ Concluído | 24/10/2026 |
 | PK-04 | ✅ Concluído | 24/10/2026 |
-| PK-05 | ⏳ Próximo | — |
+| PK-05a | ✅ Concluído | 25/10/2026 |
+| PK-05b | ⏳ Em andamento | — |
+| PK-05c | 📋 Planejado | — |
 | PK-06 a PK-16 | 📋 Planejado | — |

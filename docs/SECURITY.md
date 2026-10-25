@@ -107,6 +107,7 @@ Observações:
 - **O `ADMIN` não lê a auditoria por padrão.** Quem administra não deveria ser quem fiscaliza (separação de funções). Um usuário pode ter os dois papéis, mas essa atribuição fica registrada.
 - Um usuário pode ter vários papéis; as permissões efetivas são a união delas.
 - As permissões são carregadas por sessão e reavaliadas a cada requisição, e não guardadas no cliente.
+- Toda rota declara o acesso: `@Public()`, `@Authenticated()` (só sessão) ou `@RequirePermission(...)`. Uma rota sem declaração responde 403, ou seja, esquecer o decorator nunca abre acesso. Cada 403 vira um registro `authz.denied` na auditoria, com a rota e a permissão que faltou.
 
 ## 6. Segredos e ambientes
 

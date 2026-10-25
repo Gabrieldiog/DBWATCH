@@ -18,6 +18,8 @@ export interface SessionUser {
   id: string;
   email: string;
   displayName: string;
+  roles: string[];
+  permissions: string[];
 }
 
 const INVALID = 'Credenciais inválidas';
@@ -78,7 +80,17 @@ export class AuthService {
         lastSeenAt: { gt: new Date(now - IDLE_TIMEOUT_MS) },
         user: { status: 'ACTIVE' },
       },
-      include: { user: { select: { id: true, email: true, displayName: true } } },
+      // Papéis e permissões vêm na mesma consulta: mudança de papel vale já na próxima requisição
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            displayName: true,
+            roles: { select: { role: { select: { code: true, permissions: { select: { permissionCode: true } } } } } },
+          },
+        },
+      },
     });
     if (!session) return null;
     // Atualiza no máximo uma vez por minuto: sem isso, toda requisição viraria uma escrita no banco
@@ -88,22 +100,15 @@ export class AuthService {
         data: { lastSeenAt: new Date(now) },
       });
     }
-    return { sessionId: session.id, ...session.user };
+    const { roles, ...user } = session.user;
+    const permissions = new Set(roles.flatMap((r) => r.role.permissions.map((p) => p.permissionCode)));
+    return { sessionId: session.id, ...user, roles: roles.map((r) => r.role.code).sort(), permissions: [...permissions].sort() };
   }
 
   async logout(sessionId: string): Promise<void> {
     await this.audited.run({ action: 'auth.logout', resourceType: 'session', resourceId: sessionId }, (tx) =>
       tx.session.updateMany({ where: { id: sessionId, revokedAt: null }, data: { revokedAt: new Date() } }),
     );
-  }
-
-  async profile(userId: string) {
-    const roles = await this.prisma.userRole.findMany({
-      where: { userId },
-      select: { role: { select: { code: true, permissions: { select: { permissionCode: true } } } } },
-    });
-    const permissions = new Set(roles.flatMap((r) => r.role.permissions.map((p) => p.permissionCode)));
-    return { roles: roles.map((r) => r.role.code).sort(), permissions: [...permissions].sort() };
   }
 
   // Incremento atômico no banco: tentativas simultâneas não se perdem (sem "lost update")

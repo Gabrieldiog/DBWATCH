@@ -6,6 +6,7 @@ import type { Env } from '../config/env';
 import { ENV } from '../database/prisma.service';
 import { AuthService } from './auth.service';
 import { ABSOLUTE_TIMEOUT_MS, loginSchema, sessionCookieName } from './credentials';
+import { Authenticated } from './permissions';
 import { Public } from './public.decorator';
 import { currentUser } from './session.guard';
 
@@ -60,6 +61,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Authenticated()
   @HttpCode(204)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Revoga a sessão atual no banco e apaga o cookie' })
@@ -69,10 +71,12 @@ export class AuthController {
   }
 
   @Get('me')
+  @Authenticated()
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Usuário da sessão, com papéis e permissões efetivas' })
-  async me(@Req() req: Request) {
-    const user = currentUser(req);
-    return { id: user.id, email: user.email, displayName: user.displayName, ...(await this.auth.profile(user.id)) };
+  me(@Req() req: Request) {
+    // Lista explícita: um campo novo na sessão não vaza para o cliente sem querer
+    const { id, email, displayName, roles, permissions } = currentUser(req);
+    return { id, email, displayName, roles, permissions };
   }
 }
