@@ -78,7 +78,7 @@ Cobertura não substitui casos de borda: **todo controle de segurança precisa d
 
 | ID | Cenário | Esperado |
 | --- | --- | --- |
-| T-SEC-01 | Percorrer **todas** as rotas registradas no Nest | Cada uma tem `@RequirePermission` ou `@Public`; caso contrário, o teste falha |
+| T-SEC-01 | Percorrer **todas** as rotas registradas no Nest | Cada uma tem `@RequirePermission`, `@Authenticated` ou `@Public`; caso contrário, o teste falha. Em execução, a rota sem declaração responde 403 |
 | T-SEC-02 | Matriz rota × papel (incluindo anônimo) | 200/201, 401 ou 403 exatamente como a tabela de permissões |
 | T-SEC-03 | O usuário A busca o pedido do usuário B pelo ID | 404 (não revela existência); com o filtro do serviço removido de propósito num teste, a RLS ainda bloqueia |
 | T-SEC-04 | `POST` com `Origin` de outro site | 403 |
