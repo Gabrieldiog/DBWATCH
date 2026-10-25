@@ -32,6 +32,8 @@ model User {
   roles            UserRole[] @relation("UserRoles")
   rolesGranted     UserRole[] @relation("RolesGrantedBy")
   sessions         Session[]
+  aclRules         LoginAcl[] @relation("AclUser")
+  aclCreated       LoginAcl[] @relation("AclCreatedBy")
 
   @@map("users")
   @@schema("iam")
@@ -96,5 +98,35 @@ model Session {
   user       User      @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@map("sessions")
+  @@schema("iam")
+}
+
+enum AclAction {
+  ALLOW
+  DENY
+
+  @@map("acl_action")
+  @@schema("iam")
+}
+
+// Regras de login por IP e horário; a de menor prioridade que casar decide (sem regra: permite)
+model LoginAcl {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  priority    Int       @db.SmallInt
+  action      AclAction
+  ipRange     String?   @map("ip_range") @db.Inet
+  userId      String?   @map("user_id") @db.Uuid
+  weekdays    Int[]     @db.SmallInt
+  startTime   DateTime? @map("start_time") @db.Time(0)
+  endTime     DateTime? @map("end_time") @db.Time(0)
+  description String
+  createdById String?   @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  user        User?     @relation("AclUser", fields: [userId], references: [id], onDelete: Restrict)
+  createdBy   User?     @relation("AclCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([ipRange(ops: InetOps)], type: Gist)
+  @@index([priority])
+  @@map("login_acl")
   @@schema("iam")
 }

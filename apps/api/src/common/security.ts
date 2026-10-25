@@ -13,6 +13,11 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   next();
 }
 
+// IPv4 chega como ::ffff:10.0.0.1 num servidor IPv6; normaliza para casar com faixas IPv4 da ACL
+export function clientIp(req: Request): string | undefined {
+  return req.ip?.startsWith('::ffff:') ? req.ip.slice(7) : req.ip;
+}
+
 // CSRF: o cookie é SameSite=Strict, e ainda assim toda requisição que altera estado precisa vir do nosso front
 export function originCheck(allowedOrigin: string) {
   return (req: Request, res: Response, next: NextFunction): void => {

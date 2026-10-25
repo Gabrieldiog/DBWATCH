@@ -74,6 +74,7 @@ flowchart LR
 | Cookie | Em produção, `__Host-dbwatch_session` com `HttpOnly; Secure; SameSite=Strict; Path=/`. Em desenvolvimento (`http://localhost`), `dbwatch_session` sem `Secure`, porque o navegador recusaria o prefixo `__Host-` |
 | CSRF | Além do `SameSite=Strict`, todo método que altera estado exige `Origin` igual a `APP_ORIGIN`; caso contrário, 403 |
 | Rate limit | 20 tentativas de login por IP por minuto (`LOGIN_RATE_LIMIT`), em memória. O excesso recebe 429 antes de chegar ao banco e não vai para a auditoria, para que um ataque em massa não a inunde |
+| ACL de login | Regras de permitir ou negar por faixa de IP, usuário, dia da semana e janela de horário (fuso de Brasília), avaliadas no banco por `iam.login_acl_decision`: a de menor prioridade que casar decide; sem regra, vale só a senha. A ACL é checada **depois** da senha certa, para não revelar a quem não sabe a senha que existe uma regra. O banco recusa uma regra que negue todos, sempre |
 | Enumeração de usuários | E-mail inexistente recebe a mesma resposta e paga o mesmo custo do Argon2 que uma senha errada |
 | Cabeçalhos | `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (exceto o Swagger em `/api/docs`), `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` |
 | Expiração | 30 min de inatividade e 8 h absolutas. `last_seen_at` é atualizado no máximo uma vez por minuto, para não gerar escrita a cada requisição |
@@ -129,6 +130,7 @@ Observações:
 | Um superusuário do PostgreSQL pode desabilitar triggers e alterar a auditoria | A alteração é **detectada** pela cadeia de hash, mas não impedida | Ancorar o último hash fora do banco periodicamente |
 | A cadeia de hash não detecta a remoção das **últimas** linhas (truncar o final) | Um atacante com superusuário pode apagar o final da cadeia sem quebrar o que sobra | Âncora externa com o hash e a posição mais recentes |
 | Sem MFA no MVP | Uma senha forte é o único fator | TOTP como evolução natural |
+| ACL de login mal configurada pode trancar administradores | Uma regra larga (ex.: negar `0.0.0.0/0` à noite) também vale para o ADMIN | A CHECK barra o "nega tudo, sempre"; no pior caso, o dono do banco remove a regra por SQL. Break-glass previsto no PK-07 |
 | Rate limit em memória | Reinicia com a API e não é compartilhado entre instâncias | Suficiente para a instância única; com várias, mover o contador para o banco |
 | Bloqueio por conta permite travar a conta de alguém de propósito | Quem sabe o e-mail pode errar a senha 5 vezes | O bloqueio é curto (15 min) e o rate limit por IP reduz o alcance |
 | Instância única na VPS | Sem alta disponibilidade | Fora do escopo acadêmico |

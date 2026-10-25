@@ -35,7 +35,7 @@ flowchart LR
 | 22 a 24/10 | PK-00 a PK-04 | Planejamento, ambiente, banco, auditoria e login ✅ |
 | 25/10 | PK-05a, PK-05b | Permissões por rota, rotas da auditoria e administração de usuários |
 | 25/10 | PK-05c | Sessões ativas e encerrar sessões |
-| 26 a 29/10 | PK-05d | ACL de login por IP e horário |
+| 25/10 | PK-05d | ACL de login por IP e horário |
 | 29 a 31/10 | PK-06 | Pedir → aprovar pela API, com aprovação em 2 níveis e retry de concorrência |
 | 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
 | 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
@@ -128,9 +128,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** `GET /api/auth/sessions` e `DELETE /api/auth/sessions/:id` (as próprias), `GET` e `DELETE /api/users/:id/sessions` (admin). A regra de "sessão ativa" é a mesma do login, definida num único lugar.
 
-#### PK-05d · ACL de login
+#### PK-05d · ACL de login ✅
 
-- **Inclui:** regras de permitir ou negar login por faixa de IP e horário, com prioridade (`inet`/`cidr` e índice GiST), avaliadas no banco.
+> **Registro de QA (25/10/2026):** 88/88 testes (84 da API, 4 da web), num PostgreSQL de testes recriado do zero e de novo num banco já usado. Novos: decisão por prioridade, faixa, dia da semana e janela em horário de Brasília; CHECKs recusando faixa com bits de host, janela invertida e regra que nega todos sempre; login de IP negado (403 só com a senha certa, auditado); CRUD pela API com o antes e o depois na auditoria; normalização de IPv4 mapeado em IPv6. Testes de mutação: fuso em UTC, prioridade invertida, operador de faixa trocado, login ignorando a ACL, IP sem normalizar e erro sem tradução fazem testes falharem. Teste manual: a admin bloqueia o solicitante na rede local, o login dele recebe 403, e volta a funcionar quando a regra é removida.
+
+- **Inclui:** `iam.login_acl` com índice GiST (`inet_ops`); função `iam.login_acl_decision` no banco; `GET`, `POST` e `DELETE /api/login-acl`; checagem no login depois da senha certa.
+- **Decisão:** o Prisma 7 não suporta `cidr`; a coluna é `inet` com uma CHECK `ip_range = network(ip_range)`, que dá a mesma garantia.
 
 ### PK-06 · Recursos, solicitações e aprovações
 
@@ -199,5 +202,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-05a | ✅ Concluído | 25/10/2026 |
 | PK-05b | ✅ Concluído | 25/10/2026 |
 | PK-05c | ✅ Concluído | 25/10/2026 |
-| PK-05d | ⏳ Próximo | — |
-| PK-06 a PK-16 | 📋 Planejado | — |
+| PK-05d | ✅ Concluído | 25/10/2026 |
+| PK-06 | ⏳ Próximo | — |
+| PK-07 a PK-16 | 📋 Planejado | — |

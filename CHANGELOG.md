@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-05d · ACL de login**
+  - Regras de login por faixa de IP, usuário, dia da semana e horário, com prioridade, decididas por uma função do PostgreSQL e indexadas com GiST.
+  - CHECKs no banco: faixa sem bits de host, janela válida e nenhuma regra que negue todos sempre.
+  - `GET`, `POST` e `DELETE /api/login-acl`, com o antes e o depois na auditoria; login negado pela regra responde 403 e é auditado.
+
 - **PK-05c · Sessões ativas**
   - Cada usuário vê as próprias sessões (com a atual marcada) e encerra as outras; sessão de outra pessoa responde 404.
   - O admin vê e encerra todas as sessões de um usuário, com a contagem registrada na auditoria.
