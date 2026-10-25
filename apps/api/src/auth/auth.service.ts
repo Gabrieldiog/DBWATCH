@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service';
 import { AuditedTransaction } from '../audit/audited-transaction';
 import { PrismaService } from '../database/prisma.service';
@@ -23,6 +23,14 @@ export interface SessionUser {
 }
 
 const INVALID = 'Credenciais inválidas';
+
+// Uma única definição de "sessão ativa", usada no login e nas listagens
+const active = (now: number) => ({
+  revokedAt: null,
+  expiresAt: { gt: new Date(now) },
+  lastSeenAt: { gt: new Date(now - IDLE_TIMEOUT_MS) },
+});
+const SESSION_FIELDS = { id: true, createdAt: true, lastSeenAt: true, expiresAt: true, ip: true, userAgent: true } as const;
 
 @Injectable()
 export class AuthService {
@@ -75,9 +83,7 @@ export class AuthService {
     const session = await this.prisma.session.findFirst({
       where: {
         tokenHash: hashToken(token),
-        revokedAt: null,
-        expiresAt: { gt: new Date(now) },
-        lastSeenAt: { gt: new Date(now - IDLE_TIMEOUT_MS) },
+        ...active(now),
         user: { status: 'ACTIVE' },
       },
       // Papéis e permissões vêm na mesma consulta: mudança de papel vale já na próxima requisição
@@ -109,6 +115,31 @@ export class AuthService {
     await this.audited.run({ action: 'auth.logout', resourceType: 'session', resourceId: sessionId }, (tx) =>
       tx.session.updateMany({ where: { id: sessionId, revokedAt: null }, data: { revokedAt: new Date() } }),
     );
+  }
+
+  listSessions(userId: string) {
+    return this.prisma.session.findMany({
+      where: { userId, ...active(Date.now()) },
+      select: SESSION_FIELDS,
+      orderBy: { lastSeenAt: 'desc' },
+    });
+  }
+
+  // Filtra também pelo dono: sessão de outra pessoa responde 404, sem revelar que existe
+  async revokeOwnSession(userId: string, sessionId: string): Promise<void> {
+    await this.audited.run({ action: 'auth.session_revoke', resourceType: 'session', resourceId: sessionId }, async (tx) => {
+      const { count } = await tx.session.updateMany({ where: { id: sessionId, userId, revokedAt: null }, data: { revokedAt: new Date() } });
+      if (count === 0) throw new NotFoundException('Sessão não encontrada');
+    });
+  }
+
+  async revokeAllSessions(userId: string) {
+    const target = { action: 'iam.sessions_revoke', resourceType: 'user', resourceId: userId, metadata: {} as Record<string, number> };
+    return this.audited.run(target, async (tx) => {
+      const { count } = await tx.session.updateMany({ where: { userId, revokedAt: null }, data: { revokedAt: new Date() } });
+      target.metadata = { sessoes_revogadas: count };
+      return { revokedSessions: count };
+    });
   }
 
   // Incremento atômico no banco: tentativas simultâneas não se perdem (sem "lost update")

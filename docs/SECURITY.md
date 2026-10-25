@@ -78,7 +78,7 @@ flowchart LR
 | Cabeçalhos | `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (exceto o Swagger em `/api/docs`), `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` |
 | Expiração | 30 min de inatividade e 8 h absolutas. `last_seen_at` é atualizado no máximo uma vez por minuto, para não gerar escrita a cada requisição |
 | Logout | Revoga a sessão no banco (`revoked_at`) e apaga o cookie |
-| Encerrar sessões | O administrador pode revogar todas as sessões de um usuário. Desativar um usuário revoga suas sessões na mesma transação |
+| Encerrar sessões | Cada usuário vê e encerra as próprias sessões. O administrador pode revogar todas as sessões de um usuário. Desativar um usuário revoga suas sessões na mesma transação |
 | Bloqueio | 5 falhas seguidas bloqueiam a conta por 15 min. `failed_login_count` e `locked_until` em `iam.users`, atualizados com `UPDATE … RETURNING` atômico. Cada negação é auditada com o motivo (`senha_incorreta`, `conta_bloqueada`, `conta_desativada`, `credenciais_invalidas`) |
 
 > **Por que sessão no servidor e não JWT?** Num PAM, revogar um acesso precisa ter efeito **imediato**. Um JWT continua válido até expirar. Com a sessão no banco, revogar é um `UPDATE`, e a próxima requisição já é recusada. Ver ADR-005 em [DECISIONS.md](DECISIONS.md).

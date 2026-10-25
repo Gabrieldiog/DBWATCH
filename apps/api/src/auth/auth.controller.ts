@@ -1,4 +1,6 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import {
+  BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Inject, Logger, Param, ParseUUIDPipe, Post, Req, Res,
+} from '@nestjs/common';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { RateLimiter } from '../common/security';
@@ -68,6 +70,24 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     await this.auth.logout(currentUser(req).sessionId);
     res.clearCookie(this.cookie, { path: '/', httpOnly: true, secure: this.production, sameSite: 'strict' });
+  }
+
+  @Get('sessions')
+  @Authenticated()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Minhas sessões ativas; a atual vem marcada com current' })
+  async sessions(@Req() req: Request) {
+    const { id, sessionId } = currentUser(req);
+    return (await this.auth.listSessions(id)).map((s) => ({ ...s, current: s.id === sessionId }));
+  }
+
+  @Delete('sessions/:id')
+  @Authenticated()
+  @HttpCode(204)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Encerra uma das minhas sessões (ex.: um computador esquecido logado)' })
+  async revokeSession(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request): Promise<void> {
+    await this.auth.revokeOwnSession(currentUser(req).id, id);
   }
 
   @Get('me')
