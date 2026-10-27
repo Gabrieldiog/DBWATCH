@@ -11,8 +11,9 @@ export type Tx = Prisma.TransactionClient;
 // Diz ao banco quem está agindo, para a RLS; o true limita os valores a esta transação (o pool reaproveita conexões)
 export async function setActor(tx: Tx): Promise<void> {
   const ctx = currentContext();
-  const canReview = ctx?.permissions?.includes('request:review') ? 'on' : 'off';
-  await tx.$executeRaw`SELECT set_config('app.user_id', ${ctx?.userId ?? ''}, true), set_config('app.can_review', ${canReview}, true)`;
+  const flag = (p: string) => (ctx?.permissions?.includes(p) ? 'on' : 'off');
+  await tx.$executeRaw`SELECT set_config('app.user_id', ${ctx?.userId ?? ''}, true),
+    set_config('app.can_review', ${flag('request:review')}, true), set_config('app.can_revoke', ${flag('grant:revoke')}, true)`;
 }
 
 @Injectable()
