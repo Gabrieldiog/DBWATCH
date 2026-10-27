@@ -37,7 +37,8 @@ flowchart LR
 | 25/10 | PK-05c | Sessões ativas e encerrar sessões |
 | 25/10 | PK-05d | ACL de login por IP e horário |
 | 25/10 | PK-06a | Recursos, pedidos de acesso e fila do aprovador |
-| 26 a 31/10 | PK-06b, PK-06c | Aprovar e rejeitar com concorrência segura; 2 níveis para HIGH e RLS |
+| 27/10 | PK-06b | Aprovar e rejeitar com concorrência segura |
+| 28 a 31/10 | PK-06c | 2 níveis para HIGH e RLS |
 | 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
 | 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
 | 04 a 05/11 | PK-09 | Laboratório rodando |
@@ -146,9 +147,11 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** schema `pam` com `resources` e `access_requests`; CHECKs (justificativa, duração, separação de funções, decisão com autor); UNIQUE parcial de pendentes; índice parcial da fila; trigger que barra recurso inativo e duração acima do máximo (SQLSTATEs `DW002` e `DW003`); `GET /api/resources`, `POST /api/requests`, `GET /api/requests/mine`, `GET /api/requests/queue`; três recursos fictícios no seed.
 
-#### PK-06b · Aprovar e rejeitar
+#### PK-06b · Aprovar e rejeitar ✅
 
-- **Inclui:** UPDATE condicional; concessão criada na mesma transação; retry automático em `40P01` e `40001`.
+> **Registro de QA (27/10/2026):** 98/98 testes (94 da API, 4 da web), num PostgreSQL de testes recriado do zero e de novo num banco já usado. Novos: T-PAM-03 a T-PAM-06, T-CONC-01 (10 aprovadores ao mesmo tempo: 1 aprova, 9 recebem 409, uma concessão) e um deadlock real provocado por duas transações em ordem cruzada, refeito automaticamente (3 tentativas, 2 sucessos, nenhuma falha na auditoria). Testes de mutação: UPDATE sem a condição de status, sem retry, sem a checagem de autoaprovação, sem tratar 0 linhas, cancelamento por qualquer um e o banco sem a `EXCLUDE` fazem testes falharem. Sem a condição de status, o T-CONC-01 sozinho continua verde porque o `UNIQUE (request_id)` das concessões barra a segunda concessão: é a defesa em camadas, e o T-PAM-05 pega a mutação. Teste manual com o seed: o aprovador aprova, o segundo aprovador recebe 409 e a concessão aparece com o prazo.
+
+- **Inclui:** `pam.access_grants` com `EXCLUDE` (btree_gist) contra concessões sobrepostas; `POST /api/requests/:id/approve` (UPDATE condicional + concessão na mesma transação), `reject` (motivo obrigatório) e `cancel` (só o dono); retry automático em `40P01` e `40001` dentro da transação auditada.
 - **Testes:** T-PAM-03 a T-PAM-06, T-CONC-01.
 
 #### PK-06c · Aprovação em 2 níveis e RLS
@@ -158,7 +161,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 ### PK-07 · Concessões e consultas controladas
 
-- **PK-07a (Must):** `pam.access_grants` com EXCLUDE; revogação; job de auditoria das expirações; aviso antes de expirar; break-glass (*Could*).
+- **PK-07a (Must):** `pam.access_grants` com EXCLUDE (tabela criada no PK-06b); revogação; job de auditoria das expirações; aviso antes de expirar; break-glass (*Could*).
 - **PK-07b (Should):** `dbwatch_target` com dados fictícios; `pam.query_templates`; executor somente leitura; `pam.query_executions`.
 - **Testes:** T-PAM-07 a T-PAM-10, T-DB-05, T-SEC-06.
 
@@ -220,6 +223,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-05c | ✅ Concluído | 25/10/2026 |
 | PK-05d | ✅ Concluído | 25/10/2026 |
 | PK-06a | ✅ Concluído | 25/10/2026 |
-| PK-06b | ⏳ Próximo | — |
-| PK-06c | 📋 Planejado | — |
+| PK-06b | ✅ Concluído | 27/10/2026 |
+| PK-06c | ⏳ Próximo | — |
 | PK-07 a PK-16 | 📋 Planejado | — |

@@ -36,6 +36,7 @@ model User {
   aclCreated       LoginAcl[] @relation("AclCreatedBy")
   requests         AccessRequest[] @relation("Requester")
   decisions        AccessRequest[] @relation("Decider")
+  grants           AccessGrant[]   @relation("Grantee")
 
   @@map("users")
   @@schema("iam")
@@ -169,6 +170,7 @@ model Resource {
   active          Boolean         @default(true)
   createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   requests        AccessRequest[]
+  grants          AccessGrant[]
 
   @@map("resources")
   @@schema("pam")
@@ -190,8 +192,27 @@ model AccessRequest {
   requester        User          @relation("Requester", fields: [requesterId], references: [id], onDelete: Restrict)
   decidedBy        User?         @relation("Decider", fields: [decidedById], references: [id], onDelete: Restrict)
   resource         Resource      @relation(fields: [resourceId], references: [id], onDelete: Restrict)
+  grant            AccessGrant?
 
   @@index([requesterId, createdAt(sort: Desc)])
   @@map("access_requests")
+  @@schema("pam")
+}
+
+// Concessão temporária gerada por um pedido aprovado; o período é fechado-aberto [starts_at, expires_at)
+model AccessGrant {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId   String        @unique @map("request_id") @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  resourceId  String        @map("resource_id") @db.Uuid
+  accessLevel AccessLevel   @map("access_level")
+  startsAt    DateTime      @map("starts_at") @db.Timestamptz(6)
+  expiresAt   DateTime      @map("expires_at") @db.Timestamptz(6)
+  revokedAt   DateTime?     @map("revoked_at") @db.Timestamptz(6)
+  request     AccessRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  user        User          @relation("Grantee", fields: [userId], references: [id], onDelete: Restrict)
+  resource    Resource      @relation(fields: [resourceId], references: [id], onDelete: Restrict)
+
+  @@map("access_grants")
   @@schema("pam")
 }
