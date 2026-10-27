@@ -7,6 +7,12 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-06b · Aprovar e rejeitar**
+  - Aprovação com UPDATE condicional: com vários aprovadores ao mesmo tempo, só um vence e os outros recebem 409.
+  - A concessão temporária nasce na mesma transação da aprovação; a `EXCLUDE` do banco impede duas concessões sobrepostas no tempo.
+  - Rejeição com motivo obrigatório e cancelamento só pelo dono do pedido; ninguém decide o próprio pedido (API e CHECK do banco).
+  - Deadlock e falha de serialização são refeitos automaticamente (até 3 tentativas), e só o resultado final entra na auditoria.
+
 - **PK-06a · Recursos e pedidos de acesso**
   - Schema `pam` com recursos e pedidos; o banco garante justificativa de 20 a 500 caracteres, um pedido pendente por pessoa e recurso (UNIQUE parcial), duração dentro do máximo do recurso (trigger) e que ninguém decide o próprio pedido (CHECK).
   - `GET /api/resources`, `POST /api/requests`, `GET /api/requests/mine` e `GET /api/requests/queue`, com o pedido auditado.

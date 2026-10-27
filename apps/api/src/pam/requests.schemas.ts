@@ -10,3 +10,5 @@ export const newRequestSchema = z
   })
   .strict();
 export type NewRequest = z.infer<typeof newRequestSchema>;
+
+export const decisionSchema = z.object({ note: z.string().trim().min(5).max(500).optional() }).strict();
