@@ -38,7 +38,7 @@ flowchart LR
 | 25/10 | PK-05d | ACL de login por IP e horário |
 | 25/10 | PK-06a | Recursos, pedidos de acesso e fila do aprovador |
 | 27/10 | PK-06b | Aprovar e rejeitar com concorrência segura |
-| 28 a 31/10 | PK-06c | 2 níveis para HIGH e RLS |
+| 27/10 | PK-06c | 2 níveis para HIGH e RLS |
 | 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
 | 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
 | 04 a 05/11 | PK-09 | Laboratório rodando |
@@ -154,9 +154,11 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** `pam.access_grants` com `EXCLUDE` (btree_gist) contra concessões sobrepostas; `POST /api/requests/:id/approve` (UPDATE condicional + concessão na mesma transação), `reject` (motivo obrigatório) e `cancel` (só o dono); retry automático em `40P01` e `40001` dentro da transação auditada.
 - **Testes:** T-PAM-03 a T-PAM-06, T-CONC-01.
 
-#### PK-06c · Aprovação em 2 níveis e RLS
+#### PK-06c · Aprovação em 2 níveis e RLS ✅
 
-- **Inclui:** dois aprovadores diferentes para recursos HIGH; RLS em `access_requests` (*Should*).
+> **Registro de QA (27/10/2026):** 102/102 testes (98 da API, 4 da web), num PostgreSQL de testes recriado do zero e de novo num banco já usado; os 94 testes anteriores continuaram verdes com a RLS ligada. Novos: dois aprovadores diferentes para HIGH (a concessão só sai na segunda), o banco recusando HIGH com um aprovador só (`DW004`) ou com a mesma pessoa duas vezes (CHECK), T-SEC-03 (pedido alheio responde 404) e a RLS testada direto no SQL (sem identidade, outra pessoa, dono, revisor, UPDATE alheio com 0 linhas e INSERT em nome de outro com `42501`). Testes de mutação: HIGH com um aprovador, mesmo aprovador duas vezes e leituras sem declarar o usuário fazem testes falharem. **Sem o filtro do dono na API, o T-SEC-03 continua verde porque a RLS barra sozinha; sem o filtro e com a RLS desligada, ele falha.** Teste manual no recurso Financeiro: primeira aprovação deixa pendente (1 de 2), o mesmo aprovador recebe 403, o segundo aprova e a concessão sai; a admin recebe 404 ao abrir o pedido.
+
+- **Inclui:** `first_approved_by` e `first_approved_at`; trigger que exige dois aprovadores em recursos HIGH; RLS em `pam.access_requests` (SELECT, INSERT e UPDATE) com o usuário declarado por `set_config` em cada transação; `GET /api/requests/:id`.
 - **Testes:** T-SEC-03.
 
 ### PK-07 · Concessões e consultas controladas
@@ -224,5 +226,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-05d | ✅ Concluído | 25/10/2026 |
 | PK-06a | ✅ Concluído | 25/10/2026 |
 | PK-06b | ✅ Concluído | 27/10/2026 |
-| PK-06c | ⏳ Próximo | — |
-| PK-07 a PK-16 | 📋 Planejado | — |
+| PK-06c | ✅ Concluído | 27/10/2026 |
+| PK-07 | ⏳ Próximo | — |
+| PK-08 a PK-16 | 📋 Planejado | — |

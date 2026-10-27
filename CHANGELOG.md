@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-06c · Aprovação em 2 níveis e RLS**
+  - Recursos HIGH exigem dois aprovadores diferentes; a concessão só nasce na segunda aprovação, e um trigger garante isso no banco.
+  - Row Level Security em `pam.access_requests`: o banco só mostra, altera ou aceita pedidos de quem se declarou na transação.
+  - `GET /api/requests/:id`: dono e aprovadores veem; os demais recebem 404.
+
 - **PK-06b · Aprovar e rejeitar**
   - Aprovação com UPDATE condicional: com vários aprovadores ao mesmo tempo, só um vence e os outros recebem 409.
   - A concessão temporária nasce na mesma transação da aprovação; a `EXCLUDE` do banco impede duas concessões sobrepostas no tempo.

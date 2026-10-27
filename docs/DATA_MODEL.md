@@ -363,7 +363,7 @@ CREATE POLICY requests_visibility ON pam.access_requests
 
 A API executa `SELECT set_config('app.user_id', $1, true)` e `set_config('app.can_review', ...)` no início de cada transação (o terceiro argumento `true` limita o valor à transação). Se um bug esquecer o filtro `WHERE requester_id = ...`, o banco ainda devolve apenas as linhas permitidas.
 
-> Prioridade **Should** no MVP: entra no PK-06 se o calendário permitir. Ver a linha de corte em [ROADMAP.md](ROADMAP.md).
+> **Implementado no PK-06c**, com políticas de SELECT, INSERT (`WITH CHECK`: ninguém cria pedido em nome de outro) e UPDATE. Toda transação da API declara o usuário (`setActor`); um teste prova que, sem o filtro da API, a RLS sozinha ainda barra o acesso.
 
 ## 4. Índices
 

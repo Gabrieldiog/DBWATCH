@@ -36,7 +36,7 @@ export class SessionGuard implements CanActivate {
     const user = token ? await this.auth.resolveSession(token) : null;
     if (!user) throw new UnauthorizedException('Sessão inválida ou expirada');
     users.set(req, user);
-    setContextUser(user.id);
+    setContextUser(user.id, user.permissions);
     // Rota sem declaração nenhuma é tratada como proibida: esquecer o decorator nunca abre acesso
     const missing = required === undefined ? ['rota_sem_permissao'] : required.filter((p) => !user.permissions.includes(p));
     if (missing.length === 0) return true;

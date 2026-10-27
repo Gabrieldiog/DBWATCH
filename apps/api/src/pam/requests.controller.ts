@@ -73,4 +73,13 @@ export class RequestsController {
   queue(@Req() req: Request) {
     return this.requests.queue(currentUser(req).id);
   }
+
+  // Por último: :id não pode capturar /requests/mine nem /requests/queue
+  @Get('requests/:id')
+  @RequirePermission('request:read:own')
+  @ApiOperation({ summary: 'Um pedido: o dono ou um aprovador vê; para os outros, 404' })
+  findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
+    const user = currentUser(req);
+    return this.requests.findOne(id, user.id, user.permissions.includes('request:review'));
+  }
 }

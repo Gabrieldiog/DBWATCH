@@ -69,6 +69,8 @@ describe('pedidos de acesso', () => {
       [user.id, await newResource(), JUSTIFICATIVA],
     );
     await withClient('dbwatch_app', async (db) => {
+      // Com RLS, quem não se declara não enxerga a linha; aqui a sessão se declara revisora
+      await db.query("SELECT set_config('app.can_review', 'on', false)");
       const decide = (by: string | null) => db.query("UPDATE pam.access_requests SET status = 'APPROVED', decided_by = $2, decided_at = now() WHERE id = $1", [id, by]);
       expect(await sqlState(decide(user.id))).toBe('23514');
       expect(await sqlState(decide(null))).toBe('23514');
