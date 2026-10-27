@@ -10,6 +10,7 @@ export interface RequestContext {
   correlationId: string;
   ip?: string;
   userId?: string;
+  permissions?: string[];
 }
 
 // Leva o contexto da requisição até a auditoria sem passar parâmetro por todas as camadas
@@ -33,9 +34,9 @@ export function currentContext(): RequestContext | undefined {
 }
 
 // Chamado pelo guard de sessão: a partir daqui, a auditoria sabe quem é o autor
-export function setContextUser(userId: string): void {
+export function setContextUser(userId: string, permissions: string[] = []): void {
   const store = storage.getStore();
-  if (store) store.userId = userId;
+  if (store) Object.assign(store, { userId, permissions });
 }
 
 export function runWithContext<T>(context: RequestContext, fn: () => T): T {

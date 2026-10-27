@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { currentContext } from '../common/correlation-id';
-import { PrismaService, type Tx } from '../database/prisma.service';
+import { PrismaService, setActor, type Tx } from '../database/prisma.service';
 import type { Prisma } from '../generated/prisma/client';
 import { type AuditEntry, AuditService } from './audit.service';
 import { describeFailure, sqlStateOf } from './failure';
@@ -62,6 +62,7 @@ export class AuditedTransaction {
       async (tx) => {
         // Identifica a transação em pg_stat_activity; o true limita o valor a esta transação
         await tx.$executeRaw`SELECT set_config('application_name', ${label}, true)`;
+        await setActor(tx);
         const value = await work(tx);
         // Sucesso na mesma transação: ou a ação e o registro são confirmados juntos, ou nenhum
         if (auditInside) await this.audit.record({ ...target, outcome: 'SUCCESS' }, tx);
