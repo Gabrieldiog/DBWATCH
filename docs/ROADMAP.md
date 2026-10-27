@@ -39,7 +39,8 @@ flowchart LR
 | 25/10 | PK-06a | Recursos, pedidos de acesso e fila do aprovador |
 | 27/10 | PK-06b | Aprovar e rejeitar com concorrência segura |
 | 27/10 | PK-06c | 2 níveis para HIGH e RLS |
-| 31/10 a 02/11 | PK-07 | **Marco 1:** PAM completo pela API (Swagger) |
+| 27/10 | PK-07a | Meus acessos, revogação e job de expiração |
+| 28/10 a 02/11 | PK-07b, PK-07c | **Marco 1:** consultas controladas e break-glass; PAM completo pela API (Swagger) |
 | 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
 | 04 a 05/11 | PK-09 | Laboratório rodando |
 | 05 a 08/11 | PK-10 a PK-12 | **Marco 2:** console com menu lateral, cards e gráficos legíveis |
@@ -163,7 +164,16 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 ### PK-07 · Concessões e consultas controladas
 
-- **PK-07a (Must):** `pam.access_grants` com EXCLUDE (tabela criada no PK-06b); revogação; job de auditoria das expirações; aviso antes de expirar; break-glass (*Could*).
+#### PK-07a · Meus acessos, revogação e expiração ✅
+
+> **Registro de QA (27/10/2026):** 106/106 testes (102 da API, 4 da web), num PostgreSQL de testes recriado do zero e de novo num banco já usado. Novos: estado calculado pelo relógio do banco (ACTIVE, EXPIRED, REVOKED) com segundos restantes e aviso de 5 min; revogação com motivo (409 para já revogada ou vencida, 404 para inexistente, 403 sem permissão); job que audita cada expiração uma vez só e ignora vivas e revogadas; RLS nas concessões. Testes de mutação: estado ignorando revogação, revogar concessão vencida, job auditando de novo ou auditando revogada, aviso tardio e `can_revoke` não declarado fazem testes falharem. Teste manual com o job a cada 2 s: concessão aprovada aparece ACTIVE com aviso; envelhecida no banco, o job grava `pam.grant_expired` e ela passa a EXPIRED.
+
+- **Inclui:** `GET /api/grants/mine`, `GET /api/grants/active`, `POST /api/grants/:id/revoke`; colunas de revogação (autor e motivo obrigatórios por CHECK) e `expiry_audited_at`; job com intervalo `GRANT_SWEEP_SECONDS`; RLS em `pam.access_grants`.
+
+#### PK-07b · Consultas controladas
+
+#### PK-07c · Break-glass (*Could*)
+
 - **PK-07b (Should):** `dbwatch_target` com dados fictícios; `pam.query_templates`; executor somente leitura; `pam.query_executions`.
 - **Testes:** T-PAM-07 a T-PAM-10, T-DB-05, T-SEC-06.
 
@@ -227,5 +237,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-06a | ✅ Concluído | 25/10/2026 |
 | PK-06b | ✅ Concluído | 27/10/2026 |
 | PK-06c | ✅ Concluído | 27/10/2026 |
-| PK-07 | ⏳ Próximo | — |
+| PK-07a | ✅ Concluído | 27/10/2026 |
+| PK-07b | ⏳ Próximo | — |
 | PK-08 a PK-16 | 📋 Planejado | — |

@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-07a · Meus acessos, revogação e expiração**
+  - `GET /api/grants/mine` com estado calculado pelo relógio do banco, segundos restantes e aviso de expiração em 5 min.
+  - `GET /api/grants/active` e `POST /api/grants/:id/revoke` (motivo obrigatório; já revogada ou vencida responde 409).
+  - Job que registra cada expiração na auditoria uma única vez (`GRANT_SWEEP_SECONDS`), e RLS nas concessões.
+
 - **PK-06c · Aprovação em 2 níveis e RLS**
   - Recursos HIGH exigem dois aprovadores diferentes; a concessão só nasce na segunda aprovação, e um trigger garante isso no banco.
   - Row Level Security em `pam.access_requests`: o banco só mostra, altera ou aceita pedidos de quem se declarou na transação.

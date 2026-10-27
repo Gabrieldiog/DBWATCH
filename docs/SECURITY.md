@@ -109,6 +109,7 @@ Observações:
 - Um usuário pode ter vários papéis; as permissões efetivas são a união delas.
 - As permissões são carregadas por sessão e reavaliadas a cada requisição, e não guardadas no cliente.
 - **Recursos HIGH exigem dois aprovadores diferentes.** A primeira aprovação só registra quem aprovou; a concessão nasce na segunda, de outra pessoa. Um trigger garante a regra no banco (`DW004`).
+- **Concessões expiram pelo relógio do banco**, não por um job: o estado é calculado na consulta (ADR-010). O job só registra cada expiração na auditoria, uma vez. A revogação exige autor e motivo (CHECK) e vale na requisição seguinte. As concessões também têm RLS.
 - **RLS contra IDOR em `pam.access_requests`.** Cada transação da API declara o usuário com `set_config('app.user_id', ..., true)`; o banco só devolve, altera ou aceita pedidos do próprio usuário, ou de qualquer um para quem tem `request:review`.
 - **O sistema nunca fica sem ADMIN ativo.** A regra mora no banco: triggers em `iam.user_roles` (remoção do papel) e `iam.users` (desativação) checam se sobra algum ADMIN ativo e, se não, abortam com o SQLSTATE próprio `DW001`, que a API traduz para 422. Um `pg_advisory_xact_lock` serializa essas mudanças, para que duas remoções simultâneas não passem juntas.
 - Desativar um usuário revoga todas as sessões dele na mesma transação. Mudanças de status e de papel entram na auditoria com o antes e o depois.

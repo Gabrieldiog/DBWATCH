@@ -13,7 +13,7 @@ export async function createApp(
   overrides: Record<string, string> = {},
   controllers: Type[] = [],
 ): Promise<NestExpressApplication> {
-  const env: Env = loadEnv({ DATABASE_URL: url, APP_ORIGIN: ORIGIN, ...overrides });
+  const env: Env = loadEnv({ DATABASE_URL: url, APP_ORIGIN: ORIGIN, GRANT_SWEEP_SECONDS: '0', ...overrides });
   const moduleRef = await Test.createTestingModule({ imports: [AppModule.forRoot(env)], controllers }).compile();
   const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
   configureApp(app, env);

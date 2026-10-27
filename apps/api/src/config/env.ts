@@ -9,6 +9,8 @@ const envSchema = z.object({
   APP_ORIGIN: z.url().default('http://localhost:3000'),
   LOGIN_RATE_LIMIT: z.coerce.number().int().min(1).default(20),
   API_DOCS: z.enum(['on', 'off']).default('on'),
+  // Intervalo do job que audita expirações; 0 desliga (os testes chamam o job direto)
+  GRANT_SWEEP_SECONDS: z.coerce.number().int().min(0).default(30),
 });
 
 export type Env = z.infer<typeof envSchema>;
