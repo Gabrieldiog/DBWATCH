@@ -170,7 +170,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** `GET /api/grants/mine`, `GET /api/grants/active`, `POST /api/grants/:id/revoke`; colunas de revogação (autor e motivo obrigatórios por CHECK) e `expiry_audited_at`; job com intervalo `GRANT_SWEEP_SECONDS`; RLS em `pam.access_grants`.
 
-#### PK-07b · Consultas controladas
+#### PK-07b · Consultas controladas ✅
+
+> **Registro de QA (27/10/2026):** 110/110 testes (106 da API, 4 da web), num PostgreSQL de testes recriado do zero (o setup dos testes também cria o banco-alvo) e de novo num banco já usado. Novos: execução com concessão ativa (catálogo sem SQL exposto, limite de linhas, e-mail mascarado, execução registrada), T-PAM-07 e T-PAM-08 (sem concessão, expirada e revogada: 403 auditado com o motivo), T-PAM-09 (`pg_sleep` acima do tempo-limite: o banco cancela com `57014`, resposta 504, falha registrada) e T-SEC-06 nos parâmetros. Testes de mutação: sem tempo-limite, sem limite de linhas, ignorando revogação, usando a concessão mais antiga e aceitando parâmetro extra fazem testes falharem. Tirar o `READ ONLY` da transação não muda nada, porque o papel `dbwatch_target_ro` já nasce somente leitura e o catálogo só tem SELECT: são duas camadas. Teste manual: antes da concessão, 403; depois da aprovação, 50 linhas com e-mail mascarado em 10 ms. Orçamento: 427 linhas, aprovado acima de 400.
+
+- **Inclui:** `infra/target/schema.sql` (dados fictícios gerados com `generate_series`) e `pnpm db:target`; `pam.query_templates` (catálogo só por migration, 4 consultas, uma delas LAB) e `pam.query_executions`; `GET /api/queries` e `POST /api/queries/:code/execute` com papel somente leitura, transação `READ ONLY`, `statement_timeout` por template e parâmetros posicionais.
+- **Fica para o PK-07c:** templates de nível WRITE e o T-PAM-10.
 
 #### PK-07c · Break-glass (*Could*)
 
@@ -238,5 +243,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-06b | ✅ Concluído | 27/10/2026 |
 | PK-06c | ✅ Concluído | 27/10/2026 |
 | PK-07a | ✅ Concluído | 27/10/2026 |
-| PK-07b | ⏳ Próximo | — |
+| PK-07b | ✅ Concluído | 27/10/2026 |
+| PK-07c | ⏳ Próximo | — |
 | PK-08 a PK-16 | 📋 Planejado | — |

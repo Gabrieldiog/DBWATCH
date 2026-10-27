@@ -378,6 +378,7 @@ cp .env.example .env                   # troque as senhas; nunca use credenciais
 pnpm install
 docker compose up -d --wait            # PostgreSQL 16 (5432) e testes (5433), já com os papéis do banco
 pnpm db:migrate                        # aplica as migrations com o papel dbwatch_migrator
+pnpm db:target                         # banco-alvo com dados fictícios para as consultas controladas
 pnpm db:seed                           # usuários de demonstração; as senhas aparecem só no terminal
 pnpm dev                               # web em http://localhost:3000 · API em http://localhost:3000/api
 ```

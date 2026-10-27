@@ -15,6 +15,7 @@
     "db:migrate": "pnpm --filter @dbwatch/api db:migrate",
     "db:status": "pnpm --filter @dbwatch/api db:status",
     "db:seed": "pnpm --filter @dbwatch/api db:seed",
+    "db:target": "pnpm --filter @dbwatch/api db:target",
     "test:report": "pnpm -r test:report"
   },
   "devDependencies": {

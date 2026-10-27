@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-07b · Consultas controladas**
+  - Banco-alvo `dbwatch_target` com dados fictícios (`pnpm db:target`): produtos, clientes e pedidos.
+  - Catálogo de consultas versionado por migration e `POST /api/queries/:code/execute`: só com concessão ativa, papel e transação somente leitura, tempo-limite e limite de linhas por consulta.
+  - Cada execução fica registrada (`pam.query_executions`) e auditada; expirada, revogada ou sem concessão responde 403 com o motivo, e tempo-limite responde 504.
+
 - **PK-07a · Meus acessos, revogação e expiração**
   - `GET /api/grants/mine` com estado calculado pelo relógio do banco, segundos restantes e aviso de expiração em 5 min.
   - `GET /api/grants/active` e `POST /api/grants/:id/revoke` (motivo obrigatório; já revogada ou vencida responde 409).

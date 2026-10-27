@@ -10,6 +10,8 @@ const envSchema = z.object({
   LOGIN_RATE_LIMIT: z.coerce.number().int().min(1).default(20),
   API_DOCS: z.enum(['on', 'off']).default('on'),
   // Intervalo do job que audita expirações; 0 desliga (os testes chamam o job direto)
+  // Banco-alvo das consultas controladas, com o papel somente leitura; sem ela, as consultas respondem 503
+  TARGET_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
   GRANT_SWEEP_SECONDS: z.coerce.number().int().min(0).default(30),
 });
 

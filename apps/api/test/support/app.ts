@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { configureApp, setupDocs } from '../../src/app.setup';
 import { type Env, loadEnv } from '../../src/config/env';
+import { urlFor } from './db';
 
 export const ORIGIN = 'http://localhost:3000';
 
@@ -13,7 +14,7 @@ export async function createApp(
   overrides: Record<string, string> = {},
   controllers: Type[] = [],
 ): Promise<NestExpressApplication> {
-  const env: Env = loadEnv({ DATABASE_URL: url, APP_ORIGIN: ORIGIN, GRANT_SWEEP_SECONDS: '0', ...overrides });
+  const env: Env = loadEnv({ DATABASE_URL: url, APP_ORIGIN: ORIGIN, GRANT_SWEEP_SECONDS: '0', TARGET_DATABASE_URL: urlFor('dbwatch_target_ro', 'dbwatch_target'), ...overrides });
   const moduleRef = await Test.createTestingModule({ imports: [AppModule.forRoot(env)], controllers }).compile();
   const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
   configureApp(app, env);
