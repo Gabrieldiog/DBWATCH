@@ -3,7 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 // Espelha o catálogo iam.permissions; um teste garante que os dois não divergem
 export const PERMISSIONS = [
   'request:create', 'request:read:own', 'request:review', 'grant:read:own', 'grant:revoke', 'query:execute',
-  'user:manage', 'role:assign', 'audit:read', 'audit:verify', 'monitor:read', 'lab:run',
+  'user:manage', 'role:assign', 'audit:read', 'audit:verify', 'monitor:read', 'lab:run', 'breakglass:use',
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
