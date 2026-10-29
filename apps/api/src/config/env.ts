@@ -12,6 +12,9 @@ const envSchema = z.object({
   // Intervalo do job que audita expirações; 0 desliga (os testes chamam o job direto)
   // Banco-alvo das consultas controladas, com o papel somente leitura; sem ela, as consultas respondem 503
   TARGET_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
+  // Coletor do monitor (papel dbwatch_monitor) e intervalo entre amostras; 0 desliga
+  MONITOR_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
+  MONITOR_SAMPLE_SECONDS: z.coerce.number().int().min(0).default(5),
   GRANT_SWEEP_SECONDS: z.coerce.number().int().min(0).default(30),
 });
 
