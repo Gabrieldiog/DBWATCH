@@ -7,6 +7,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-07c · Break-glass**
+  - Acesso de emergência do ADMIN: até 15 min, somente leitura, justificativa longa, sem aprovação prévia, auditado como alerta.
+  - Fila e revisão posterior por outra pessoa; o banco garante permissão, prazo, justificativa e que pedido comum nasce pendente.
+
 - **PK-07b · Consultas controladas**
   - Banco-alvo `dbwatch_target` com dados fictícios (`pnpm db:target`): produtos, clientes e pedidos.
   - Catálogo de consultas versionado por migration e `POST /api/queries/:code/execute`: só com concessão ativa, papel e transação somente leitura, tempo-limite e limite de linhas por consulta.

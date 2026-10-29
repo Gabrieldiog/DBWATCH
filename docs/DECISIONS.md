@@ -28,6 +28,7 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 | 020 | Página de testes lê o relatório gerado, nunca executa testes | Aceita |
 | 021 | Documentação da API com Swagger em `/api/docs` | Aceita |
 | 022 | JumpServer só como referência de ideias, sem código | Aceita |
+| 023 | Break-glass como única exceção à separação de funções | Aceita |
 
 ---
 
@@ -178,3 +179,10 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 - **Contexto:** o JumpServer é um PAM maduro, mas é licenciado em GPL v3.
 - **Decisão:** estudar a arquitetura e os fluxos e reescrever do zero o que fizer sentido, sem copiar código. Ideias aproveitadas: motivo em cada login negado, diff antes/depois nas ações do admin, sessões ativas, aprovação em 2 níveis, ACL de login por IP e horário, aviso antes de expirar.
 - **Consequências:** o DBWATCH continua com licença própria; cada ideia passa pelos nossos critérios (regra também no banco e teste contra PostgreSQL real).
+
+### ADR-023 · Break-glass como única exceção à separação de funções
+
+- **Contexto:** num incidente, esperar um aprovador pode custar caro; sem uma saída oficial, a tentação é usar a credencial do dono do banco.
+- **Decisão:** quem tem `breakglass:use` (só ADMIN) abre um acesso somente leitura de até 15 min, com justificativa de pelo menos 40 caracteres, sem aprovação prévia. A CHECK de separação de funções aceita isso só quando `break_glass` é verdadeiro; prazo, justificativa e permissão são garantidos no banco (CHECK e trigger). O uso é auditado como alerta e entra numa fila de revisão por outra pessoa.
+- **Alternativas:** não ter break-glass (o incidente vira uso da conta do dono do banco, sem rastro); aprovação posterior obrigatória para manter o acesso (mais complexo, pouco ganho com 15 min).
+- **Consequências:** a emergência tem caminho oficial, curto e rastreado; a revisão posterior fecha o ciclo de responsabilidade.

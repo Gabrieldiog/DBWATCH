@@ -8,6 +8,7 @@ const BY_CONSTRAINT: Record<string, () => HttpException> = {
   login_acl_no_deny_all_ck: () => new BadRequestException('Uma regra não pode negar o login de todos, sempre'),
   login_acl_ip_range_ck: () => new BadRequestException('Faixa de IP com bits de host (use 10.0.0.0/8, não 10.0.0.1/8)'),
   access_requests_sod_ck: () => new ForbiddenException('Ninguém decide o próprio pedido'),
+  access_requests_review_ck: () => new ForbiddenException('O break-glass precisa ser revisado por outra pessoa'),
   login_acl_window_ck: () => new BadRequestException('O horário de início precisa ser antes do fim'),
 };
 
@@ -18,6 +19,7 @@ export function toHttpError(err: unknown, conflict = 'Registro já existe'): unk
   if (state === 'DW001') return new UnprocessableEntityException('O sistema precisa de pelo menos um ADMIN ativo');
   if (state === 'DW002') return new UnprocessableEntityException('Recurso inativo');
   if (state === 'DW004') return new UnprocessableEntityException('Recurso HIGH exige dois aprovadores diferentes');
+  if (state === 'DW006') return new ForbiddenException('Sem permissão de break-glass');
   if (state === 'DW003') return new UnprocessableEntityException('Duração acima do máximo permitido para o recurso');
   const constraint = /sqlstate:\w+ (\w+)/.exec(describeFailure(err).reason)?.[1];
   if (constraint && BY_CONSTRAINT[constraint]) return BY_CONSTRAINT[constraint]();
