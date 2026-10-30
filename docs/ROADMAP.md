@@ -41,7 +41,8 @@ flowchart LR
 | 27/10 | PK-06c | 2 níveis para HIGH e RLS |
 | 27/10 | PK-07a | Meus acessos, revogação e job de expiração |
 | 28/10 a 02/11 | PK-07b, PK-07c | **Marco 1:** consultas controladas e break-glass; PAM completo pela API (Swagger) |
-| 02 a 04/11 | PK-08 | Monitor coletando, alertas e SSE |
+| 29/10 | PK-08a | Monitor coletando: sessões, locks e taxas |
+| 30/10 a 04/11 | PK-08b | Eventos da aplicação, alertas e SSE |
 | 04 a 05/11 | PK-09 | Laboratório rodando |
 | 05 a 08/11 | PK-10 a PK-12 | **Marco 2:** console com menu lateral, cards e gráficos legíveis |
 | 09/11 | PK-13, PK-14 | QA final e deploy na VPS · **congelamento de código** |
@@ -188,6 +189,14 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 ### PK-08 · Coletor do monitor
 
+#### PK-08a · Coletor e leitura ✅
+
+> **Registro de QA (29/10/2026):** 119/119 testes (115 da API, 4 da web), num PostgreSQL de testes recriado do zero, de novo num banco já usado e os do monitor mais 3 vezes seguidas (sem oscilação). Novos: T-MON-01 (lock wait real com duas conexões: par bloqueado/bloqueador correto), T-MON-02 (deadlock real: delta ≥ 1 na série), T-MON-04 (query com "segredo-123" rodando durante a amostra: nada gravado além do comando `SELECT`), T-MON-05 (`pg_stat_reset()`: nenhuma taxa negativa), retenção de 7 dias e permissões (o papel do monitor não lê `iam`). Testes de mutação: gravar o texto da query (o banco recusa pela CHECK da coluna `command`), delta sem tratar reinício, sem retenção e bloqueador errado fazem testes falharem. Teste manual com o coletor a cada 1 s: duas sessões `psql` disputando a mesma linha aparecem como "sessao-B espera sessao-A" (`transactionid`, `ShareLock`).
+
+- **Inclui:** schema `monitor` (fora do `schema.prisma`) com `db_samples`, `activity_samples` e `lock_samples`, índices BRIN e grants só para `dbwatch_monitor`; coletor transacional a cada `MONITOR_SAMPLE_SECONDS`; `GET /api/monitor/overview`, `/locks` e `/series` (taxas com `LAG()`).
+
+#### PK-08b · Eventos, alertas e SSE
+
 - **Inclui:** amostras de `pg_stat_activity`, `pg_locks`, `pg_stat_database` e `pg_stat_user_tables`; `monitor.app_events` via `runInTransaction`; view `event_feed`; endpoints de leitura; SSE; retenção; alertas (lock acima de 5 s, transação parada, deadlock novo).
 - **Testes:** T-MON-01 a T-MON-05.
 
@@ -249,5 +258,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-07a | ✅ Concluído | 27/10/2026 |
 | PK-07b | ✅ Concluído | 27/10/2026 |
 | PK-07c | ✅ Concluído | 29/10/2026 |
-| PK-08 | ⏳ Próximo | — |
+| PK-08a | ✅ Concluído | 29/10/2026 |
+| PK-08b | ⏳ Próximo | — |
 | PK-08 a PK-16 | 📋 Planejado | — |
