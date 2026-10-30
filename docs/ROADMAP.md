@@ -42,7 +42,7 @@ flowchart LR
 | 27/10 | PK-07a | Meus acessos, revogação e job de expiração |
 | 28/10 a 02/11 | PK-07b, PK-07c | **Marco 1:** consultas controladas e break-glass; PAM completo pela API (Swagger) |
 | 29/10 | PK-08a | Monitor coletando: sessões, locks e taxas |
-| 30/10 a 04/11 | PK-08b | Eventos da aplicação, alertas e SSE |
+| 30/10 | PK-08b | Eventos da aplicação, alertas e SSE |
 | 04 a 05/11 | PK-09 | Laboratório rodando |
 | 05 a 08/11 | PK-10 a PK-12 | **Marco 2:** console com menu lateral, cards e gráficos legíveis |
 | 09/11 | PK-13, PK-14 | QA final e deploy na VPS · **congelamento de código** |
@@ -195,7 +195,11 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** schema `monitor` (fora do `schema.prisma`) com `db_samples`, `activity_samples` e `lock_samples`, índices BRIN e grants só para `dbwatch_monitor`; coletor transacional a cada `MONITOR_SAMPLE_SECONDS`; `GET /api/monitor/overview`, `/locks` e `/series` (taxas com `LAG()`).
 
-#### PK-08b · Eventos, alertas e SSE
+#### PK-08b · Eventos, alertas e SSE ✅
+
+> **Registro de QA (30/10/2026):** 124/124 testes (120 da API, 4 da web), num PostgreSQL de testes recriado do zero, de novo num banco já usado e os do monitor mais 5 vezes (sem oscilação). Novos: T-MON-03 (rollback por e-mail duplicado vira evento com operação, `23505` e o mesmo `correlation_id` da resposta), alertas de lock longo e de transação parada sem repetição, deadlock novo como alerta high, break-glass como alerta high e SSE recebido pela rede de verdade (403 sem `monitor:read`). Testes de mutação: alerta repetido, rollback sem evento, sem alerta de deadlock e o banco sem o trigger de `NOTIFY` fazem testes falharem; a de deadlock só falhou depois de corrigir o teste, que aceitava um alerta de execução anterior. Teste manual ao vivo: a auditora ouvindo o SSE recebe o break-glass e um lock de 6 s ("sessao-B esperou 5965 ms") uma vez só.
+
+- **Inclui:** `monitor.app_events` (rollbacks da API e alertas) com trigger `pg_notify`; alertas do coletor na mesma transação da amostra (`MONITOR_LOCK_ALERT_MS`, `MONITOR_IDLE_ALERT_MS`); `GET /api/monitor/events` e `GET /api/monitor/stream` (SSE alimentado por `LISTEN dbwatch_events`).
 
 - **Inclui:** amostras de `pg_stat_activity`, `pg_locks`, `pg_stat_database` e `pg_stat_user_tables`; `monitor.app_events` via `runInTransaction`; view `event_feed`; endpoints de leitura; SSE; retenção; alertas (lock acima de 5 s, transação parada, deadlock novo).
 - **Testes:** T-MON-01 a T-MON-05.
@@ -259,5 +263,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-07b | ✅ Concluído | 27/10/2026 |
 | PK-07c | ✅ Concluído | 29/10/2026 |
 | PK-08a | ✅ Concluído | 29/10/2026 |
-| PK-08b | ⏳ Próximo | — |
+| PK-08b | ✅ Concluído | 30/10/2026 |
+| PK-09 | ⏳ Próximo | — |
 | PK-08 a PK-16 | 📋 Planejado | — |

@@ -78,6 +78,11 @@ export class AuditedTransaction {
   private async recordFailure(target: AuditTarget, err: unknown): Promise<void> {
     try {
       await this.audit.record({ ...target, ...describeFailure(err) });
+      // O monitor também vê o rollback, com a operação e o SQLSTATE (nunca a mensagem, que pode trazer dados)
+      await this.prisma.$executeRaw`
+        INSERT INTO monitor.app_events (kind, code, severity, operation, sqlstate, correlation_id)
+        VALUES ('TX_ROLLBACK', 'TX_ROLLBACK', 'info', ${target.action.slice(0, 60)}, ${sqlStateOf(err) ?? null},
+                ${currentContext()?.correlationId ?? null}::uuid)`;
     } catch (auditErr) {
       const name = auditErr instanceof Error ? auditErr.name : 'erro';
       this.logger.error(`Falha ao auditar ${target.action}: ${name}`);

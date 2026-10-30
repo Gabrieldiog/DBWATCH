@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-08b · Eventos, alertas e SSE**
+  - Cada rollback da API vira evento no monitor, com a operação, o SQLSTATE e o `correlation_id`.
+  - Alertas gerados pelo coletor: lock acima de 5 s, transação parada acima de 30 s e deadlock novo, sem repetir o mesmo alerta; break-glass também gera alerta.
+  - `GET /api/monitor/stream` (SSE): os eventos chegam ao vivo via `LISTEN/NOTIFY` do PostgreSQL, sem consultar a tabela a cada segundo.
+
 - **PK-08a · Monitor: coletor e leitura**
   - Coletor com o papel `dbwatch_monitor` que grava, a cada 5 s e numa transação, amostras de `pg_stat_database`, `pg_stat_activity` e dos pares bloqueado/bloqueador (`pg_blocking_pids`), com BRIN e retenção de 7 dias.
   - O texto das queries nunca é gravado (só o comando, garantido também por CHECK).

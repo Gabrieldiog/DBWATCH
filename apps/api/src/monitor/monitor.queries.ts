@@ -24,9 +24,40 @@ export const SAMPLE_LOCKS = `
     LEFT JOIN pg_stat_activity bb ON bb.pid = b.pid
    ORDER BY a.pid, b.pid`;
 
-export const RETENTION = ['db_samples', 'activity_samples', 'lock_samples'].map(
-  (table) => `DELETE FROM monitor.${table} WHERE sampled_at < now() - make_interval(days => $1)`,
-);
+export const RETENTION = [
+  ['db_samples', 'sampled_at'], ['activity_samples', 'sampled_at'], ['lock_samples', 'sampled_at'], ['app_events', 'occurred_at'],
+].map(([table, column]) => `DELETE FROM monitor.${table} WHERE ${column} < now() - make_interval(days => $1)`);
+
+// Alertas sobre a amostra que acabou de ser gravada (mesmo now()); o NOT EXISTS evita repetir o mesmo alerta a cada 5 s
+export const ALERT_LOCK_WAIT = `
+  INSERT INTO monitor.app_events (kind, code, severity, detail)
+  SELECT 'ALERT', 'LOCK_WAIT', 'medium', jsonb_build_object('database', datname, 'bloqueado', blocked_pid,
+         'bloqueador', blocking_pid, 'esperaMs', wait_ms, 'relacao', relation, 'app', blocked_app)
+    FROM monitor.lock_samples l
+   WHERE sampled_at = now() AND wait_ms >= $1
+     AND NOT EXISTS (SELECT 1 FROM monitor.app_events e WHERE e.code = 'LOCK_WAIT' AND e.occurred_at > now() - interval '1 minute'
+                        AND (e.detail ->> 'bloqueado')::int = l.blocked_pid AND (e.detail ->> 'bloqueador')::int = l.blocking_pid)`;
+
+export const ALERT_IDLE_IN_TX = `
+  INSERT INTO monitor.app_events (kind, code, severity, detail)
+  SELECT 'ALERT', 'IDLE_IN_TRANSACTION', 'medium', jsonb_build_object('database', datname, 'pid', pid, 'idadeMs', xact_age_ms, 'app', application_name)
+    FROM monitor.activity_samples a
+   WHERE sampled_at = now() AND state LIKE 'idle in transaction%' AND xact_age_ms >= $1
+     AND NOT EXISTS (SELECT 1 FROM monitor.app_events e WHERE e.code = 'IDLE_IN_TRANSACTION'
+                        AND e.occurred_at > now() - interval '5 minutes' AND (e.detail ->> 'pid')::int = a.pid)`;
+
+// Deadlock novo = o contador subiu desde a amostra anterior do mesmo banco (sem reinício no meio)
+export const ALERT_DEADLOCK = `
+  INSERT INTO monitor.app_events (kind, code, severity, detail)
+  SELECT 'ALERT', 'DEADLOCK', 'high', jsonb_build_object('database', cur.datname, 'novos', cur.deadlocks - prev.deadlocks)
+    FROM monitor.db_samples cur
+    JOIN LATERAL (SELECT p.deadlocks, p.stats_reset FROM monitor.db_samples p
+                   WHERE p.datname = cur.datname AND p.sampled_at < cur.sampled_at ORDER BY p.sampled_at DESC LIMIT 1) prev ON true
+   WHERE cur.sampled_at = now() AND cur.deadlocks > prev.deadlocks AND cur.stats_reset IS NOT DISTINCT FROM prev.stats_reset`;
+
+export const RECENT_EVENTS = `
+  SELECT id, occurred_at AS "occurredAt", kind, code, severity, operation, sqlstate, correlation_id AS "correlationId", detail
+    FROM monitor.app_events ORDER BY id DESC LIMIT $1`;
 
 // Diferença entre amostras; contador que voltou (reinício ou pg_stat_reset) vira NULL, nunca taxa negativa
 const delta = (col: string) =>

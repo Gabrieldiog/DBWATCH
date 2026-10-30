@@ -15,6 +15,9 @@ const envSchema = z.object({
   // Coletor do monitor (papel dbwatch_monitor) e intervalo entre amostras; 0 desliga
   MONITOR_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
   MONITOR_SAMPLE_SECONDS: z.coerce.number().int().min(0).default(5),
+  // Limites dos alertas: espera por lock e transação parada ("idle in transaction")
+  MONITOR_LOCK_ALERT_MS: z.coerce.number().int().min(100).default(5_000),
+  MONITOR_IDLE_ALERT_MS: z.coerce.number().int().min(100).default(30_000),
   GRANT_SWEEP_SECONDS: z.coerce.number().int().min(0).default(30),
 });
 

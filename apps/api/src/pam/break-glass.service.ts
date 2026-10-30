@@ -36,6 +36,11 @@ export class BreakGlassService {
           INSERT INTO pam.access_grants (request_id, user_id, resource_id, access_level, starts_at, expires_at)
           VALUES (${req!.id}::uuid, ${userId}::uuid, ${input.resourceId}::uuid, 'READ', now(), now() + make_interval(mins => ${input.minutes}))
           RETURNING id, expires_at`;
+        // Alerta ao vivo para o monitor, na mesma transação: sem acesso, sem alerta; com acesso, sempre com alerta
+        await tx.$executeRaw`
+          INSERT INTO monitor.app_events (kind, code, severity, operation, detail)
+          VALUES ('ALERT', 'BREAK_GLASS', 'high', 'pam.break_glass',
+                  jsonb_build_object('usuario', ${userId}::text, 'recurso', ${input.resourceId}::text, 'minutos', ${input.minutes}::int))`;
         return { requestId: req!.id, grant: { id: grant!.id, expiresAt: grant!.expires_at } };
       });
     } catch (err) {
