@@ -1,6 +1,7 @@
-import { Controller, DefaultValuePipe, Get, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, DefaultValuePipe, Get, type MessageEvent, ParseIntPipe, Query, Sse } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequirePermission } from '../auth/permissions';
+import { interval, map, merge, type Observable } from 'rxjs';
 import { MonitorService } from './monitor.service';
 
 @ApiTags('Monitor')
@@ -21,6 +22,24 @@ export class MonitorController {
   @ApiOperation({ summary: 'Quem está esperando quem, na última amostra' })
   locks() {
     return this.monitor.locks();
+  }
+
+  @Get('events')
+  @RequirePermission('monitor:read')
+  @ApiOperation({ summary: 'Últimos eventos: rollbacks da API e alertas (lock longo, transação parada, deadlock, break-glass)' })
+  events(@Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number) {
+    return this.monitor.recentEvents(Math.min(Math.max(limit, 1), 200));
+  }
+
+  // SSE: cada evento novo chega na hora (LISTEN/NOTIFY); o ping a cada 15 s mantém a conexão viva em proxies
+  @Sse('stream')
+  @RequirePermission('monitor:read')
+  @ApiOperation({ summary: 'Fluxo ao vivo dos eventos do monitor (text/event-stream)' })
+  stream(): Observable<MessageEvent> {
+    return merge(
+      this.monitor.events$.pipe(map((e) => ({ id: String(e.id), type: e.kind, data: e }))),
+      interval(15_000).pipe(map(() => ({ type: 'ping', data: {} }))),
+    );
   }
 
   @Get('series')
