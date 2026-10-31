@@ -43,7 +43,8 @@ flowchart LR
 | 28/10 a 02/11 | PK-07b, PK-07c | **Marco 1:** consultas controladas e break-glass; PAM completo pela API (Swagger) |
 | 29/10 | PK-08a | Monitor coletando: sessões, locks e taxas |
 | 30/10 | PK-08b | Eventos da aplicação, alertas e SSE |
-| 04 a 05/11 | PK-09 | Laboratório rodando |
+| 31/10 | PK-09a | Laboratório: transferência, espera de lock e deadlock |
+| 01 a 05/11 | PK-09b | Níveis de isolamento e scripts para o `psql` |
 | 05 a 08/11 | PK-10 a PK-12 | **Marco 2:** console com menu lateral, cards e gráficos legíveis |
 | 09/11 | PK-13, PK-14 | QA final e deploy na VPS · **congelamento de código** |
 | 10/11 | PK-15 | Ensaio completo × 3, release v1.0.0, vídeo de backup |
@@ -206,6 +207,14 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 ### PK-09 · Laboratório de concorrência
 
+#### PK-09a · Orquestrador e três cenários ✅
+
+> **Registro de QA (31/10/2026):** 128/128 testes (124 da API, 4 da web), num PostgreSQL de testes recriado do zero, de novo num banco já usado e os do lab mais 3 vezes (sem oscilação). Novos: T-LAB-01 (transferência barrada por `23514`, saldos intactos, execução gravada), T-LAB-02 (B espera ≥ 1,5 s e nenhuma atualização se perde), T-LAB-03 (exatamente um `40P01`, o outro confirma) e T-LAB-06 (o papel do lab não lê `iam`, `audit`, `monitor` nem `pam`; timeouts de 5 s, 15 s e 20 s no papel; segundo experimento simultâneo recebe 409; 403 sem `lab:run`; 404 com o lab desligado). Testes de mutação: sem o advisory lock, sem a barreira de lock, sem o reset das contas e o banco sem a CHECK de saldo fazem testes falharem. Teste manual: a admin roda o deadlock e a espera de lock pela API, e o monitor, sem ligação nenhuma com o lab, manda o alerta de deadlock ao vivo para a auditora.
+
+- **Inclui:** schema `lab` (`accounts` com CHECK de saldo e `runs`), papel `dbwatch_lab` isolado; orquestrador com duas conexões dedicadas (`dbwatch-lab:A` e `dbwatch-lab:B`), barreira por `pg_stat_activity`, um experimento por vez (`pg_try_advisory_lock`); `GET /api/lab/scenarios`, `POST /api/lab/:scenario/run`, `GET /api/lab/runs`; `LAB_ENABLED`.
+
+#### PK-09b · Níveis de isolamento e scripts
+
 - **Inclui:** schema `lab`; orquestrador de duas sessões; seis cenários; `lab.runs`; scripts SQL equivalentes em `infra/lab/`.
 - **Testes:** T-LAB-01 a T-LAB-06.
 
@@ -264,5 +273,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-07c | ✅ Concluído | 29/10/2026 |
 | PK-08a | ✅ Concluído | 29/10/2026 |
 | PK-08b | ✅ Concluído | 30/10/2026 |
-| PK-09 | ⏳ Próximo | — |
+| PK-09a | ✅ Concluído | 31/10/2026 |
+| PK-09b | ⏳ Próximo | — |
 | PK-08 a PK-16 | 📋 Planejado | — |

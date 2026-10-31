@@ -15,7 +15,8 @@ export async function createApp(
   controllers: Type[] = [],
 ): Promise<NestExpressApplication> {
   const env: Env = loadEnv({ DATABASE_URL: url, APP_ORIGIN: ORIGIN, GRANT_SWEEP_SECONDS: '0', TARGET_DATABASE_URL: urlFor('dbwatch_target_ro', 'dbwatch_target'),
-    MONITOR_DATABASE_URL: urlFor('dbwatch_monitor'), MONITOR_SAMPLE_SECONDS: '0', ...overrides });
+    MONITOR_DATABASE_URL: urlFor('dbwatch_monitor'), MONITOR_SAMPLE_SECONDS: '0',
+    LAB_ENABLED: 'true', LAB_DATABASE_URL: urlFor('dbwatch_lab'), ...overrides });
   const moduleRef = await Test.createTestingModule({ imports: [AppModule.forRoot(env)], controllers }).compile();
   const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
   configureApp(app, env);
