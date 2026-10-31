@@ -44,7 +44,7 @@ flowchart LR
 | 29/10 | PK-08a | Monitor coletando: sessões, locks e taxas |
 | 30/10 | PK-08b | Eventos da aplicação, alertas e SSE |
 | 31/10 | PK-09a | Laboratório: transferência, espera de lock e deadlock |
-| 01 a 05/11 | PK-09b | Níveis de isolamento e scripts para o `psql` |
+| 01/11 | PK-09b | Níveis de isolamento e scripts para o `psql` |
 | 05 a 08/11 | PK-10 a PK-12 | **Marco 2:** console com menu lateral, cards e gráficos legíveis |
 | 09/11 | PK-13, PK-14 | QA final e deploy na VPS · **congelamento de código** |
 | 10/11 | PK-15 | Ensaio completo × 3, release v1.0.0, vídeo de backup |
@@ -213,7 +213,11 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** schema `lab` (`accounts` com CHECK de saldo e `runs`), papel `dbwatch_lab` isolado; orquestrador com duas conexões dedicadas (`dbwatch-lab:A` e `dbwatch-lab:B`), barreira por `pg_stat_activity`, um experimento por vez (`pg_try_advisory_lock`); `GET /api/lab/scenarios`, `POST /api/lab/:scenario/run`, `GET /api/lab/runs`; `LAB_ENABLED`.
 
-#### PK-09b · Níveis de isolamento e scripts
+#### PK-09b · Níveis de isolamento e scripts ✅
+
+> **Registro de QA (01/11/2026):** 135/135 testes (131 da API, 4 da web), num PostgreSQL de testes recriado do zero, de novo num banco já usado e os do lab mais 3 vezes (sem oscilação). Novos: T-LAB-04 (leituras 100 → 70 em READ COMMITTED e 100 → 100 em REPEATABLE READ, com os valores gravados na linha do tempo), T-LAB-05 (0 de plantão em READ COMMITTED; em SERIALIZABLE um `40001` e 1 de plantão) e os 5 scripts de `infra/lab/` executados bloco a bloco com duas conexões reais. Testes de mutação: write skew com REPEATABLE READ no lugar de SERIALIZABLE (a regra também quebra: snapshot isolation não impede write skew), REPEATABLE READ trocado, script 05 sem SERIALIZABLE e script 02 sem marcar a espera fazem testes falharem.
+
+- **Inclui:** `lab.on_call`; cenários `leitura-nao-repetivel` e `write-skew` (cada um roda as duas variantes); linhas lidas por cada SELECT na linha do tempo; `infra/lab/` com 5 scripts para dois terminais do `psql` e um README.
 
 - **Inclui:** schema `lab`; orquestrador de duas sessões; seis cenários; `lab.runs`; scripts SQL equivalentes em `infra/lab/`.
 - **Testes:** T-LAB-01 a T-LAB-06.
@@ -274,5 +278,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-08a | ✅ Concluído | 29/10/2026 |
 | PK-08b | ✅ Concluído | 30/10/2026 |
 | PK-09a | ✅ Concluído | 31/10/2026 |
-| PK-09b | ⏳ Próximo | — |
+| PK-09b | ✅ Concluído | 01/11/2026 |
+| PK-10 | ⏳ Próximo (front) | — |
 | PK-08 a PK-16 | 📋 Planejado | — |

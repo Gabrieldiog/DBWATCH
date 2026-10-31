@@ -7,6 +7,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-09b · Níveis de isolamento no laboratório**
+  - Leitura não repetível (READ COMMITTED x REPEATABLE READ) e write skew (READ COMMITTED x SERIALIZABLE com `40001`), com os valores lidos em cada passo.
+  - Scripts em `infra/lab/` para repetir os cinco cenários no `psql` com dois terminais; um teste executa os scripts para garantir que fazem o que prometem.
+
 - **PK-09a · Laboratório de concorrência (LAB)**
   - Duas sessões reais do papel `dbwatch_lab` (isolado do produto) executam cenários passo a passo, com tempo e SQLSTATE de cada passo.
   - Cenários: transferência barrada pela CHECK com ROLLBACK, espera de lock e deadlock real.
