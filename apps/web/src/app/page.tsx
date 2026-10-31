@@ -31,9 +31,14 @@ export default async function Home() {
         <p role="status" style={{ color: up ? 'var(--signal)' : 'var(--coral)' }}>
           {up ? '●' : '✕'} {label}
         </p>
-        <Link href="/testes" style={{ color: 'var(--scan)' }}>
-          Ver os testes automatizados
+        <Link href="/entrar" className="button" style={{ display: 'inline-grid', placeItems: 'center', textDecoration: 'none' }}>
+          Entrar
         </Link>
+        <p>
+          <Link href="/testes" style={{ color: 'var(--scan)' }}>
+            Ver os testes automatizados
+          </Link>
+        </p>
         <div style={{ marginTop: 24 }}>
           <ThemeToggle />
         </div>
