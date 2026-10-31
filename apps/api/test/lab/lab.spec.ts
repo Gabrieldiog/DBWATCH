@@ -48,6 +48,26 @@ describe('LAB: laboratório de concorrência com duas sessões reais', () => {
     expect(body.steps.filter((s) => s.sql === 'COMMIT')).toHaveLength(1);
   });
 
+  it('T-LAB-04 leitura não repetível: o valor muda em READ COMMITTED e não muda em REPEATABLE READ', async () => {
+    const body = (await run('leitura-nao-repetivel').expect(200)).body as Run;
+    expect(body.outcome).toBe('OK');
+    expect(body.steps.filter((s) => s.sql?.startsWith('BEGIN ISOLATION LEVEL')).map((s) => s.sql)).toEqual([
+      'BEGIN ISOLATION LEVEL READ COMMITTED',
+      'BEGIN ISOLATION LEVEL REPEATABLE READ',
+    ]);
+    const reads = body.steps.filter((s) => s.sql?.startsWith('SELECT balance')).map((s) => s.rows?.[0]?.saldo);
+    expect(reads).toEqual([100, 70, 100, 100]);
+  });
+
+  it('T-LAB-05 write skew: a regra quebra em READ COMMITTED; em SERIALIZABLE uma sessão recebe 40001', async () => {
+    const body = (await run('write-skew').expect(200)).body as Run;
+    expect(body.outcome).toBe('OK');
+    expect(body.steps.some((s) => s.note === 'Ficaram 0 de plantão: a regra quebrou sem nenhum erro')).toBe(true);
+    expect(body.steps.filter((s) => s.sqlstate === '40001')).toHaveLength(1);
+    const left = await withClient('admin', (db) => db.query('SELECT count(*)::int AS n FROM lab.on_call WHERE on_duty'));
+    expect(left.rows[0].n).toBe(1);
+  });
+
   it('T-LAB-06 isolamento: papel do lab sem acesso ao produto, timeouts no papel e um experimento por vez', async () => {
     await withClient('dbwatch_lab', async (db) => {
       for (const table of ['iam.users', 'audit.audit_log', 'monitor.app_events', 'pam.access_requests']) {

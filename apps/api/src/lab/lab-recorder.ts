@@ -10,6 +10,7 @@ export interface LabStep {
   ms?: number;
   result?: 'ok' | 'erro';
   sqlstate?: string;
+  rows?: Record<string, unknown>[];
 }
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -31,6 +32,8 @@ export class LabRecorder {
     try {
       const res = await this.clients[session].query(sql, params);
       Object.assign(step, { ms: Math.round(performance.now() - start), result: 'ok' });
+      // O que cada SELECT enxergou é a prova do experimento (ex.: 100 e depois 70 na mesma transação)
+      if (res.command === 'SELECT') step.rows = res.rows.slice(0, 5);
       return { rows: res.rows };
     } catch (err) {
       const sqlstate = (err as { code?: string }).code ?? 'XX000';
