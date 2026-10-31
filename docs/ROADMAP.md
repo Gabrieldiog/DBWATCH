@@ -224,7 +224,22 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 ### PK-10 · Front: fundação visual
 
-- **Inclui:** tokens de [DESIGN.md](DESIGN.md); fontes locais; modo claro e escuro com troca persistida; layout do console; componentes base (botão, campo, tabela, badge de estado, diálogo, toast); tela de login com a animação do radar; tratamento global de erro e de sessão expirada.
+- **Direção escolhida em 01/11/2026:** "Radar" (azul-petróleo, com o radar de sessões como peça principal). Ver [DESIGN.md](DESIGN.md).
+- **Dividido** para caber no orçamento de 400 linhas por pack.
+
+#### PK-10a · Cores, fontes e tema ✅
+
+> **Registro de QA (01/11/2026):** lint, typecheck, 7/7 testes da web e build. Num navegador real (Chromium, 1280×720) com API e PostgreSQL de verdade: tema do sistema claro e escuro, tema salvo vencendo o do sistema já na primeira pintura (fundo lido no `DOMContentLoaded`, antes da hidratação), troca pelo botão persistindo entre páginas e as três fontes carregadas dos arquivos locais, sem erro no console. Testes de mutação: o script de tema aceitando qualquer valor salvo e o `parseTheme` aceitando qualquer texto fazem testes falharem.
+
+- **Inclui:** tokens da direção Radar nos dois temas; Sora, IBM Plex Sans e IBM Plex Mono como arquivos locais (licença OFL junto); tema claro, escuro ou do sistema, salvo no navegador e aplicado antes da primeira pintura; páginas atuais usando os tokens.
+
+#### PK-10b · Tela de login com o radar
+
+- **Inclui:** tela de entrada com a varredura do radar (desligada com `prefers-reduced-motion`); formulário com as mensagens da API; volta para a página pedida só se for um caminho interno.
+
+#### PK-10c · Console e componentes base
+
+- **Inclui:** layout do console com menu lateral que mostra só o que a pessoa pode acessar; componentes base (botão, campo, tabela, badge de estado, diálogo, toast); tratamento global de erro e de sessão expirada.
 - **Testes:** T-E2E-01 (login), T-A11Y-01 (login e shell).
 
 ### PK-11 · Front: PAM e auditoria
@@ -279,5 +294,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-08b | ✅ Concluído | 30/10/2026 |
 | PK-09a | ✅ Concluído | 31/10/2026 |
 | PK-09b | ✅ Concluído | 01/11/2026 |
-| PK-10 | ⏳ Próximo (front) | — |
-| PK-08 a PK-16 | 📋 Planejado | — |
+| PK-10a | ✅ Concluído | 01/11/2026 |
+| PK-10b | ⏳ Próximo | — |
+| PK-10c a PK-16 | 📋 Planejado | — |

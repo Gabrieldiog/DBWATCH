@@ -1,0 +1,109 @@
+/* Direção "Radar" (docs/DESIGN.md): azul-petróleo, cor só onde há estado ou dado vivo */
+:root {
+  color-scheme: light;
+  --bg: #e3eeed;
+  --surface: #f8fbfb;
+  --surface-raised: #ffffff;
+  --border: #c9dcda;
+  --grid: #dce8e7;
+  --text: #0c2a31;
+  --text-muted: #47656b;
+  --signal: #0b7357;
+  --scan: #00727a;
+  --amber: #985a00;
+  --coral: #bf2b33;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0e2c35;
+    --surface: #133a45;
+    --surface-raised: #184654;
+    --border: #21525f;
+    --grid: #1c4a56;
+    --text: #e4f2f1;
+    --text-muted: #93b6b7;
+    --signal: #4fe0a6;
+    --scan: #43d1c8;
+    --amber: #ffb84d;
+    --coral: #ff8c82;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e2c35;
+  --surface: #133a45;
+  --surface-raised: #184654;
+  --border: #21525f;
+  --grid: #1c4a56;
+  --text: #e4f2f1;
+  --text-muted: #93b6b7;
+  --signal: #4fe0a6;
+  --scan: #43d1c8;
+  --amber: #ffb84d;
+  --coral: #ff8c82;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 var(--font-text), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  line-height: 1.2;
+  margin: 0;
+}
+
+code {
+  font: 14px/1.6 var(--font-mono), monospace;
+}
+
+a {
+  color: var(--scan);
+}
+
+:focus-visible {
+  outline: 2px solid var(--scan);
+  outline-offset: 2px;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.segmented button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-muted);
+  font: 500 14px var(--font-text), sans-serif;
+  cursor: pointer;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}

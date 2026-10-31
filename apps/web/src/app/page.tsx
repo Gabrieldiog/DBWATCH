@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ThemeToggle } from '../components/theme-toggle';
 
 type Health = { status: string; database: { status: 'up' | 'down'; latencyMs?: number } };
 
@@ -26,13 +27,16 @@ export default async function Home() {
     <main style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', textAlign: 'center' }}>
       <div>
         <Image src="/dbwatch-icon.png" alt="Logo do DBWATCH" width={128} height={128} priority />
-        <h1 style={{ letterSpacing: 2 }}>DBWATCH</h1>
-        <p role="status" style={{ color: up ? '#2EEDC0' : '#FD6A62' }}>
+        <h1>DBWATCH</h1>
+        <p role="status" style={{ color: up ? 'var(--signal)' : 'var(--coral)' }}>
           {up ? '●' : '✕'} {label}
         </p>
-        <Link href="/testes" style={{ color: '#19D3D0' }}>
+        <Link href="/testes" style={{ color: 'var(--scan)' }}>
           Ver os testes automatizados
         </Link>
+        <div style={{ marginTop: 24 }}>
+          <ThemeToggle />
+        </div>
       </div>
     </main>
   );
