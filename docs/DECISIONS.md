@@ -186,3 +186,10 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 - **Decisão:** quem tem `breakglass:use` (só ADMIN) abre um acesso somente leitura de até 15 min, com justificativa de pelo menos 40 caracteres, sem aprovação prévia. A CHECK de separação de funções aceita isso só quando `break_glass` é verdadeiro; prazo, justificativa e permissão são garantidos no banco (CHECK e trigger). O uso é auditado como alerta e entra numa fila de revisão por outra pessoa.
 - **Alternativas:** não ter break-glass (o incidente vira uso da conta do dono do banco, sem rastro); aprovação posterior obrigatória para manter o acesso (mais complexo, pouco ganho com 15 min).
 - **Consequências:** a emergência tem caminho oficial, curto e rastreado; a revisão posterior fecha o ciclo de responsabilidade.
+
+### ADR-024 · Direção visual "Radar" e fontes no repositório
+
+- **Contexto:** a primeira proposta (fundo quase preto com um verde neon) parecia genérica. Três direções foram montadas como maquete da Visão geral, nos dois temas.
+- **Decisão:** direção "Radar", escolhida pelo Gabriel: azul-petróleo no escuro, névoa verde-azulada no claro, cor só em estado ou dado vivo, e um radar de sessões em que cada ponto é uma conexão real do `pg_stat_activity`. As fontes ficam como arquivos `woff2` no repositório, com a licença OFL, carregadas por `next/font/local`.
+- **Alternativas:** "Turno do dia" (menu azul-marinho e conteúdo claro) e "Instrumento" (grafite neutro); fontes por `next/font/google` (o build passaria a depender da rede, inclusive na VPS).
+- **Consequências:** o build funciona offline e o navegador nunca consulta servidor de fontes de terceiros. O radar só se move quando chega uma amostra nova, seguindo a regra de motion.

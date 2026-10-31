@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-10a · Cores, fontes e tema**
+  - Direção visual "Radar": azul-petróleo no escuro e névoa verde-azulada no claro, com os dois temas conferidos em contraste AA.
+  - Fontes Sora, IBM Plex Sans e IBM Plex Mono servidas pelo próprio app.
+  - Tema claro, escuro ou do sistema, salvo no navegador e aplicado antes da primeira pintura (sem piscar).
+
 - **PK-09b · Níveis de isolamento no laboratório**
   - Leitura não repetível (READ COMMITTED x REPEATABLE READ) e write skew (READ COMMITTED x SERIALIZABLE com `40001`), com os valores lidos em cada passo.
   - Scripts em `infra/lab/` para repetir os cinco cenários no `psql` com dois terminais; um teste executa os scripts para garantir que fazem o que prometem.

@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 // Texto só para leitores de tela: o status não depende apenas da cor do ícone
 const srOnly: CSSProperties = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' };
 
-const color = { bg: '#050E1E', surface: '#0B1A30', border: '#1C3150', muted: '#8EA3BF', ok: '#2EEDC0', fail: '#FD6A62' };
+const color = { border: 'var(--border)', muted: 'var(--text-muted)', ok: 'var(--signal)', fail: 'var(--coral)' };
 
 export default async function TestsPage() {
   // Caminhos literais: o empacotador sabe exatamente o que ler e não arrasta o projeto inteiro

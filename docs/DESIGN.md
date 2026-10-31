@@ -1,6 +1,6 @@
 # Design e identidade visual
 
-> Status: **proposta para aprovação** (PK-00). Implementação no PK-10.
+> Status: **direção "Radar" aprovada em 01/11/2026** (ver [ADR-024](DECISIONS.md#adr-024--direção-visual-radar-e-fontes-no-repositório)). Tokens implementados no PK-10a.
 
 ## 1. Conceito: o sentinela no escuro
 
@@ -18,37 +18,39 @@ A interface herda três ideias dessa imagem:
 
 As cores foram extraídas da logo e ajustadas até passar no contraste **WCAG AA** (≥ 4,5:1 para texto normal). Os valores de contraste abaixo foram **calculados**, não estimados.
 
-### Modo escuro (padrão)
+### Modo escuro
 
-| Token | Hex | Uso | Contraste sobre `bg` / `surface` |
+O escuro é **azul-petróleo**, não quase preto: a profundidade vem da cor, e o brilho fica para os dados.
+
+| Token | Hex | Uso | Contraste sobre `bg` / `surface` / `surface-raised` |
 | --- | --- | --- | --- |
-| `--bg` | `#050E1E` | Fundo da aplicação | — |
-| `--surface` | `#0B1A30` | Painéis, tabelas | — |
-| `--surface-raised` | `#10233F` | Diálogos, menus | — |
-| `--border` | `#1C3150` | Divisórias, contornos | — |
-| `--text` | `#E4EEF7` | Texto principal | 16,4 / 14,8 |
-| `--text-muted` | `#8EA3BF` | Texto secundário | 7,5 / 6,8 |
-| `--signal` | `#2EEDC0` | Saudável, sucesso, ação principal | 12,9 / 11,6 |
-| `--scan` | `#19D3D0` | Links, foco, dados "ao vivo" | 10,4 / 9,4 |
-| `--amber` | `#FEB344` | Atenção, espera por lock, pendente | 10,8 / 9,8 |
-| `--coral` | `#FD6A62` | Erro, deadlock, negado, rollback | 6,8 / 6,2 |
+| `--bg` | `#0E2C35` | Fundo da aplicação | — |
+| `--surface` | `#133A45` | Painéis, tabelas | — |
+| `--surface-raised` | `#184654` | Diálogos, menus | — |
+| `--border` | `#21525F` | Divisórias, contornos | — |
+| `--text` | `#E4F2F1` | Texto principal | 12,8 / 10,6 / 8,9 |
+| `--text-muted` | `#93B6B7` | Texto secundário | 6,7 / 5,6 / 4,7 |
+| `--signal` | `#4FE0A6` | Saudável, sucesso | 8,8 / 7,3 / 6,1 |
+| `--scan` | `#43D1C8` | Dados ao vivo, links, foco, ação principal | 7,8 / 6,5 / 5,5 |
+| `--amber` | `#FFB84D` | Atenção, espera por lock, pendente | 8,5 / 7,1 / 6,0 |
+| `--coral` | `#FF8C82` | Erro, deadlock, negado, rollback | 6,5 / 5,4 / 4,6 |
 
 ### Modo claro
 
-O claro não é o escuro invertido: é o **"turno do dia"**. O fundo é uma névoa fria (nada de creme), e as cores de estado ficam mais escuras para manter o contraste.
+O claro não é o escuro invertido: é uma **névoa verde-azulada** (nada de creme), com as cores de estado mais escuras para manter o contraste.
 
-| Token | Hex | Contraste sobre `bg` / `surface` |
+| Token | Hex | Contraste sobre `bg` / `surface` / `surface-raised` |
 | --- | --- | --- |
-| `--bg` | `#EEF5F8` | — |
-| `--surface` | `#FFFFFF` | — |
-| `--surface-raised` | `#FFFFFF` + sombra | — |
-| `--border` | `#D3E1EA` | — |
-| `--text` | `#06122A` | 16,9 / 18,6 |
-| `--text-muted` | `#4A5D78` | 6,1 / 6,7 |
-| `--signal` | `#05735F` | 5,3 / 5,8 |
-| `--scan` | `#00717C` | 5,2 / 5,8 |
-| `--amber` | `#9A5B00` | 4,9 / 5,4 |
-| `--coral` | `#C42D35` | 5,1 / 5,6 |
+| `--bg` | `#E3EEED` | — |
+| `--surface` | `#F8FBFB` | — |
+| `--surface-raised` | `#FFFFFF` | — |
+| `--border` | `#C9DCDA` | — |
+| `--text` | `#0C2A31` | 12,7 / 14,5 / 15,1 |
+| `--text-muted` | `#47656B` | 5,3 / 6,0 / 6,3 |
+| `--signal` | `#0B7357` | 4,9 / 5,6 / 5,8 |
+| `--scan` | `#00727A` | 4,8 / 5,5 / 5,7 |
+| `--amber` | `#985A00` | 4,7 / 5,3 / 5,5 |
+| `--coral` | `#BF2B33` | 4,9 / 5,6 / 5,8 |
 
 ### Semântica de estados
 
@@ -76,7 +78,7 @@ O claro não é o escuro invertido: é o **"turno do dia"**. O fundo é uma név
 | Texto, formulários, tabelas | **IBM Plex Sans** (400, 500, 600) | Desenhada para interfaces técnicas; distingue bem `I`, `l` e `1`; ótima no projetor |
 | SQL, IDs, hashes, SQLSTATE | **IBM Plex Mono** (400, 500) | Mesma família do texto, então o código não "destoa"; algarismos tabulares |
 
-Todas são **servidas localmente** via `next/font` (sem requisições a terceiros em tempo de execução) e têm licença OFL.
+Todas ficam como arquivos `woff2` em `apps/web/src/app/fonts/`, carregadas por `next/font/local` (o build não depende da rede e o navegador não consulta terceiros), com o texto da licença OFL ao lado.
 
 ### Escala (razão 1,25, base 16 px)
 
@@ -104,6 +106,7 @@ Todas são **servidas localmente** via `next/font` (sem requisições a terceiro
 | Momento | O que se move | Significado |
 | --- | --- | --- |
 | **Login** | A silhueta do sentinela com a varredura do radar girando atrás | O sistema está vigiando. É a única animação contínua "decorativa", e para depois do login |
+| **Radar de sessões** (Visão geral) | Cada ponto é uma conexão real do `pg_stat_activity`, no anel do seu estado; quem espera lock fica âmbar, com um tracejado até quem bloqueia. A varredura dá uma volta quando chega uma amostra nova | Quem está conectado e o que está fazendo, agora |
 | **Fluxo de eventos** | Cada evento novo entra em 160 ms, com a borda na cor da fonte (`scan` = PostgreSQL, `signal`/`coral` = aplicação, `amber` = LAB) | Algo acabou de acontecer, e de onde veio |
 | **Grafo de bloqueio** | Arestas "A → B" com tracejado fluindo enquanto B espera; num deadlock, o ciclo acende em coral e a aresta da vítima se rompe | Quem bloqueia quem; o PostgreSQL escolhendo uma vítima |
 | **Linha do tempo do lab** | As sessões A e B em duas colunas; cada passo aparece **quando o evento real chega** pelo SSE | A ordem real dos acontecimentos, sem roteiro falso |
