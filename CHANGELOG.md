@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-09a · Laboratório de concorrência (LAB)**
+  - Duas sessões reais do papel `dbwatch_lab` (isolado do produto) executam cenários passo a passo, com tempo e SQLSTATE de cada passo.
+  - Cenários: transferência barrada pela CHECK com ROLLBACK, espera de lock e deadlock real.
+  - Um experimento por vez (advisory lock), histórico em `lab.runs`, auditoria e chave `LAB_ENABLED`.
+
 - **PK-08b · Eventos, alertas e SSE**
   - Cada rollback da API vira evento no monitor, com a operação, o SQLSTATE e o `correlation_id`.
   - Alertas gerados pelo coletor: lock acima de 5 s, transação parada acima de 30 s e deadlock novo, sem repetir o mesmo alerta; break-glass também gera alerta.

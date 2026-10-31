@@ -18,6 +18,9 @@ const envSchema = z.object({
   // Limites dos alertas: espera por lock e transação parada ("idle in transaction")
   MONITOR_LOCK_ALERT_MS: z.coerce.number().int().min(100).default(5_000),
   MONITOR_IDLE_ALERT_MS: z.coerce.number().int().min(100).default(30_000),
+  // LAB: experimentos de concorrência com o papel dbwatch_lab; desligado por padrão
+  LAB_ENABLED: z.enum(['true', 'false']).default('false'),
+  LAB_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
   GRANT_SWEEP_SECONDS: z.coerce.number().int().min(0).default(30),
 });
 
