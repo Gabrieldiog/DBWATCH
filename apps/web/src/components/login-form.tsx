@@ -2,11 +2,13 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { loginErrorMessage, safeNext } from '../lib/login';
+import { loginErrorMessage, loginNotice, safeNext } from '../lib/login';
 
 export function LoginForm() {
   const router = useRouter();
-  const next = safeNext(useSearchParams().get('next'));
+  const params = useSearchParams();
+  const next = safeNext(params.get('next'));
+  const notice = loginNotice(params.get('motivo'));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -31,6 +33,11 @@ export function LoginForm() {
 
   return (
     <form onSubmit={submit} style={{ display: 'grid', gap: 16 }}>
+      {notice && !error && (
+        <p className="notice" role="status">
+          {notice}
+        </p>
+      )}
       <label className="field">
         E-mail
         <input name="email" type="email" autoComplete="username" required autoFocus />

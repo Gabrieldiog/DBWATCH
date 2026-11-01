@@ -5,7 +5,7 @@ import { AuditedTransaction } from './audit/audited-transaction';
 import { seedDemoUsers } from './auth/demo-users';
 import { loadEnv } from './config/env';
 
-// Uso: pnpm db:seed. As senhas aparecem só neste terminal; nada é gravado em arquivo
+// Uso: pnpm db:seed (ou db:seed:json). As senhas aparecem só neste terminal; nada é gravado em arquivo
 async function main(): Promise<void> {
   const env = loadEnv();
   if (env.NODE_ENV === 'production' && !process.argv.includes('--permitir-producao')) {
@@ -14,6 +14,8 @@ async function main(): Promise<void> {
   const ctx = await NestFactory.createApplicationContext(AppModule.forRoot(env), { logger: ['error'] });
   try {
     const users = await seedDemoUsers(ctx.get(AuditedTransaction));
+    // --json: o E2E lê as senhas da saída e guarda só em memória
+    if (process.argv.includes('--json')) return console.log(JSON.stringify(users.map(({ email, role, password }) => ({ email, role, password }))));
     console.table(users.map((u) => ({ email: u.email, papel: u.role, senha: u.password, novo: u.created ? 'sim' : 'não' })));
     console.log('Senhas novas geradas; sessões antigas desses usuários foram revogadas.');
   } finally {

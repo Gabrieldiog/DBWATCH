@@ -16,7 +16,8 @@
     "db:status": "pnpm --filter @dbwatch/api db:status",
     "db:seed": "pnpm --filter @dbwatch/api db:seed",
     "db:target": "pnpm --filter @dbwatch/api db:target",
-    "test:report": "pnpm -r test:report"
+    "test:report": "pnpm -r test:report",
+    "test:e2e": "pnpm --filter @dbwatch/web test:e2e"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

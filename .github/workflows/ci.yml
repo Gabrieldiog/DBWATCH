@@ -47,3 +47,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - run: pnpm --filter @dbwatch/web exec playwright install --with-deps chromium
+      - name: E2E e acessibilidade no navegador (o Playwright sobe a API e o web do build)
+        run: pnpm --filter @dbwatch/web test:e2e
+        env:
+          DATABASE_URL: postgres://dbwatch_app:ci-app@127.0.0.1:5433/dbwatch_test

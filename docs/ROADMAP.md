@@ -245,10 +245,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** console com menu lateral filtrado pelas permissões que vêm da API; checagem da sessão no servidor antes de desenhar qualquer tela (layout e página); botão de sair que revoga a sessão no banco; visão geral provisória com papel e permissões.
 
-#### PK-10d · Sessão expirada, erros e testes de navegador
+#### PK-10d · Sessão expirada, erros e testes de navegador ✅
 
-- **Inclui:** aviso no login quando a sessão expirou ou a pessoa saiu; telas de erro e de página não encontrada; Playwright e axe versionados e rodando no CI.
-- **Testes:** T-E2E-01 (login, logout, sessão expirada), T-A11Y-01 (login e console).
+> **Registro de QA (01/11/2026):** lint, typecheck, 18/18 testes da web e build; `pnpm test:e2e` com 11/11 no Chromium contra a API e o PostgreSQL de verdade. Ensaio do CI: 131/131 testes da API no banco de testes e, em seguida, os 11 E2E no mesmo banco (sessões conferidas no `dbwatch_test`, nenhuma no banco de desenvolvimento). Testes de mutação: esconder o aviso no login, fingir o sair sem chamar a API (o cookie antigo continuou valendo: 200 em vez de 401) e baixar o contraste do texto secundário no tema claro fazem os testes falharem. Tela de erro conferida derrubando a API: aparece "Algo deu errado" sem detalhe técnico, e "Tentar de novo" volta ao painel quando a API sobe.
+
+- **Inclui:** aviso no login quando a sessão terminou ou a pessoa saiu; telas de erro e de página não encontrada; Playwright e axe no repositório e no CI (`pnpm test:e2e`).
+- **Testes:** T-E2E-01 (login, logout, sessão encerrada em outro lugar), T-A11Y-01 na parte publicada (login, console e página não encontrada, nos dois temas).
 
 ### PK-11 · Front: PAM e auditoria
 
@@ -305,5 +307,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-10a | ✅ Concluído | 01/11/2026 |
 | PK-10b | ✅ Concluído | 01/11/2026 |
 | PK-10c | ✅ Concluído | 01/11/2026 |
-| PK-10d | ⏳ Próximo | — |
-| PK-11 a PK-16 | 📋 Planejado | — |
+| PK-10d | ✅ Concluído | 01/11/2026 |
+| PK-11 | ⏳ Próximo | — |
+| PK-12 a PK-16 | 📋 Planejado | — |
