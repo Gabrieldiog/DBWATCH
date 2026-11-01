@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-10c · Console com menu por permissão**
+  - Menu lateral que mostra só as áreas liberadas pelos papéis de quem entrou; quem nega de verdade continua sendo a API.
+  - O servidor confere a sessão na API antes de desenhar cada tela; sem sessão ou com sessão expirada, volta ao login e depois para a mesma página.
+  - Botão de sair que encerra a sessão no banco, não só no navegador.
+
 - **PK-10b · Tela de login com o radar**
   - Página `/entrar` com a varredura do radar atrás do suricato (parada para quem prefere menos movimento) e o seletor de tema.
   - Formulário que mostra as mensagens da própria API (senha errada, conta bloqueada, local ou horário negado) e nunca o detalhe de um erro interno.

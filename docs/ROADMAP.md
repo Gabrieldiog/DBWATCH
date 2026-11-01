@@ -239,14 +239,20 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** tela de entrada com a varredura do radar (desligada com `prefers-reduced-motion`); formulário com as mensagens da API; volta para a página pedida só se for um caminho interno.
 
-#### PK-10c · Console e componentes base
+#### PK-10c · Console com menu por permissão ✅
 
-- **Inclui:** layout do console com menu lateral que mostra só o que a pessoa pode acessar; componentes base (botão, campo, tabela, badge de estado, diálogo, toast); tratamento global de erro e de sessão expirada.
-- **Testes:** T-E2E-01 (login), T-A11Y-01 (login e shell).
+> **Registro de QA (01/11/2026):** lint, typecheck, 17/17 testes da web e build. Num navegador real (Chromium) contra a API e o PostgreSQL de verdade, 28 de 29 checagens passaram: sem sessão, `/painel?aba=x` vai para o login com o `next` completo; o menu de cada papel demo bate com as permissões (solicitante sem aprovações, auditora sem pedidos, admin sem aprovações nem auditoria, pela segregação de funções); as permissões na tela são as mesmas do `/api/auth/me`; sair leva ao login, apaga o cookie e o cookie antigo reaproveitado recebe 401; com `last_seen_at` empurrado um dia para trás no banco, a próxima tela volta ao login com `motivo=expirou`; sair sem rede avisa e mantém a pessoa logada; cabeçalho `x-dbwatch-path` forjado é sobrescrito pelo proxy; axe sem violação séria ou crítica nos dois temas; Tab chega ao menu com foco visível; sem rolagem horizontal em 1280 e 375 px. A checagem que falhou: o console mostra 404 do pré-carregamento das telas do menu que ainda não existem (some quando elas chegarem no PK-11 e no PK-12). Testes de mutação: trocar "qualquer permissão" por "todas" no menu e não marcar a sessão expirada fazem testes falharem.
+
+- **Inclui:** console com menu lateral filtrado pelas permissões que vêm da API; checagem da sessão no servidor antes de desenhar qualquer tela (layout e página); botão de sair que revoga a sessão no banco; visão geral provisória com papel e permissões.
+
+#### PK-10d · Sessão expirada, erros e testes de navegador
+
+- **Inclui:** aviso no login quando a sessão expirou ou a pessoa saiu; telas de erro e de página não encontrada; Playwright e axe versionados e rodando no CI.
+- **Testes:** T-E2E-01 (login, logout, sessão expirada), T-A11Y-01 (login e console).
 
 ### PK-11 · Front: PAM e auditoria
 
-- **Inclui:** pedir acesso; meus pedidos; fila de aprovação; meus acessos com contagem regressiva; execução de consultas; explorador da auditoria com verificação de integridade; administração de usuários.
+- **Inclui:** componentes base (tabela, badge de estado, diálogo, toast), cada um criado junto da primeira tela que o usa; pedir acesso; meus pedidos; fila de aprovação; meus acessos com contagem regressiva; execução de consultas; explorador da auditoria com verificação de integridade; administração de usuários.
 - **Testes:** T-E2E-02 a T-E2E-04.
 
 ### PK-12 · Front: monitor e laboratório
@@ -298,5 +304,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-09b | ✅ Concluído | 01/11/2026 |
 | PK-10a | ✅ Concluído | 01/11/2026 |
 | PK-10b | ✅ Concluído | 01/11/2026 |
-| PK-10c | ⏳ Próximo | — |
+| PK-10c | ✅ Concluído | 01/11/2026 |
+| PK-10d | ⏳ Próximo | — |
 | PK-11 a PK-16 | 📋 Planejado | — |
