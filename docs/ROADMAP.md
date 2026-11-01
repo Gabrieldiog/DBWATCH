@@ -265,7 +265,9 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** leitura no servidor com o cookie de quem pediu a tela (`apiGet`), tela fora do papel respondendo 404 (`requirePermission`), envio pelo navegador com a mensagem da própria API (`send`), badge de estado, tabela que vira blocos no celular, botão de ação; tela "Pedir acesso" com a lista dos meus pedidos e o botão de cancelar.
 - **Testes:** parte do T-E2E-02 (acompanhar e cancelar um pedido, pedido cancelado em outra aba), 404 para quem não pode pedir, T-A11Y-01 na tela nova.
 
-#### PK-11b · Formulário de pedido e aprovações
+#### PK-11b · Formulário de pedido e aprovações ✅
+
+> **Registro de QA (01/11/2026):** lint, typecheck, 22/22 testes da web, 131/131 da API e build; `pnpm test:e2e` com 22/22 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas (os testes limpam o que sobra da execução anterior). Testes de mutação: liberar o botão "Aprovar" para quem já deu a primeira aprovação, mandar o motivo da rejeição no campo errado (a API recusa com 400 e o diálogo não fecha), não atualizar a lista depois de enviar o formulário e tirar `firstApprovedById` da fila (teste da API) fazem os testes falharem. Tirar o `close()` do diálogo não foi pego: depois de rejeitar, o cartão sai da fila e leva o diálogo junto; o `close()` passa a valer quando o item continua na tela (revogação, no PK-11c). Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal; o `<select>` com a opção mais longa alargava a página no celular e foi corrigido.
 
 - **Inclui:** formulário de pedido (recurso, nível, duração limitada pelo recurso, justificativa); fila do aprovador com aprovar e rejeitar com motivo num diálogo; recurso HIGH mostrando a etapa "1 de 2".
 - **Testes:** T-E2E-02 até a aprovação, incluindo rejeição e os dois aprovadores do recurso HIGH.
@@ -332,6 +334,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-10c | ✅ Concluído | 01/11/2026 |
 | PK-10d | ✅ Concluído | 01/11/2026 |
 | PK-11a | ✅ Concluído | 01/11/2026 |
-| PK-11b | ⏳ Próximo | — |
-| PK-11c e PK-11d | 📋 Planejado | — |
+| PK-11b | ✅ Concluído | 01/11/2026 |
+| PK-11c | ⏳ Próximo | — |
+| PK-11d | 📋 Planejado | — |
 | PK-12 a PK-16 | 📋 Planejado | — |

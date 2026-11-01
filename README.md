@@ -396,7 +396,7 @@ A documentação interativa da API fica em http://localhost:3000/api/docs (Swagg
 | `pnpm build` | Build de produção dos dois apps | ✅ |
 | `pnpm db:migrate` · `pnpm db:status` | Aplica e confere as migrations | ✅ |
 | `pnpm db:seed` | Usuários fictícios de demonstração, um por papel, com senhas aleatórias | ✅ |
-| `pnpm test:e2e` | Fluxos e acessibilidade (axe) no Chromium, contra a API e o banco de verdade. Rode `pnpm build` antes; sobe API e web se não estiverem no ar. Gera senhas demo novas, como o `pnpm db:seed` | ✅ |
+| `pnpm test:e2e` | Fluxos e acessibilidade (axe) no Chromium, contra a API e o banco de verdade. Rode `pnpm build` antes; sobe API e web se não estiverem no ar. Gera senhas demo novas, como o `pnpm db:seed`. Se a API já estiver no ar, suba-a com `LOGIN_RATE_LIMIT=1000`: a suíte entra mais de 20 vezes por minuto | ✅ |
 | `pnpm lab:<cenario>` | Experimentos do laboratório pelo terminal | PK-09 |
 
 ## 🗺️ Roadmap

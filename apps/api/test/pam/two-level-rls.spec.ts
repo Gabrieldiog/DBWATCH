@@ -32,6 +32,9 @@ describe('aprovação em 2 níveis e RLS', () => {
     const id = await pending(requester.id, 'HIGH');
     expect((await approve(a.cookie, id).expect(200)).body).toEqual({ id, status: 'PENDING', approvals: 1, required: 2 });
     expect(await sql('SELECT 1 FROM pam.access_grants WHERE request_id = $1', [id])).toHaveLength(0);
+    // A fila diz quem deu a primeira aprovação, para a tela travar o botão dessa pessoa
+    const queue = (await request(app.getHttpServer()).get('/api/requests/queue').set('Cookie', b.cookie)).body as { id: string }[];
+    expect(queue.find((q) => q.id === id)).toMatchObject({ firstApprovedById: a.id });
     expect((await approve(a.cookie, id).expect(403)).body.message).toMatch(/outra pessoa/);
     expect((await approve(b.cookie, id).expect(200)).body).toMatchObject({ status: 'APPROVED', approvals: 2, required: 2 });
     const [row] = await sql('SELECT first_approved_by, decided_by FROM pam.access_requests WHERE id = $1', [id]);
