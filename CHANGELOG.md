@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-10d · Sessão expirada, erros e testes de navegador**
+  - O login avisa quando a sessão terminou ou quando a pessoa saiu.
+  - Telas próprias de erro (sem detalhe técnico, com "Tentar de novo") e de página não encontrada.
+  - `pnpm test:e2e`: login, sair e sessão encerrada em outro lugar no Chromium, mais o axe nos dois temas; roda também no CI.
+
 - **PK-10c · Console com menu por permissão**
   - Menu lateral que mostra só as áreas liberadas pelos papéis de quem entrou; quem nega de verdade continua sendo a API.
   - O servidor confere a sessão na API antes de desenhar cada tela; sem sessão ou com sessão expirada, volta ao login e depois para a mesma página.

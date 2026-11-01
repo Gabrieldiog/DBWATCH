@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loginErrorMessage, safeNext } from '../src/lib/login';
+import { loginErrorMessage, loginNotice, safeNext } from '../src/lib/login';
 
 describe('safeNext (unitário)', () => {
   it('mantém caminhos internos', () => {
@@ -23,5 +23,13 @@ describe('loginErrorMessage (unitário)', () => {
     expect(loginErrorMessage(500, { message: 'relation "iam.users" does not exist' })).not.toContain('relation');
     expect(loginErrorMessage(401, null)).toContain('servidor');
     expect(loginErrorMessage(0, null)).toContain('conexão');
+  });
+});
+
+describe('loginNotice (unitário)', () => {
+  it('avisa sessão expirada e saída, ignora motivo desconhecido', () => {
+    expect(loginNotice('expirou')).toMatch(/terminou/);
+    expect(loginNotice('saiu')).toMatch(/encerrada/);
+    for (const other of [null, '', 'toString', '<script>']) expect(loginNotice(other)).toBeNull();
   });
 });
