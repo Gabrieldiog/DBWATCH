@@ -348,6 +348,7 @@ a {
 
 .console-page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 16px;
   max-width: 1100px;
@@ -356,6 +357,9 @@ a {
 
 .console-page p {
   margin: 0;
+}
+
+.console-page > p {
   color: var(--text-muted);
 }
 
@@ -376,6 +380,98 @@ a {
   background: var(--surface);
 }
 
+/* PAM: tabela e estados */
+.panel {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.note {
+  display: block;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.badge {
+  display: inline-block;
+  padding: 0 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.badge-ok {
+  color: var(--signal);
+}
+
+.badge-wait {
+  color: var(--amber);
+}
+
+.badge-bad {
+  color: var(--coral);
+}
+
+.badge-muted {
+  color: var(--text-muted);
+}
+
+.table-wrap {
+  position: relative;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Celular: cada linha vira um bloco com o rótulo da coluna antes do valor */
+@media (max-width: 600px) {
+  .table thead {
+    display: none;
+  }
+
+  .table tr {
+    display: grid;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table td {
+    padding: 2px 0;
+    border: 0;
+  }
+
+  .table td[data-label]::before {
+    content: attr(data-label) ': ';
+    color: var(--text-muted);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
 @media (max-width: 860px) {
   .login {
     grid-template-columns: 1fr;
@@ -387,7 +483,7 @@ a {
   }
 
   .console {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .sidebar {

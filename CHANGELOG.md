@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-11a · Base das telas e meus pedidos**
+  - Tela "Pedir acesso" com a lista dos meus pedidos, o estado de cada um, o motivo da decisão e o botão de cancelar o que ainda está pendente.
+  - Base reaproveitada pelas próximas telas: leitura no servidor com a sessão de quem pediu, envio que mostra a mensagem da própria API, badge de estado e tabela que vira blocos no celular.
+  - Tela fora do papel responde 404, como a API faz com recurso de outra pessoa.
+
 - **PK-10d · Sessão expirada, erros e testes de navegador**
   - O login avisa quando a sessão terminou ou quando a pessoa saiu.
   - Telas próprias de erro (sem detalhe técnico, com "Tentar de novo") e de página não encontrada.
