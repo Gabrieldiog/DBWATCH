@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-10b · Tela de login com o radar**
+  - Página `/entrar` com a varredura do radar atrás do suricato (parada para quem prefere menos movimento) e o seletor de tema.
+  - Formulário que mostra as mensagens da própria API (senha errada, conta bloqueada, local ou horário negado) e nunca o detalhe de um erro interno.
+  - Depois de entrar, volta para a página pedida só se for um caminho do próprio sistema.
+
 - **PK-10a · Cores, fontes e tema**
   - Direção visual "Radar": azul-petróleo no escuro e névoa verde-azulada no claro, com os dois temas conferidos em contraste AA.
   - Fontes Sora, IBM Plex Sans e IBM Plex Mono servidas pelo próprio app.

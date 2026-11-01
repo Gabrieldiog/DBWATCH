@@ -233,7 +233,9 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** tokens da direção Radar nos dois temas; Sora, IBM Plex Sans e IBM Plex Mono como arquivos locais (licença OFL junto); tema claro, escuro ou do sistema, salvo no navegador e aplicado antes da primeira pintura; páginas atuais usando os tokens.
 
-#### PK-10b · Tela de login com o radar
+#### PK-10b · Tela de login com o radar ✅
+
+> **Registro de QA (01/11/2026):** lint, typecheck, 11/11 testes da web e build. Num navegador real (Chromium) contra a API e o PostgreSQL de verdade: senha errada mostra "Credenciais inválidas" e fica na tela; senha certa só pelo teclado (Enter) volta para a página pedida, com cookie `HttpOnly` e `SameSite=Strict` invisível ao JavaScript; `?next=//evil.example` cai na visão geral; 5 erros seguidos mostram o bloqueio (423) com o texto da API; rede fora e erro 500 com detalhe interno mostram mensagens do front, sem vazar o detalhe; a varredura gira e para com `prefers-reduced-motion`; sem rolagem horizontal em 1280 e 375 px. Testes de mutação: aceitar `//` no destino e repassar a mensagem de erro 500 fazem testes falharem.
 
 - **Inclui:** tela de entrada com a varredura do radar (desligada com `prefers-reduced-motion`); formulário com as mensagens da API; volta para a página pedida só se for um caminho interno.
 
@@ -295,5 +297,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-09a | ✅ Concluído | 31/10/2026 |
 | PK-09b | ✅ Concluído | 01/11/2026 |
 | PK-10a | ✅ Concluído | 01/11/2026 |
-| PK-10b | ⏳ Próximo | — |
-| PK-10c a PK-16 | 📋 Planejado | — |
+| PK-10b | ✅ Concluído | 01/11/2026 |
+| PK-10c | ⏳ Próximo | — |
+| PK-11 a PK-16 | 📋 Planejado | — |
