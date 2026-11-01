@@ -193,3 +193,10 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 - **Decisão:** direção "Radar", escolhida pelo Gabriel: azul-petróleo no escuro, névoa verde-azulada no claro, cor só em estado ou dado vivo, e um radar de sessões em que cada ponto é uma conexão real do `pg_stat_activity`. As fontes ficam como arquivos `woff2` no repositório, com a licença OFL, carregadas por `next/font/local`.
 - **Alternativas:** "Turno do dia" (menu azul-marinho e conteúdo claro) e "Instrumento" (grafite neutro); fontes por `next/font/google` (o build passaria a depender da rede, inclusive na VPS).
 - **Consequências:** o build funciona offline e o navegador nunca consulta servidor de fontes de terceiros. O radar só se move quando chega uma amostra nova, seguindo a regra de motion.
+
+### ADR-025 · Sessão conferida no servidor a cada tela do console
+
+- **Contexto:** o front precisa saber quem entrou para montar o menu, mas o cookie de sessão é `HttpOnly` e o JavaScript do navegador não o lê. Além disso, o Next não refaz o layout ao trocar de tela, então uma checagem só no layout passaria batida.
+- **Decisão:** o layout e cada página do console chamam `requireMe()`, que repassa o cookie para `/api/auth/me` (o `cache` do React faz uma ida só por requisição). Sem cookie, a pessoa vai ao login; com cookie recusado (401), vai ao login com `motivo=expirou`. Um `proxy.ts` repassa o caminho atual num cabeçalho, sobrescrevendo qualquer valor que venha do navegador, para o login voltar ao mesmo lugar. O menu é filtrado pelas permissões, mas é só conveniência: quem nega é a API.
+- **Alternativas:** guardar o usuário no `localStorage` (fica velho quando um papel muda e pode ser editado pelo usuário); checar só no `proxy.ts` (ele vê o cookie, mas não sabe se a sessão ainda vale no banco).
+- **Consequências:** uma sessão revogada ou expirada no banco tira a pessoa do console na próxima tela, e a troca de papel vale na próxima tela também. Cada tela custa uma ida extra à API, aceitável no volume do projeto.

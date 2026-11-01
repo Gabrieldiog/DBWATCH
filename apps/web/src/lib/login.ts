@@ -1,6 +1,6 @@
 // Só caminhos internos: "?next=https://outro.site" ou "//outro.site" virariam redirecionamento aberto
 export function safeNext(value: string | null): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) return '/';
+  if (!value || !value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) return '/painel';
   return value;
 }
 

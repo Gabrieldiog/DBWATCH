@@ -9,7 +9,7 @@ describe('safeNext (unitário)', () => {
 
   it('troca destino externo ou vazio pela visão geral', () => {
     for (const bad of [null, '', 'https://mal.example', '//mal.example', '/\\mal.example', 'javascript:alert(1)'])
-      expect(safeNext(bad)).toBe('/');
+      expect(safeNext(bad)).toBe('/painel');
   });
 });
 
