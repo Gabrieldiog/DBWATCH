@@ -256,6 +256,29 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** componentes base (tabela, badge de estado, diálogo, toast), cada um criado junto da primeira tela que o usa; pedir acesso; meus pedidos; fila de aprovação; meus acessos com contagem regressiva; execução de consultas; explorador da auditoria com verificação de integridade; administração de usuários.
 - **Testes:** T-E2E-02 a T-E2E-04.
+- **Divisão:** o rascunho do PK-11a passou do orçamento de 400 linhas, então o pack foi dividido em quatro partes.
+
+#### PK-11a · Base das telas e meus pedidos ✅
+
+> **Registro de QA (01/11/2026):** lint, typecheck, 22/22 testes da web e build; `pnpm test:e2e` com 17/17 no Chromium contra a API e o PostgreSQL de verdade. Testes de mutação: tirar o `router.refresh()` depois de cancelar (a linha continua "Pendente"), tirar a checagem de permissão da página (a auditora recebe a tela de erro em vez de 404) e tirar o layout de celular da tabela (a célula de estado vai a 423 px numa tela de 375) fazem os testes falharem. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal.
+
+- **Inclui:** leitura no servidor com o cookie de quem pediu a tela (`apiGet`), tela fora do papel respondendo 404 (`requirePermission`), envio pelo navegador com a mensagem da própria API (`send`), badge de estado, tabela que vira blocos no celular, botão de ação; tela "Pedir acesso" com a lista dos meus pedidos e o botão de cancelar.
+- **Testes:** parte do T-E2E-02 (acompanhar e cancelar um pedido, pedido cancelado em outra aba), 404 para quem não pode pedir, T-A11Y-01 na tela nova.
+
+#### PK-11b · Formulário de pedido e aprovações
+
+- **Inclui:** formulário de pedido (recurso, nível, duração limitada pelo recurso, justificativa); fila do aprovador com aprovar e rejeitar com motivo num diálogo; recurso HIGH mostrando a etapa "1 de 2".
+- **Testes:** T-E2E-02 até a aprovação, incluindo rejeição e os dois aprovadores do recurso HIGH.
+
+#### PK-11c · Meus acessos e consultas
+
+- **Inclui:** meus acessos com contagem regressiva; revogação com motivo; execução de consultas do catálogo.
+- **Testes:** fim do T-E2E-02 (contagem regressiva) e T-E2E-03.
+
+#### PK-11d · Auditoria e usuários
+
+- **Inclui:** explorador da auditoria com filtro por `correlation_id` e verificação de integridade; administração de usuários e papéis.
+- **Testes:** T-E2E-04.
 
 ### PK-12 · Front: monitor e laboratório
 
@@ -308,5 +331,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-10b | ✅ Concluído | 01/11/2026 |
 | PK-10c | ✅ Concluído | 01/11/2026 |
 | PK-10d | ✅ Concluído | 01/11/2026 |
-| PK-11 | ⏳ Próximo | — |
+| PK-11a | ✅ Concluído | 01/11/2026 |
+| PK-11b | ⏳ Próximo | — |
+| PK-11c e PK-11d | 📋 Planejado | — |
 | PK-12 a PK-16 | 📋 Planejado | — |

@@ -29,6 +29,9 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 | 021 | Documentação da API com Swagger em `/api/docs` | Aceita |
 | 022 | JumpServer só como referência de ideias, sem código | Aceita |
 | 023 | Break-glass como única exceção à separação de funções | Aceita |
+| 024 | Direção visual "Radar" e fontes no repositório | Aceita |
+| 025 | Sessão conferida no servidor a cada tela do console | Aceita |
+| 026 | Tela fora do papel responde 404 | Aceita |
 
 ---
 
@@ -200,3 +203,10 @@ Todas as decisões abaixo estão como **Proposta** até a aprovação do planeja
 - **Decisão:** o layout e cada página do console chamam `requireMe()`, que repassa o cookie para `/api/auth/me` (o `cache` do React faz uma ida só por requisição). Sem cookie, a pessoa vai ao login; com cookie recusado (401), vai ao login com `motivo=expirou`. Um `proxy.ts` repassa o caminho atual num cabeçalho, sobrescrevendo qualquer valor que venha do navegador, para o login voltar ao mesmo lugar. O menu é filtrado pelas permissões, mas é só conveniência: quem nega é a API.
 - **Alternativas:** guardar o usuário no `localStorage` (fica velho quando um papel muda e pode ser editado pelo usuário); checar só no `proxy.ts` (ele vê o cookie, mas não sabe se a sessão ainda vale no banco).
 - **Consequências:** uma sessão revogada ou expirada no banco tira a pessoa do console na próxima tela, e a troca de papel vale na próxima tela também. Cada tela custa uma ida extra à API, aceitável no volume do projeto.
+
+### ADR-026 · Tela fora do papel responde 404
+
+- **Contexto:** o menu esconde as telas que o papel não libera, mas o endereço pode ser digitado à mão. Sem checagem, a página chamaria a API, receberia 403 e mostraria a tela de erro genérica.
+- **Decisão:** cada página do console declara a permissão que exige (`requirePermission`), e quem não a tem recebe a página "não encontrada" com status 404. A API continua negando por conta própria; a checagem da página só evita uma ida inútil e uma tela de erro enganosa.
+- **Alternativas:** 403 com a mensagem "sem permissão" (confirma que a tela existe); deixar a API responder e mostrar a tela de erro (parece falha do sistema, não falta de permissão).
+- **Consequências:** o comportamento combina com o da API, que responde 404 para pedido de outra pessoa. O lado ruim é que um 404 por falta de permissão pode confundir quem esperava ter acesso; o menu ajuda, porque só mostra o que a pessoa pode abrir.
