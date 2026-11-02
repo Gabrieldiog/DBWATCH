@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-11c · Meus acessos e revogação**
+  - Tela "Meus acessos" com o estado de cada concessão e a contagem regressiva, que parte dos segundos calculados pelo banco e fica âmbar nos últimos 5 minutos.
+  - Quando o tempo acaba com a tela aberta, ela se redesenha sozinha e mostra "Expirado".
+  - Quem pode revogar vê os acessos ativos de todos e revoga com um motivo, que vai para a trilha de auditoria.
+
 - **PK-11b · Formulário de pedido e aprovações**
   - Formulário de pedido: recurso, nível, duração limitada pelo máximo do recurso e justificativa com contador.
   - Tela "Aprovações" com a fila em cartões, aprovar e rejeitar com motivo num diálogo; o motivo aparece para quem pediu.

@@ -256,7 +256,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** componentes base (tabela, badge de estado, diálogo, toast), cada um criado junto da primeira tela que o usa; pedir acesso; meus pedidos; fila de aprovação; meus acessos com contagem regressiva; execução de consultas; explorador da auditoria com verificação de integridade; administração de usuários.
 - **Testes:** T-E2E-02 a T-E2E-04.
-- **Divisão:** o rascunho do PK-11a passou do orçamento de 400 linhas, então o pack foi dividido em quatro partes.
+- **Divisão:** o rascunho do PK-11a passou do orçamento de 400 linhas, então o pack foi dividido em partes menores.
 
 #### PK-11a · Base das telas e meus pedidos ✅
 
@@ -272,12 +272,20 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** formulário de pedido (recurso, nível, duração limitada pelo recurso, justificativa); fila do aprovador com aprovar e rejeitar com motivo num diálogo; recurso HIGH mostrando a etapa "1 de 2".
 - **Testes:** T-E2E-02 até a aprovação, incluindo rejeição e os dois aprovadores do recurso HIGH.
 
-#### PK-11c · Meus acessos e consultas
+#### PK-11c · Meus acessos e revogação ✅
 
-- **Inclui:** meus acessos com contagem regressiva; revogação com motivo; execução de consultas do catálogo.
-- **Testes:** fim do T-E2E-02 (contagem regressiva) e T-E2E-03.
+> **Registro de QA (02/11/2026):** lint, typecheck, 24/24 testes da web e build; `pnpm test:e2e` com 27/27 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas. Testes de mutação: congelar a contagem (o relógio fica parado em 15:00) e mostrar a área de revogação para o solicitante (a API recusa com 403 e a tela quebra) fazem os testes falharem. Conferência manual da expiração ao vivo: com o prazo de uma concessão encurtado para 6 segundos direto no banco, a linha passou de "Ativo 00:06" para "Expirado" sem recarregar a página, e a consulta do catálogo logo depois respondeu 403 "Sua concessão expirou". Capturas em 1280 e 375 px, sem rolagem horizontal.
 
-#### PK-11d · Auditoria e usuários
+- **Inclui:** tela "Meus acessos" com estado e contagem regressiva (âmbar nos últimos 5 minutos); para quem tem `grant:revoke`, a lista de acessos ativos de todos com revogação por motivo.
+- **Testes:** fim do T-E2E-02 (acesso aprovado ativo com o tempo correndo), revogação com motivo vista pelo dono, 404 para a auditora, T-A11Y-01 na tela nova.
+- **Divisão:** as consultas saíram deste pack antes de escrever, pela estimativa de linhas.
+
+#### PK-11d · Consultas do catálogo
+
+- **Inclui:** execução de consultas do catálogo com os parâmetros de cada uma e o resultado em tabela, com os avisos de tempo-limite e de concessão vencida.
+- **Testes:** T-E2E-03.
+
+#### PK-11e · Auditoria e usuários
 
 - **Inclui:** explorador da auditoria com filtro por `correlation_id` e verificação de integridade; administração de usuários e papéis.
 - **Testes:** T-E2E-04.
@@ -335,6 +343,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-10d | ✅ Concluído | 01/11/2026 |
 | PK-11a | ✅ Concluído | 01/11/2026 |
 | PK-11b | ✅ Concluído | 01/11/2026 |
-| PK-11c | ⏳ Próximo | — |
-| PK-11d | 📋 Planejado | — |
+| PK-11c | ✅ Concluído | 02/11/2026 |
+| PK-11d | ⏳ Próximo | — |
+| PK-11e | 📋 Planejado | — |
 | PK-12 a PK-16 | 📋 Planejado | — |

@@ -36,3 +36,11 @@ export async function revokeGrants(approver: APIRequestContext, email: string): 
   for (const g of active.filter((g) => g.user.email === email))
     await approver.post(`/api/grants/${g.id}/revoke`, { headers: origin, data: { reason: 'Limpeza do teste E2E' } });
 }
+
+// Pedido aprovado pela API: devolve a concessão criada na mesma transação da aprovação
+export async function approvedGrant(requester: APIRequestContext, approver: APIRequestContext, resource: string): Promise<string> {
+  const id = await pendingRequest(requester, resource);
+  const res = await approver.post(`/api/requests/${id}/approve`, { headers: origin, data: {} });
+  expect(res.status()).toBe(200);
+  return ((await res.json()) as { grant: { id: string } }).grant.id;
+}

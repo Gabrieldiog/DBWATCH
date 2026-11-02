@@ -505,6 +505,15 @@ dialog::backdrop {
   font-size: 14px;
 }
 
+.countdown {
+  font-family: var(--font-mono), monospace;
+}
+
+.countdown-soon {
+  color: var(--amber);
+  font-weight: 600;
+}
+
 /* Celular: cada linha vira um bloco com o rótulo da coluna antes do valor */
 @media (max-width: 600px) {
   .table thead {
