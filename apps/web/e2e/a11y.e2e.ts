@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { login } from './demo';
+import { pendingRequest } from './pam';
 
 // T-A11Y-01 (parte já publicada): login e console, nos dois temas
 async function expectNoSeriousViolations(page: Page) {
@@ -25,6 +26,15 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
     test('meus pedidos', async ({ page }) => {
       await login(page, 'REQUESTER', '/pedidos');
+      await expectNoSeriousViolations(page);
+    });
+
+    test('aprovações com o diálogo de rejeição aberto', async ({ page, browser }) => {
+      const requester = await (await browser.newContext()).newPage();
+      await login(requester, 'REQUESTER');
+      await pendingRequest(requester.request, 'Catálogo de produtos');
+      await login(page, 'APPROVER', '/aprovacoes');
+      await page.getByRole('button', { name: 'Rejeitar' }).first().click();
       await expectNoSeriousViolations(page);
     });
 

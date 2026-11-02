@@ -7,6 +7,12 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-11b · Formulário de pedido e aprovações**
+  - Formulário de pedido: recurso, nível, duração limitada pelo máximo do recurso e justificativa com contador.
+  - Tela "Aprovações" com a fila em cartões, aprovar e rejeitar com motivo num diálogo; o motivo aparece para quem pediu.
+  - Recurso HIGH mostra "1 de 2 aprovações" e trava o botão de quem já aprovou; a API e o banco continuam barrando de qualquer jeito.
+  - A fila da API passa a informar quem deu a primeira aprovação (`firstApprovedById`).
+
 - **PK-11a · Base das telas e meus pedidos**
   - Tela "Pedir acesso" com a lista dos meus pedidos, o estado de cada um, o motivo da decisão e o botão de cancelar o que ainda está pendente.
   - Base reaproveitada pelas próximas telas: leitura no servidor com a sessão de quem pediu, envio que mostra a mensagem da própria API, badge de estado e tabela que vira blocos no celular.

@@ -1,5 +1,6 @@
 // Formatos e rótulos das telas de PAM; tudo puro para ser testado sem navegador
 export type Tone = 'ok' | 'wait' | 'bad' | 'muted';
+export type Resource = { id: string; name: string; sensitivity: string; maxGrantMinutes: number };
 export type AccessRequest = {
   id: string;
   accessLevel: string;
@@ -10,6 +11,8 @@ export type AccessRequest = {
   decisionNote: string | null;
   firstApprovedAt: string | null;
   resource: { id: string; name: string; sensitivity: string };
+  firstApprovedById?: string | null;
+  requester?: { displayName: string; email: string };
 };
 
 export const STATUS: Record<string, [string, Tone]> = {

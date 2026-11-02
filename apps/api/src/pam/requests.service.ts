@@ -124,7 +124,7 @@ export class RequestsService {
   queue(reviewerId: string) {
     return this.prisma.asActor((tx) => tx.accessRequest.findMany({
       where: { status: 'PENDING', requesterId: { not: reviewerId } },
-      select: { ...FIELDS, requester: { select: { id: true, email: true, displayName: true } } },
+      select: { ...FIELDS, firstApprovedById: true, requester: { select: { id: true, email: true, displayName: true } } },
       orderBy: { createdAt: 'asc' },
     }));
   }

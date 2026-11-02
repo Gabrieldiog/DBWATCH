@@ -1,14 +1,18 @@
 import type { Metadata } from 'next';
 import { ActionButton } from '../../../components/action-button';
 import { Badge } from '../../../components/badge';
-import { approvals, LEVEL, minutes, STATUS, when, type AccessRequest } from '../../../lib/pam';
+import { RequestForm } from '../../../components/request-form';
+import { approvals, LEVEL, minutes, STATUS, when, type AccessRequest, type Resource } from '../../../lib/pam';
 import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Pedir acesso' };
 
 export default async function Pedidos() {
   await requirePermission('request:create');
-  const mine = await apiGet<AccessRequest[]>('/requests/mine');
+  const [resources, mine] = await Promise.all([
+    apiGet<Resource[]>('/resources'),
+    apiGet<AccessRequest[]>('/requests/mine'),
+  ]);
   return (
     <main className="console-page">
       <h1>Pedir acesso</h1>
@@ -16,6 +20,7 @@ export default async function Pedidos() {
         O acesso é temporário e passa por aprovação. Recurso de sensibilidade alta precisa de duas pessoas
         diferentes.
       </p>
+      <RequestForm resources={resources} />
       <h2>Meus pedidos</h2>
       {mine.length === 0 ? (
         <p className="panel">Você ainda não fez nenhum pedido.</p>
