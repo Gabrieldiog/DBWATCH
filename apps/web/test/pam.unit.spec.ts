@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { approvals, errorMessage, minutes, when } from '../src/lib/pam';
+import { approvals, clock, errorMessage, minutes, when } from '../src/lib/pam';
 
 describe('rótulos de PAM (unitário)', () => {
   it('duração em minutos e horas', () => {
@@ -24,5 +24,15 @@ describe('rótulos de PAM (unitário)', () => {
     expect(errorMessage(500, { message: 'stack interna' })).toMatch(/Nada foi alterado/);
     expect(errorMessage(0, null)).toMatch(/Sem conexão/);
     expect(errorMessage(409, null)).toBe('Não foi possível concluir a ação.');
+  });
+});
+
+describe('contagem regressiva (unitário)', () => {
+  it('formata minutos e segundos, e horas quando passa de 60 min', () => {
+    expect([0, 9, 754, 3600, 3725].map(clock)).toEqual(['00:00', '00:09', '12:34', '1:00:00', '1:02:05']);
+  });
+
+  it('nunca mostra tempo negativo', () => {
+    expect(clock(-5)).toBe('00:00');
   });
 });

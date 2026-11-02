@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { login } from './demo';
-import { pendingRequest } from './pam';
+import { demoUser, login } from './demo';
+import { approvedGrant, pendingRequest, revokeGrants } from './pam';
 
 // T-A11Y-01 (parte já publicada): login e console, nos dois temas
 async function expectNoSeriousViolations(page: Page) {
@@ -35,6 +35,16 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await pendingRequest(requester.request, 'Catálogo de produtos');
       await login(page, 'APPROVER', '/aprovacoes');
       await page.getByRole('button', { name: 'Rejeitar' }).first().click();
+      await expectNoSeriousViolations(page);
+    });
+
+    test('meus acessos com contagem e acessos de todos', async ({ page, browser }) => {
+      const requester = await (await browser.newContext()).newPage();
+      await login(requester, 'REQUESTER');
+      await login(page, 'APPROVER', '/acessos');
+      await revokeGrants(page.request, demoUser('REQUESTER').email);
+      await approvedGrant(requester.request, page.request, 'Catálogo de produtos');
+      await page.reload();
       await expectNoSeriousViolations(page);
     });
 

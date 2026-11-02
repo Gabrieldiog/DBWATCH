@@ -61,3 +61,28 @@ export function errorMessage(status: number, body: ApiError): string {
   if (status >= 500) return 'O servidor falhou ao registrar. Nada foi alterado; tente de novo.';
   return msg ?? 'Não foi possível concluir a ação.';
 }
+
+export type Grant = {
+  id: string;
+  state: string;
+  accessLevel: string;
+  expiresAt: string;
+  secondsLeft: number;
+  resource: { id: string; name: string; sensitivity: string };
+  user?: { email: string };
+};
+
+export const GRANT_STATE: Record<string, [string, Tone]> = {
+  ACTIVE: ['Ativo', 'ok'],
+  SCHEDULED: ['Agendado', 'wait'],
+  EXPIRED: ['Expirado', 'muted'],
+  REVOKED: ['Revogado', 'bad'],
+};
+
+// 754 → "12:34"; com hora, 3725 → "1:02:05"
+export function clock(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  const [h, m, r] = [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60];
+  const mmss = `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+  return h ? `${h}:${mmss}` : mmss;
+}
