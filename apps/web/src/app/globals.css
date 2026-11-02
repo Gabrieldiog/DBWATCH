@@ -411,6 +411,7 @@ fieldset.field input {
 .row {
   display: flex;
   flex-wrap: wrap;
+  align-items: end;
   gap: 12px;
 }
 

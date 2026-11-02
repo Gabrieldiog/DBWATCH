@@ -23,6 +23,9 @@ describe('rótulos de PAM (unitário)', () => {
     expect(errorMessage(400, { message: ['a', 'b'] })).toBe('a; b');
     expect(errorMessage(500, { message: 'stack interna' })).toMatch(/Nada foi alterado/);
     expect(errorMessage(0, null)).toMatch(/Sem conexão/);
+    // A API troca a mensagem de todo 5xx por "Erro interno"; tempo-limite e falha do banco-alvo são traduzidos aqui
+    expect(errorMessage(504, { message: 'Erro interno. Informe o código de suporte.' })).toMatch(/tempo-limite/);
+    expect(errorMessage(502, null)).toMatch(/banco-alvo/);
     expect(errorMessage(409, null)).toBe('Não foi possível concluir a ação.');
   });
 });

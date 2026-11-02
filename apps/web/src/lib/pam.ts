@@ -58,6 +58,9 @@ type ApiError = { message?: string | string[] } | null;
 export function errorMessage(status: number, body: ApiError): string {
   const msg = Array.isArray(body?.message) ? body.message.join('; ') : body?.message;
   if (status === 0) return 'Sem conexão com o servidor. Tente de novo.';
+  // A API esconde a mensagem de todo 5xx; os esperados são traduzidos aqui pelo status
+  if (status === 504) return 'A consulta passou do tempo-limite e foi cancelada pelo banco.';
+  if (status === 502) return 'O banco-alvo falhou ao executar a consulta.';
   if (status >= 500) return 'O servidor falhou ao registrar. Nada foi alterado; tente de novo.';
   return msg ?? 'Não foi possível concluir a ação.';
 }

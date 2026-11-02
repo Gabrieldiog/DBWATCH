@@ -1,0 +1,88 @@
+'use client';
+
+import { useState, type FormEvent } from 'react';
+import { LEVEL } from '../lib/pam';
+import { send, type Sent } from '../lib/send';
+
+export type Template = {
+  code: string;
+  title: string;
+  accessLevel: string;
+  maxRows: number;
+  params: { name: string; type: 'text' | 'int' }[];
+  resource: { name: string };
+};
+type Result = { columns: string[]; rows: Record<string, unknown>[]; rowCount: number; truncated: boolean; durationMs: number };
+
+// O navegador só manda o código da consulta e os valores; o SQL fica no banco e os valores vão como $1, $2
+export function QueryCard({ q }: { q: Template }) {
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState<Sent | null>(null);
+
+  async function run(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const params = Object.fromEntries(q.params.map((p) => [p.name, p.type === 'int' ? Number(form.get(p.name)) : form.get(p.name)]));
+    setBusy(true);
+    setSent(await send(`/queries/${q.code}/execute`, { params }));
+    setBusy(false);
+  }
+
+  const result = sent?.ok ? (sent.data as Result) : null;
+  return (
+    <li className="panel">
+      <h2>{q.title}</h2>
+      <p className="note">
+        {q.resource.name} · {LEVEL[q.accessLevel]} · até {q.maxRows} linhas
+      </p>
+      <form className="row" onSubmit={run}>
+        {q.params.map((p) => (
+          <label key={p.name} className="field">
+            {p.name}
+            <input name={p.name} type={p.type === 'int' ? 'number' : 'text'} min={0} maxLength={100} required />
+          </label>
+        ))}
+        <button type="submit" className="button" disabled={busy}>
+          {busy ? 'Executando…' : 'Executar'}
+        </button>
+      </form>
+      {sent && !sent.ok && (
+        <p className="alert" role="alert">
+          {sent.message}
+        </p>
+      )}
+      {sent?.requestId && (
+        <p className="note" role="status">
+          {result && `${result.rowCount} linha(s) em ${result.durationMs} ms${result.truncated ? ', cortado no limite' : ''} · `}
+          código da execução <code>{sent.requestId}</code>
+        </p>
+      )}
+      {result && (
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                {result.columns.map((c) => (
+                  <th key={c} scope="col">
+                    {c}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {result.rows.map((row, i) => (
+                <tr key={i}>
+                  {result.columns.map((c) => (
+                    <td key={c} data-label={c}>
+                      {String(row[c] ?? '')}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </li>
+  );
+}

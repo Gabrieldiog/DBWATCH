@@ -280,7 +280,9 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Testes:** fim do T-E2E-02 (acesso aprovado ativo com o tempo correndo), revogação com motivo vista pelo dono, 404 para a auditora, T-A11Y-01 na tela nova.
 - **Divisão:** as consultas saíram deste pack antes de escrever, pela estimativa de linhas.
 
-#### PK-11d · Consultas do catálogo
+#### PK-11d · Consultas do catálogo ✅
+
+> **Registro de QA (02/11/2026):** lint, typecheck, 24/24 testes da web e build; `pnpm test:e2e` com 33/33 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas. Testes de mutação: não repassar o código da execução (`x-request-id`) e mandar o parâmetro numérico como texto (a API recusa com 400 em vez de deixar o banco cancelar por tempo) fazem os testes falharem. Capturas em 1280 e 375 px nos dois temas com resultado na tela, sem rolagem horizontal; o e-mail dos clientes chega mascarado pela própria consulta.
 
 - **Inclui:** execução de consultas do catálogo com os parâmetros de cada uma e o resultado em tabela, com os avisos de tempo-limite e de concessão vencida.
 - **Testes:** T-E2E-03.
@@ -344,6 +346,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-11a | ✅ Concluído | 01/11/2026 |
 | PK-11b | ✅ Concluído | 01/11/2026 |
 | PK-11c | ✅ Concluído | 02/11/2026 |
-| PK-11d | ⏳ Próximo | — |
-| PK-11e | 📋 Planejado | — |
+| PK-11d | ✅ Concluído | 02/11/2026 |
+| PK-11e | ⏳ Próximo | — |
 | PK-12 a PK-16 | 📋 Planejado | — |
