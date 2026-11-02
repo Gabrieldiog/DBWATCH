@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-11d · Consultas do catálogo**
+  - Tela "Consultas" com um cartão por consulta do catálogo, campos para os parâmetros e o resultado em tabela.
+  - Cada execução mostra quantas linhas voltaram, o tempo e o código da execução, o mesmo `correlation_id` que fica na trilha de auditoria.
+  - Mensagens claras para tempo-limite estourado, falha do banco-alvo e concessão vencida, revogada ou inexistente.
+
 - **PK-11c · Meus acessos e revogação**
   - Tela "Meus acessos" com o estado de cada concessão e a contagem regressiva, que parte dos segundos calculados pelo banco e fica âmbar nos últimos 5 minutos.
   - Quando o tempo acaba com a tela aberta, ela se redesenha sozinha e mostra "Expirado".

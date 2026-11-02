@@ -1,0 +1,50 @@
+import { expect, test, type Page } from '@playwright/test';
+import { demoUser, login } from './demo';
+import { approvedGrant, revokeGrants } from './pam';
+
+const card = (page: Page, title: string) => page.getByRole('listitem').filter({ has: page.getByRole('heading', { name: title }) });
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+
+async function withGrant(page: Page, browser: import('@playwright/test').Browser, resource: string) {
+  const bruno = await (await browser.newContext()).newPage();
+  await login(bruno, 'APPROVER');
+  await revokeGrants(bruno.request, demoUser('REQUESTER').email);
+  await login(page, 'REQUESTER', '/consultas');
+  if (resource) await approvedGrant(page.request, bruno.request, resource);
+  await page.reload();
+}
+
+// T-E2E-03: o solicitante executa uma consulta do catálogo e vê o resultado
+test('T-E2E-03 consulta do catálogo com concessão ativa mostra as linhas e o código da execução', async ({ page, browser }) => {
+  await withGrant(page, browser, 'Catálogo de produtos');
+  const produtos = card(page, 'Produtos de uma categoria');
+  await produtos.getByLabel('categoria').fill('Bebidas');
+  await produtos.getByRole('button', { name: 'Executar' }).click();
+  await expect(produtos.getByRole('status')).toContainText(/50 linha\(s\) em \d+ ms/);
+  await expect(produtos.getByRole('status')).toContainText(UUID);
+  await expect(produtos.getByRole('columnheader')).toHaveText(['id', 'nome', 'preco']);
+  await expect(produtos.getByRole('row')).toHaveCount(51);
+});
+
+test('consulta lenta é cancelada pelo banco e a tela explica o tempo-limite', async ({ page, browser }) => {
+  await withGrant(page, browser, 'Catálogo de produtos');
+  const lenta = card(page, 'LAB: relatório que demora (tempo-limite de 1 s)');
+  await lenta.getByLabel('segundos').fill('3');
+  await lenta.getByRole('button', { name: 'Executar' }).click();
+  await expect(lenta.getByRole('alert')).toHaveText('A consulta passou do tempo-limite e foi cancelada pelo banco.');
+  await expect(lenta.getByRole('status')).toContainText(UUID);
+});
+
+test('sem concessão viva a API nega e a tela mostra o motivo', async ({ page, browser }) => {
+  await withGrant(page, browser, '');
+  const clientes = card(page, 'Clientes de uma cidade (e-mail mascarado)');
+  await clientes.getByLabel('cidade').fill('Goiânia');
+  await clientes.getByRole('button', { name: 'Executar' }).click();
+  await expect(clientes.getByRole('alert')).toHaveText(/concessão/);
+  await expect(clientes.getByRole('table')).toHaveCount(0);
+});
+
+test('auditora não executa consultas e recebe 404', async ({ page }) => {
+  await login(page, 'AUDITOR');
+  expect((await page.goto('/consultas'))?.status()).toBe(404);
+});
