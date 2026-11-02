@@ -415,6 +415,11 @@ fieldset.field input {
   gap: 12px;
 }
 
+.row > .field,
+.field input {
+  max-width: 100%;
+}
+
 .cards {
   display: grid;
   gap: 16px;
@@ -457,6 +462,7 @@ dialog::backdrop {
   display: block;
   color: var(--text-muted);
   font-weight: 400;
+  overflow-wrap: anywhere;
 }
 .badge {
   display: inline-block;
@@ -499,6 +505,11 @@ dialog::backdrop {
   border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: top;
+}
+
+.table td.wrap {
+  min-width: 20ch;
+  overflow-wrap: anywhere;
 }
 
 .table th {

@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-11e · Explorador da auditoria**
+  - Tela "Auditoria" com filtros por código da execução, ação e resultado, e paginação que não pula nem repete linhas quando chegam registros novos.
+  - Clicar no código de uma linha mostra todos os registros do mesmo fluxo.
+  - Botão "Verificar integridade", que recalcula a cadeia de hash no banco e aponta o primeiro registro adulterado, se houver.
+
 - **PK-11d · Consultas do catálogo**
   - Tela "Consultas" com um cartão por consulta do catálogo, campos para os parâmetros e o resultado em tabela.
   - Cada execução mostra quantas linhas voltaram, o tempo e o código da execução, o mesmo `correlation_id` que fica na trilha de auditoria.
