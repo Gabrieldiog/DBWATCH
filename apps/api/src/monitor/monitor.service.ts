@@ -65,11 +65,12 @@ export class MonitorService implements OnModuleInit, OnModuleDestroy {
     return rows[0];
   }
 
+  // Da amostra mais nova (db_samples sempre ganha linhas); sem lock nela, a lista vem vazia em vez de repetir lock antigo
   async locks() {
     const { rows } = await this.db().query(`
       SELECT blocked_pid AS "blockedPid", blocking_pid AS "blockingPid", datname AS database, locktype, mode, relation,
              wait_ms AS "waitMs", blocked_app AS "blockedApp", blocking_app AS "blockingApp"
-        FROM monitor.lock_samples WHERE sampled_at = (SELECT max(sampled_at) FROM monitor.lock_samples)
+        FROM monitor.lock_samples WHERE sampled_at = (SELECT max(sampled_at) FROM monitor.db_samples)
        ORDER BY wait_ms DESC`);
     return rows;
   }

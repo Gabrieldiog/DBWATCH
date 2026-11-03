@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { linePath, niceMax, pick, staleFor, summary } from '../src/lib/monitor';
+import { describeEvent, fromStream, layout, linePath, niceMax, pick, staleFor, summary } from '../src/lib/monitor';
 
 describe('monitor (unitário)', () => {
   it('converte o texto do pg em número e mantém o null do contador reiniciado', () => {
@@ -28,5 +28,20 @@ describe('monitor (unitário)', () => {
     const points = [4, 9, 2].map((v, i) => ({ t: String(i), v }));
     expect(summary(points, 'commits')).toBe('Último intervalo: 2 commits. Máximo no período: 9 commits.');
     expect(summary([], 'commits')).toBe('Sem amostras no período.');
+  });
+
+  it('grafo: quem segura o lock fica à esquerda e a seta para na borda de quem espera', () => {
+    const lock = { blockedPid: 20, blockingPid: 10, locktype: 'advisory', mode: 'ExclusiveLock', relation: null, waitMs: '900', blockedApp: 'B', blockingApp: 'A' };
+    const { nodes, edges } = layout([lock]);
+    expect(nodes.map((n) => [n.pid, n.x, n.waiting])).toEqual([[10, -90, false], [20, 90, true]]);
+    expect(edges).toEqual([{ key: '10-20', x1: -64, y1: 0, x2: 64, y2: 0 }]);
+  });
+
+  it('o evento do SSE (snake_case do NOTIFY) vira o mesmo formato da rota', () => {
+    const e = fromStream({ id: 1, occurred_at: 't', correlation_id: 'c', code: 'TX_ROLLBACK', operation: 'iam.role_assign', sqlstate: '23514', detail: {} });
+    expect([e.occurredAt, e.correlationId, e.fresh]).toEqual(['t', 'c', true]);
+    expect(describeEvent(e)).toEqual(['Rollback na API', 'iam.role_assign voltou com SQLSTATE 23514']);
+    const wait = describeEvent({ ...e, code: 'LOCK_WAIT', detail: { bloqueado: 20, bloqueador: 10, app: 'B', esperaMs: 5400 } });
+    expect(wait[1]).toBe('pid 20 (B) espera o pid 10 há 5 s');
   });
 });

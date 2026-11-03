@@ -49,3 +49,55 @@ export function summary(points: Point[], unit: string): string {
 
 const TIME = new Intl.DateTimeFormat('pt-BR', { timeStyle: 'medium', timeZone: 'America/Sao_Paulo' });
 export const time = (iso: string) => TIME.format(new Date(iso));
+
+export type Lock = { blockedPid: number; blockingPid: number; locktype: string; mode: string; relation: string | null; waitMs: string; blockedApp: string | null; blockingApp: string | null };
+export type Node = { pid: number; app: string; waiting: boolean; x: number; y: number };
+export type Edge = { key: string; x1: number; y1: number; x2: number; y2: number };
+
+// Nós num círculo (serve para cadeia e para ciclo); quem bloqueia vem primeiro, então com dois a seta vai da esquerda para a direita
+export function layout(locks: Lock[], radius = 90, gap = 26): { nodes: Node[]; edges: Edge[] } {
+  const apps = new Map<number, string>();
+  for (const l of locks) apps.set(l.blockingPid, l.blockingApp ?? '').set(l.blockedPid, l.blockedApp ?? '');
+  const pids = [...apps.keys()].sort((a, b) => Number(locks.some((l) => l.blockingPid === b)) - Number(locks.some((l) => l.blockingPid === a)));
+  const nodes = pids.map((pid, i) => {
+    const angle = Math.PI + (2 * Math.PI * i) / pids.length;
+    const waiting = locks.some((l) => l.blockedPid === pid);
+    return { pid, app: apps.get(pid)!, waiting, x: Math.round(radius * Math.cos(angle)), y: Math.round(radius * Math.sin(angle)) };
+  });
+  const at = (pid: number) => nodes.find((n) => n.pid === pid)!;
+  // A seta "A → B" diz que A bloqueia B; as pontas param na borda dos círculos
+  const edges = locks.map((l) => {
+    const [a, b] = [at(l.blockingPid), at(l.blockedPid)];
+    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    const [dx, dy] = [((b.x - a.x) / len) * gap, ((b.y - a.y) / len) * gap];
+    return { key: `${a.pid}-${b.pid}`, x1: Math.round(a.x + dx), y1: Math.round(a.y + dy), x2: Math.round(b.x - dx), y2: Math.round(b.y - dy) };
+  });
+  return { nodes, edges };
+}
+
+// A rota REST devolve camelCase; o SSE repassa a linha do NOTIFY como o banco gerou (snake_case)
+export type MonitorEvent = { id: number; occurredAt: string; kind: string; code: string; severity: string; operation: string | null; sqlstate: string | null; correlationId: string | null; detail: Record<string, unknown>; fresh?: boolean };
+type Raw = Partial<MonitorEvent> & { occurred_at?: string; correlation_id?: string | null };
+export const fromStream = (r: Raw): MonitorEvent =>
+  ({ ...r, occurredAt: r.occurredAt ?? r.occurred_at, correlationId: r.correlationId ?? r.correlation_id ?? null, fresh: true }) as MonitorEvent;
+
+const secs = (ms: unknown) => `${Math.round(Number(ms) / 1000)} s`;
+export function describeEvent(e: MonitorEvent): [string, string] {
+  const d = e.detail;
+  switch (e.code) {
+    case 'TX_ROLLBACK':
+      return ['Rollback na API', `${e.operation} ${e.sqlstate ? `voltou com SQLSTATE ${e.sqlstate}` : 'voltou por uma regra da API'}`];
+    case 'LOCK_WAIT':
+      return ['Espera longa por lock', `pid ${d.bloqueado} (${d.app}) espera o pid ${d.bloqueador} há ${secs(d.esperaMs)}`];
+    case 'IDLE_IN_TRANSACTION':
+      return ['Transação aberta e parada', `pid ${d.pid} (${d.app}) está assim há ${secs(d.idadeMs)}`];
+    case 'DEADLOCK':
+      return ['Deadlock detectado', `${d.novos} vítima(s) derrubada(s) pelo PostgreSQL no banco ${d.database}`];
+    case 'BREAK_GLASS':
+      return ['Acesso de emergência', `Break-glass de ${d.minutos} min aberto`];
+    default:
+      return [e.code, e.operation ?? ''];
+  }
+}
+
+export const SEVERITY: Record<string, [string, 'muted' | 'wait' | 'bad']> = { info: ['Info', 'muted'], medium: ['Média', 'wait'], high: ['Alta', 'bad'] };

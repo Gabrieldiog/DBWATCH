@@ -48,6 +48,9 @@ describe('monitor por amostragem', () => {
       expect((await get('/api/monitor/overview')).body.waitingOnLock).toBeGreaterThanOrEqual(1);
       await a!.query('COMMIT');
       await waiting;
+      // Lock que acabou some na amostra seguinte: a rota não pode repetir a última amostra que teve lock
+      await monitor.sample();
+      expect((await get('/api/monitor/locks')).body).not.toContainEqual(expect.objectContaining({ blockedPid: pb }));
     } finally {
       await Promise.all([a!.end(), b!.end()]);
     }

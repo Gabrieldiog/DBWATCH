@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { AutoRefresh } from '../../../components/auto-refresh';
+import { EventFeed } from '../../../components/event-feed';
 import { LineChart } from '../../../components/line-chart';
-import { pick, staleFor, time, type Overview, type RawPoint } from '../../../lib/monitor';
+import { LockGraph } from '../../../components/lock-graph';
+import { pick, staleFor, time, type Lock, type MonitorEvent, type Overview, type RawPoint } from '../../../lib/monitor';
 import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Monitor' };
@@ -10,10 +12,12 @@ export const metadata: Metadata = { title: 'Monitor' };
 const EVERY = 5;
 
 export default async function Monitor() {
-  await requirePermission('monitor:read');
-  const [o, rows] = await Promise.all([
+  const me = await requirePermission('monitor:read');
+  const [o, rows, locks, events] = await Promise.all([
     apiGet<Overview>('/monitor/overview'),
     apiGet<RawPoint[]>('/monitor/series?minutes=30'),
+    apiGet<Lock[]>('/monitor/locks'),
+    apiGet<MonitorEvent[]>('/monitor/events?limit=8'),
   ]);
   const stale = staleFor(o.sampledAt, Date.now(), EVERY);
   const cache = pick(rows, 'cacheHitPct').findLast((p) => p.v !== null)?.v;
@@ -54,6 +58,10 @@ export default async function Monitor() {
           </div>
         ))}
       </dl>
+      <h2>Bloqueios agora</h2>
+      <LockGraph locks={locks} />
+      <h2>Eventos ao vivo</h2>
+      <EventFeed initial={events} canAudit={me.permissions.includes('audit:read')} />
       <h2>Últimos 30 minutos no banco da aplicação</h2>
       <p className="note">A própria coleta grava uma transação por amostra, por isso os commits nunca chegam a zero.</p>
       <div className="charts">
