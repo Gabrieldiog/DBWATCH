@@ -693,3 +693,86 @@ dialog::backdrop {
   justify-content: space-between;
   margin: 0;
 }
+
+/* Grafo de bloqueio: o tracejado corre só enquanto alguém espera de verdade */
+.chart .lock-graph {
+  width: min(100%, 480px);
+  height: auto;
+}
+
+.lock-edge {
+  stroke: var(--amber);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  animation: flow 0.8s linear infinite;
+}
+
+.lock-head {
+  fill: var(--amber);
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.lock-node circle {
+  fill: var(--surface-raised);
+  stroke: var(--scan);
+  stroke-width: 2;
+}
+
+.lock-waiting circle {
+  stroke: var(--amber);
+}
+
+.lock-node text {
+  fill: var(--text);
+  font: 500 13px var(--font-mono), monospace;
+  text-anchor: middle;
+}
+
+.lock-node .lock-app {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.events {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.event {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 8px 16px;
+  border-left: 4px solid var(--scan);
+}
+
+.event-app {
+  border-left-color: var(--coral);
+}
+
+.event-new {
+  animation: enter 160ms var(--ease);
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lock-edge,
+  .event-new {
+    animation: none;
+  }
+}

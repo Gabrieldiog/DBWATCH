@@ -315,6 +315,13 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** tela "Monitor" com as sessões por estado, esperas por lock, pares bloqueados e cache hit da última amostra; aviso quando a coleta para; gráficos de commits e de rollbacks a cada 5 s nos últimos 30 minutos, cada um com resumo para leitor de tela e tabela alternativa; a tela relê a amostra sozinha a cada 5 s.
 - **Testes:** parte do T-E2E-05 (rollback provocado chega ao gráfico), 404 para quem não tem `monitor:read`, T-A11Y-01 na tela nova.
 
+#### PK-12b · Monitor: grafo de bloqueio e eventos ao vivo ✅
+
+> **Registro de QA (03/11/2026):** lint, typecheck, 35/35 testes da web, 131/131 da API e build; `pnpm test:e2e` com 49/49 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas. Antes de escrever, o SSE foi conferido passando pelo rewrite do Next (o rollback provocado chegou ao navegador em cerca de 50 ms). **Bug encontrado e corrigido na API:** `GET /api/monitor/locks` devolvia a última amostra que *teve* lock, então um bloqueio que já tinha acabado continuava aparecendo; agora a rota lê a amostra mais nova, e o T-MON-01 confere que o par some depois do COMMIT (o teste falhou antes da correção). O E2E segura um advisory lock de verdade com duas sessões `psql` (sem tocar em dado nenhum), espera o grafo desenhar "quem segura → quem espera" e o alerta de espera longa chegar pelo SSE com o pid daquela sessão. Teste de mutação: trocar os ouvintes dos eventos com nome pelo `onmessage` padrão. Na primeira versão a mutação passou, porque a lista inicial já trazia eventos iguais de rodadas anteriores; as asserções passaram a usar o código da execução devolvido pela API e o pid real da sessão, e aí a mutação é pega. Axe sem violação séria com o grafo na tela, nos dois temas; capturas em 1280 e 375 px sem rolagem horizontal.
+
+- **Inclui:** grafo "quem bloqueia quem" da última amostra, com tracejado correndo só enquanto há espera e tabela com tipo, modo e tempo de cada lock; lista de eventos ao vivo pelo SSE (rollbacks da API, espera longa, transação parada, deadlock e break-glass), com link para a trilha de auditoria quando a pessoa pode ler a auditoria.
+- **Testes:** T-E2E-05 completo (lock real no grafo, alerta e rollback chegando pelo SSE), T-MON-01 reforçado na API.
+
 ### PK-13 · QA final
 
 - **Inclui:** suíte completa; navegação exploratória num navegador real com gravação; auditoria de acessibilidade; revisão de segurança do diff completo; teste de carga leve na aprovação concorrente; correções.
@@ -368,6 +375,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-11e | ✅ Concluído | 02/11/2026 |
 | PK-11f | ✅ Concluído | 03/11/2026 |
 | PK-12a | ✅ Concluído | 03/11/2026 |
-| PK-12b | ⏳ Próximo | — |
-| PK-12c | 📋 Planejado | — |
+| PK-12b | ✅ Concluído | 03/11/2026 |
+| PK-12c | ⏳ Próximo | — |
 | PK-13 a PK-16 | 📋 Planejado | — |

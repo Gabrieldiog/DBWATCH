@@ -5,7 +5,15 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ## [Não lançado]
 
+### Corrigido
+
+- `GET /api/monitor/locks` mostrava a última amostra que teve lock, mesmo quando o bloqueio já tinha acabado; agora lê sempre a amostra mais nova.
+
 ### Adicionado
+
+- **PK-12b · Monitor: grafo de bloqueio e eventos ao vivo**
+  - Grafo "quem bloqueia quem" desenhado a partir da última amostra de `pg_locks`, com a tabela de cada lock ao lado.
+  - Eventos ao vivo pelo SSE: rollbacks da API, espera longa por lock, transação parada, deadlock e break-glass, cada rollback com link para a trilha de auditoria.
 
 - **PK-12a · Monitor: indicadores e séries**
   - Tela "Monitor" com as sessões do PostgreSQL por estado, esperas por lock e cache hit, lidas da última amostra real.
