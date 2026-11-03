@@ -287,10 +287,18 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** execução de consultas do catálogo com os parâmetros de cada uma e o resultado em tabela, com os avisos de tempo-limite e de concessão vencida.
 - **Testes:** T-E2E-03.
 
-#### PK-11e · Auditoria e usuários
+#### PK-11e · Explorador da auditoria ✅
 
-- **Inclui:** explorador da auditoria com filtro por `correlation_id` e verificação de integridade; administração de usuários e papéis.
-- **Testes:** T-E2E-04.
+> **Registro de QA (02/11/2026):** lint, typecheck, 28/28 testes da web e build; `pnpm test:e2e` com 39/39 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas. Testes de mutação: ignorar os filtros na chamada à API (a busca pelo código traz a trilha inteira e a paginação volta ao começo) e desligar a validação da tela (o filtro inválido vira um 400 e a página quebra) fazem os testes falharem. Os testes acharam um bug: registros antigos sem `correlation_id` derrubavam a tela. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal; UUIDs na coluna de detalhes empurravam a coluna do código para fora e passaram a quebrar linha.
+
+- **Inclui:** tela "Auditoria" com filtro por código da execução (`correlation_id`), ação e resultado; o código de cada linha filtra o fluxo inteiro; paginação por cursor na posição da cadeia; botão "Verificar integridade" para quem tem `audit:verify`.
+- **Testes:** T-E2E-04 (a auditora acha pelo código a consulta feita pelo solicitante e confere a cadeia), filtro inválido, página seguinte sem pular nem repetir linhas, 404 para o solicitante, T-A11Y-01 na tela nova.
+- **Divisão:** a administração de usuários saiu deste pack antes de escrever, pela estimativa de linhas.
+
+#### PK-11f · Administração de usuários
+
+- **Inclui:** lista de usuários com papéis e status; criar usuário; ativar e desativar (desativar encerra as sessões); atribuir e remover papéis; encerrar as sessões de alguém.
+- **Testes:** fluxo do admin no navegador, incluindo as negações do banco (ninguém atribui papel a si mesmo, o último ADMIN não sai).
 
 ### PK-12 · Front: monitor e laboratório
 
@@ -347,5 +355,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-11b | ✅ Concluído | 01/11/2026 |
 | PK-11c | ✅ Concluído | 02/11/2026 |
 | PK-11d | ✅ Concluído | 02/11/2026 |
-| PK-11e | ⏳ Próximo | — |
+| PK-11e | ✅ Concluído | 02/11/2026 |
+| PK-11f | ⏳ Próximo | — |
 | PK-12 a PK-16 | 📋 Planejado | — |
