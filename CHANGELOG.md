@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-12a · Monitor: indicadores e séries**
+  - Tela "Monitor" com as sessões do PostgreSQL por estado, esperas por lock e cache hit, lidas da última amostra real.
+  - Gráficos de commits e de rollbacks a cada 5 s nos últimos 30 minutos, com tabela alternativa e resumo para leitor de tela.
+  - Aviso quando a coleta para, em vez de mostrar números velhos como se fossem atuais.
+
 - **PK-11f · Administração de usuários**
   - Tela "Usuários" para o admin: criar usuário, dar e tirar papéis, ativar, desativar e encerrar sessões.
   - As negações do banco aparecem na tela com o motivo: ninguém dá papel a si mesmo, e o último ADMIN ativo não pode sair.

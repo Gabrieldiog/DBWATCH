@@ -52,3 +52,4 @@ jobs:
         run: pnpm --filter @dbwatch/web test:e2e
         env:
           DATABASE_URL: postgres://dbwatch_app:ci-app@127.0.0.1:5433/dbwatch_test
+          MONITOR_DATABASE_URL: postgres://dbwatch_monitor:ci-monitor@127.0.0.1:5433/dbwatch_test

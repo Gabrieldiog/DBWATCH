@@ -306,6 +306,14 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** dashboard (indicadores, séries, sessões); grafo de bloqueio animado; fluxo de eventos ao vivo; laboratório com a linha do tempo A/B.
 - **Testes:** T-E2E-05, T-E2E-06.
+- **Divisão:** estimado acima de 400 linhas antes de escrever, então o pack foi dividido em três partes: indicadores e séries (12a), grafo de bloqueio e eventos ao vivo (12b), laboratório (12c). A API do lab devolve todos os passos de uma vez, com o tempo real de cada um; a linha do tempo desenha esses tempos medidos, sem reproduzir os passos como se estivessem acontecendo agora.
+
+#### PK-12a · Monitor: indicadores e séries ✅
+
+> **Registro de QA (03/11/2026):** lint, typecheck, 33/33 testes da web e build; `pnpm test:e2e` com 48/48 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas. O E2E provoca um rollback real (o admin tenta dar papel a si mesmo e a CHECK do banco recusa) e espera o gráfico de rollbacks mostrar o intervalo novo sem recarregar a página. Testes de mutação: tirar a atualização automática (o gráfico não recebe o rollback e o teste falha esperando) e transformar o contador reiniciado (`null`) em zero fazem os testes falharem. Com a API recém-ligada, a tela mostrou de verdade o aviso de coleta parada até a primeira amostra nova. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal. O CI do E2E passou a ligar o monitor (`MONITOR_DATABASE_URL`).
+
+- **Inclui:** tela "Monitor" com as sessões por estado, esperas por lock, pares bloqueados e cache hit da última amostra; aviso quando a coleta para; gráficos de commits e de rollbacks a cada 5 s nos últimos 30 minutos, cada um com resumo para leitor de tela e tabela alternativa; a tela relê a amostra sozinha a cada 5 s.
+- **Testes:** parte do T-E2E-05 (rollback provocado chega ao gráfico), 404 para quem não tem `monitor:read`, T-A11Y-01 na tela nova.
 
 ### PK-13 · QA final
 
@@ -359,5 +367,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-11d | ✅ Concluído | 02/11/2026 |
 | PK-11e | ✅ Concluído | 02/11/2026 |
 | PK-11f | ✅ Concluído | 03/11/2026 |
-| PK-12 | ⏳ Próximo | — |
+| PK-12a | ✅ Concluído | 03/11/2026 |
+| PK-12b | ⏳ Próximo | — |
+| PK-12c | 📋 Planejado | — |
 | PK-13 a PK-16 | 📋 Planejado | — |
