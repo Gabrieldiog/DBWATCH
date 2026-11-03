@@ -58,6 +58,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoSeriousViolations(page);
     });
 
+    test('usuários', async ({ page }) => {
+      await login(page, 'ADMIN', '/usuarios');
+      await expectNoSeriousViolations(page);
+    });
+
     test('página não encontrada', async ({ page }) => {
       await page.goto('/nao-existe');
       await expectNoSeriousViolations(page);

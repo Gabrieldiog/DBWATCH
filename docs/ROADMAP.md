@@ -295,7 +295,9 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Testes:** T-E2E-04 (a auditora acha pelo código a consulta feita pelo solicitante e confere a cadeia), filtro inválido, página seguinte sem pular nem repetir linhas, 404 para o solicitante, T-A11Y-01 na tela nova.
 - **Divisão:** a administração de usuários saiu deste pack antes de escrever, pela estimativa de linhas.
 
-#### PK-11f · Administração de usuários
+#### PK-11f · Administração de usuários ✅
+
+> **Registro de QA (03/11/2026):** lint, typecheck, 28/28 testes da web e build; `pnpm test:e2e` com 44/44 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas. Testes de mutação: mandar a troca de status como POST em vez de PATCH (a tela não muda para "Desativado") e, na API, desativar sem revogar as sessões fazem os testes falharem. A segunda mutação passou na primeira versão do teste, porque a API também recusa sessão de conta desativada; o teste passou a conferir direto que a lista de sessões ativas ficou vazia. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal.
 
 - **Inclui:** lista de usuários com papéis e status; criar usuário; ativar e desativar (desativar encerra as sessões); atribuir e remover papéis; encerrar as sessões de alguém.
 - **Testes:** fluxo do admin no navegador, incluindo as negações do banco (ninguém atribui papel a si mesmo, o último ADMIN não sai).
@@ -356,5 +358,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-11c | ✅ Concluído | 02/11/2026 |
 | PK-11d | ✅ Concluído | 02/11/2026 |
 | PK-11e | ✅ Concluído | 02/11/2026 |
-| PK-11f | ⏳ Próximo | — |
-| PK-12 a PK-16 | 📋 Planejado | — |
+| PK-11f | ✅ Concluído | 03/11/2026 |
+| PK-12 | ⏳ Próximo | — |
+| PK-13 a PK-16 | 📋 Planejado | — |

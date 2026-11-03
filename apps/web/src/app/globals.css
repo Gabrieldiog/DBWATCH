@@ -382,6 +382,12 @@ a {
   background: var(--surface);
 }
 
+.button-small {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
 /* PAM: formulários, cartões, tabela e estados */
 .form {
   display: grid;

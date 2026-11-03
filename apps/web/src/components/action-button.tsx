@@ -5,21 +5,30 @@ import { useId, useRef, useState, type FormEvent } from 'react';
 import { send } from '../lib/send';
 
 type Reason = { title: string; field: string; min: number };
-type Props = { label: string; path: string; reason?: Reason; primary?: boolean; disabled?: boolean };
+type Props = {
+  label: string;
+  path: string;
+  reason?: Reason;
+  primary?: boolean;
+  disabled?: boolean;
+  small?: boolean;
+  method?: 'POST' | 'PATCH' | 'DELETE';
+  body?: Record<string, string>;
+};
 
 // Uma ação de escrita por botão; depois do sucesso o servidor remonta a tela com o estado novo do banco.
 // Com motivo, abre um <dialog> nativo: o navegador prende o foco dentro dele e o Esc fecha
-export function ActionButton({ label, path, reason, primary, disabled }: Props) {
+export function ActionButton({ label, path, reason, primary, disabled, small, method, body }: Props) {
   const router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function run(body?: Record<string, string>) {
+  async function run(payload = body) {
     setBusy(true);
     setError(null);
-    const sent = await send(path, body);
+    const sent = await send(path, payload, method);
     setBusy(false);
     if (!sent.ok) return setError(sent.message);
     dialog.current?.close();
@@ -40,7 +49,7 @@ export function ActionButton({ label, path, reason, primary, disabled }: Props) 
     <>
       <button
         type="button"
-        className={primary ? 'button' : 'button button-quiet'}
+        className={`button ${primary ? '' : 'button-quiet'} ${small ? 'button-small' : ''}`}
         disabled={busy || disabled}
         onClick={() => (reason ? dialog.current?.showModal() : run())}
       >

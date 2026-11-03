@@ -5,9 +5,9 @@ import { errorMessage } from './pam';
 export type Sent = ({ ok: true; data: unknown } | { ok: false; message: string }) & { requestId?: string };
 
 // Toda escrita sai do navegador para /api; o próprio fetch manda o cabeçalho Origin que a API confere
-export async function send(path: string, body?: unknown): Promise<Sent> {
+export async function send(path: string, body?: unknown, method = 'POST'): Promise<Sent> {
   const res = await fetch(`/api${path}`, {
-    method: 'POST',
+    method,
     headers: body === undefined ? {} : { 'content-type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   }).catch(() => null);
