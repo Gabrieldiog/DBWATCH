@@ -24,6 +24,12 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoSeriousViolations(page);
     });
 
+    test('monitor com a tabela do gráfico aberta', async ({ page }) => {
+      await login(page, 'AUDITOR', '/monitor');
+      await page.getByText('Ver como tabela').first().click();
+      await expectNoSeriousViolations(page);
+    });
+
     test('meus pedidos', async ({ page }) => {
       await login(page, 'REQUESTER', '/pedidos');
       await expectNoSeriousViolations(page);
