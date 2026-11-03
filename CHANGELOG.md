@@ -7,6 +7,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-11f · Administração de usuários**
+  - Tela "Usuários" para o admin: criar usuário, dar e tirar papéis, ativar, desativar e encerrar sessões.
+  - As negações do banco aparecem na tela com o motivo: ninguém dá papel a si mesmo, e o último ADMIN ativo não pode sair.
+  - Desativar alguém revoga as sessões dessa pessoa na mesma transação.
+
 - **PK-11e · Explorador da auditoria**
   - Tela "Auditoria" com filtros por código da execução, ação e resultado, e paginação que não pula nem repete linhas quando chegam registros novos.
   - Clicar no código de uma linha mostra todos os registros do mesmo fluxo.
