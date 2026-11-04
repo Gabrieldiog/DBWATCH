@@ -30,6 +30,13 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoSeriousViolations(page);
     });
 
+    test('laboratório com a linha do tempo de um experimento', async ({ page }) => {
+      await login(page, 'ADMIN', '/laboratorio');
+      await page.getByRole('button', { name: 'Rodar experimento' }).first().click();
+      await expect(page.getByRole('main').getByRole('status')).toBeVisible({ timeout: 15_000 });
+      await expectNoSeriousViolations(page);
+    });
+
     test('meus pedidos', async ({ page }) => {
       await login(page, 'REQUESTER', '/pedidos');
       await expectNoSeriousViolations(page);

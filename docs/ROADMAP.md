@@ -322,6 +322,13 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** grafo "quem bloqueia quem" da última amostra, com tracejado correndo só enquanto há espera e tabela com tipo, modo e tempo de cada lock; lista de eventos ao vivo pelo SSE (rollbacks da API, espera longa, transação parada, deadlock e break-glass), com link para a trilha de auditoria quando a pessoa pode ler a auditoria.
 - **Testes:** T-E2E-05 completo (lock real no grafo, alerta e rollback chegando pelo SSE), T-MON-01 reforçado na API.
 
+#### PK-12c · Laboratório com a linha do tempo A/B ✅
+
+> **Registro de QA (04/11/2026):** lint, typecheck, 37/37 testes da web, 131/131 da API e build; `pnpm test:e2e` com 54/54 no Chromium contra a API e o PostgreSQL de verdade, duas vezes seguidas. O cenário "espera de lock" passou a segurar o lock por 6 s (antes 1,5 s), mais que o intervalo de 5 s do coletor, para o grafo do monitor pegar o bloqueio durante a apresentação. Como o papel `dbwatch_lab` desiste de lock em 5 s, a sessão B roda `SET lock_timeout = '10s'` só para si, e esse passo aparece na linha do tempo; o limite do papel continua valendo para todo o resto. O E2E roda o cenário pela tela e, ao mesmo tempo, vê o grafo do monitor desenhar `dbwatch-lab:A → dbwatch-lab:B` em outra aba. Testes de mutação: tirar o `SET lock_timeout` (o banco cancela a espera de B e o cenário dá FAILED) e não atualizar o histórico depois de rodar fazem os testes falharem. Com `LAB_ENABLED=false`, a tela mostra o aviso de laboratório desligado em vez da tela de erro. Axe sem violação séria com a linha do tempo aberta, nos dois temas; capturas em 1280 e 375 px sem rolagem horizontal. O CI do E2E passou a ligar o laboratório.
+
+- **Inclui:** tela "Laboratório" com os cinco cenários, cada um com o rótulo LAB e o botão de rodar; linha do tempo com as sessões A e B em colunas, o tempo e o resultado de cada passo, o significado do SQLSTATE e o que cada SELECT leu; histórico das últimas execuções.
+- **Testes:** T-E2E-06 (deadlock e espera de lock pela tela, com o grafo do monitor ao vivo), 404 para quem não tem `lab:run`, T-A11Y-01 na tela nova.
+
 ### PK-13 · QA final
 
 - **Inclui:** suíte completa; navegação exploratória num navegador real com gravação; auditoria de acessibilidade; revisão de segurança do diff completo; teste de carga leve na aprovação concorrente; correções.
@@ -376,5 +383,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-11f | ✅ Concluído | 03/11/2026 |
 | PK-12a | ✅ Concluído | 03/11/2026 |
 | PK-12b | ✅ Concluído | 03/11/2026 |
-| PK-12c | ⏳ Próximo | — |
-| PK-13 a PK-16 | 📋 Planejado | — |
+| PK-12c | ✅ Concluído | 04/11/2026 |
+| PK-13 | ⏳ Próximo | — |
+| PK-14 a PK-16 | 📋 Planejado | — |

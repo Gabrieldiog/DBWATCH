@@ -109,7 +109,7 @@ Todas ficam como arquivos `woff2` em `apps/web/src/app/fonts/`, carregadas por `
 | **Radar de sessões** (Visão geral) | Cada ponto é uma conexão real do `pg_stat_activity`, no anel do seu estado; quem espera lock fica âmbar, com um tracejado até quem bloqueia. A varredura dá uma volta quando chega uma amostra nova | Quem está conectado e o que está fazendo, agora |
 | **Fluxo de eventos** | Cada evento novo entra em 160 ms, com a borda na cor da fonte (`scan` = PostgreSQL, `signal`/`coral` = aplicação, `amber` = LAB) | Algo acabou de acontecer, e de onde veio |
 | **Grafo de bloqueio** | Arestas "A → B" com tracejado fluindo enquanto B espera; num deadlock, o ciclo acende em coral e a aresta da vítima se rompe | Quem bloqueia quem; o PostgreSQL escolhendo uma vítima |
-| **Linha do tempo do lab** | As sessões A e B em duas colunas; cada passo aparece **quando o evento real chega** pelo SSE | A ordem real dos acontecimentos, sem roteiro falso |
+| **Linha do tempo do lab** | As sessões A e B em duas colunas, na ordem em que o banco respondeu, com o tempo medido de cada passo; a espera longa fica em âmbar e o erro em coral. Os passos chegam juntos quando o experimento termina, e nada é reencenado como se estivesse acontecendo agora | A ordem real dos acontecimentos, sem roteiro falso |
 | **Contagem regressiva da concessão** | Um anel que diminui e fica âmbar nos últimos 20% | O acesso é temporário |
 | **Verificação da auditoria** | Uma varredura percorre a cadeia; um elo quebrado fica em coral e a tela rola até ele | Onde a integridade falhou |
 
