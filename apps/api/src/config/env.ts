@@ -7,6 +7,8 @@ const envSchema = z.object({
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
   // Origem do front: requisições que alteram estado vindas de outra origem são recusadas (CSRF)
   APP_ORIGIN: z.url().default('http://localhost:3000'),
+  // Quem pode informar o IP real do cliente (X-Forwarded-For): 'loopback' fora do Docker, 'uniquelocal' atrás do web no Compose
+  TRUST_PROXY: z.enum(['loopback', 'uniquelocal']).default('loopback'),
   LOGIN_RATE_LIMIT: z.coerce.number().int().min(1).default(20),
   API_DOCS: z.enum(['on', 'off']).default('on'),
   // Intervalo do job que audita expirações; 0 desliga (os testes chamam o job direto)

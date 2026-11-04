@@ -1,0 +1,90 @@
+# Produção enxuta: só o web publica porta. Uso e passo a passo em docs/DEPLOY.md
+# docker compose -f docker-compose.prod.yml --env-file .env up -d
+name: dbwatch-prod
+
+x-app-env: &app-env
+  NODE_ENV: production
+  APP_ORIGIN: ${APP_ORIGIN:?defina APP_ORIGIN no .env}
+  DATABASE_URL: ${DATABASE_URL:?defina DATABASE_URL no .env}
+  MIGRATOR_DATABASE_URL: ${MIGRATOR_DATABASE_URL:?defina MIGRATOR_DATABASE_URL no .env}
+  TARGET_DATABASE_URL: ${TARGET_DATABASE_URL:?defina TARGET_DATABASE_URL no .env}
+  MONITOR_DATABASE_URL: ${MONITOR_DATABASE_URL:?defina MONITOR_DATABASE_URL no .env}
+  LAB_ENABLED: ${LAB_ENABLED:-true}
+  LAB_DATABASE_URL: ${LAB_DATABASE_URL:?defina LAB_DATABASE_URL no .env}
+  API_HOST: 0.0.0.0
+  API_PORT: '4000'
+  TRUST_PROXY: uniquelocal
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: dbwatch
+      DBWATCH_MIGRATOR_PASSWORD: ${DBWATCH_MIGRATOR_PASSWORD:?defina no .env}
+      DBWATCH_APP_PASSWORD: ${DBWATCH_APP_PASSWORD:?defina no .env}
+      DBWATCH_MONITOR_PASSWORD: ${DBWATCH_MONITOR_PASSWORD:?defina no .env}
+      DBWATCH_LAB_PASSWORD: ${DBWATCH_LAB_PASSWORD:?defina no .env}
+      DBWATCH_TARGET_RO_PASSWORD: ${DBWATCH_TARGET_RO_PASSWORD:?defina no .env}
+    command: postgres -c log_lock_waits=on -c deadlock_timeout=1s -c track_io_timing=on
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U postgres -d dbwatch']
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    mem_limit: 384m
+    networks: [interna]
+
+  # Migrations, banco-alvo e seed: roda sob demanda (docker compose run --rm tools ...)
+  tools:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: tools
+    image: dbwatch-tools:${DBWATCH_TAG:-local}
+    profiles: [tools]
+    environment: *app-env
+    depends_on:
+      db: { condition: service_healthy }
+    mem_limit: 512m
+    networks: [interna]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: runtime
+    image: dbwatch-api:${DBWATCH_TAG:-local}
+    restart: unless-stopped
+    environment: *app-env
+    depends_on:
+      db: { condition: service_healthy }
+    expose: ['4000']
+    mem_limit: 384m
+    networks: [interna]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_INTERNAL_URL: http://api:4000
+    image: dbwatch-web:${DBWATCH_TAG:-local}
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:4000
+    depends_on:
+      api: { condition: service_healthy }
+    ports: ['${WEB_PORT:-8088}:3000']
+    mem_limit: 256m
+    networks: [interna]
+
+networks:
+  interna:
+
+volumes:
+  pgdata:

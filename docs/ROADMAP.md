@@ -346,10 +346,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** cabeçalhos de segurança nas telas; atalho "Pular para o conteúdo"; `pnpm audit` no CI; `multer` corrigido; script da corrida de aprovação para a demonstração e para carga leve; DEMO.md corrigido (o código da execução liga o que uma requisição gravou, não o fluxo inteiro).
 
-### PK-14 · Deploy na VPS *(exige autorização explícita)*
+### PK-14 · Deploy na VPS ✅
 
-- **Inclui:** compose de produção; Caddy com HTTPS; PostgreSQL sem porta pública; `.env` no servidor; backup com `pg_dump`; checklist de deploy e de rollback.
-- **Bloqueado por:** questão Q-1 do [PRD](PRD.md#7-questões-em-aberto).
+> **Registro de QA (04/11/2026):** Dockerfiles multi-stage (usuário `node`) e `docker-compose.prod.yml` testados no Docker local (arm64): migrations, banco-alvo e seed rodaram pelo alvo `tools`; os três contêineres ficaram saudáveis, só o web publica porta, e o consumo ficou em ~45 MB (web), ~137 MB (API) e ~95 MB (banco). No navegador, via `http://localhost:8089`: login da Ana (admin), Monitor com amostras reais e o experimento do deadlock do Laboratório com o erro 40P01. `backup.sh` gerou o dump e a restauração foi testada de duas formas: num banco ao lado (5 usuários nos dois) e no lugar (drop, restore, grants), com migrations sem pendência e API saudável depois. Lint, typecheck, 37/37 da web e 132/132 da API (num PostgreSQL de testes descartável). **Ainda não testado:** o E2E do Playwright contra a imagem de produção, e o deploy na VPS (registrado abaixo quando feito).
+
+- **Inclui:** `apps/api/Dockerfile`, `apps/web/Dockerfile`, `docker-compose.prod.yml`, `.env.prod.example`, `infra/deploy/backup.sh` e [DEPLOY.md](DEPLOY.md) (deploy, atualização, rollback e restauração); `TRUST_PROXY` na API, para enxergar o IP real do cliente atrás do web.
+- **Mudança de escopo:** sem domínio, o acesso é `http://IP:porta` e não há Caddy nem HTTPS; o cookie vai sem `Secure` e a API avisa no log. Com domínio, é só trocar `APP_ORIGIN`.
 
 ### PK-15 · Release v1.0.0 e ensaio
 
@@ -399,5 +401,5 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-12c | ✅ Concluído | 04/11/2026 |
 | PK-13a | ✅ Concluído | 04/11/2026 |
 | PK-13b | ✅ Concluído | 04/11/2026 |
-| PK-14 | ⏳ Próximo (exige autorização) | — |
+| PK-14 | ✅ Concluído | 04/11/2026 |
 | PK-15 e PK-16 | 📋 Planejado | — |

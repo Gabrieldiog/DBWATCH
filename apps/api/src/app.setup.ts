@@ -8,7 +8,7 @@ import type { Env } from './config/env';
 // Compartilhado entre main.ts e os testes, para testarmos a mesma configuração que roda
 export function configureApp(app: NestExpressApplication, env: Env): void {
   app.disable('x-powered-by');
-  app.set('trust proxy', 'loopback');
+  app.set('trust proxy', env.TRUST_PROXY);
   app.setGlobalPrefix('api');
   app.use(correlationId);
   app.use(securityHeaders);
