@@ -7,6 +7,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Corrigido
 
+- CI vermelho desde o PK-11d: o E2E agora roda num banco limpo (como o da apresentação) e recebe a URL do banco-alvo das consultas.
 - `GET /api/monitor/locks` mostrava a última amostra que teve lock, mesmo quando o bloqueio já tinha acabado; agora lê sempre a amostra mais nova.
 
 ### Adicionado
