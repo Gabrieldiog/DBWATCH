@@ -40,9 +40,12 @@ export function hashToken(token: string): Uint8Array<ArrayBuffer> {
   return new Uint8Array(createHash('sha256').update(token).digest());
 }
 
-export function sessionCookieName(production: boolean): string {
-  // O prefixo __Host- obriga Secure, Path=/ e nenhum Domain; em http://localhost de desenvolvimento não dá
-  return production ? '__Host-dbwatch_session' : 'dbwatch_session';
+// O navegador só guarda cookie Secure em HTTPS: quem decide é a origem por onde o console é aberto
+export const secureCookie = (appOrigin: string): boolean => appOrigin.startsWith('https://');
+
+export function sessionCookieName(secure: boolean): string {
+  // O prefixo __Host- obriga Secure, Path=/ e nenhum Domain; em http:// (localhost ou IP:porta) não dá
+  return secure ? '__Host-dbwatch_session' : 'dbwatch_session';
 }
 
 export function readCookie(header: string | undefined, name: string): string | undefined {

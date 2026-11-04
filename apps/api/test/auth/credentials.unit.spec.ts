@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hashToken, loginSchema, newSessionToken, readCookie, sessionCookieName } from '../../src/auth/credentials';
+import { hashToken, loginSchema, newSessionToken, readCookie, secureCookie, sessionCookieName } from '../../src/auth/credentials';
 import { clientIp, RateLimiter } from '../../src/common/security';
 
 describe('credenciais e utilitários de sessão', () => {
@@ -19,7 +19,9 @@ describe('credenciais e utilitários de sessão', () => {
     expect(readCookie('dbwatch_session=', 'dbwatch_session')).toBeUndefined();
   });
 
-  it('em produção o cookie usa o prefixo __Host-', () => {
+  it('com HTTPS o cookie é Secure e usa o prefixo __Host-; em http:// (localhost ou IP:porta) não', () => {
+    expect(secureCookie('https://dbwatch.exemplo.com')).toBe(true);
+    expect([secureCookie('http://localhost:3000'), secureCookie('http://2.25.95.101:8088')]).toEqual([false, false]);
     expect(sessionCookieName(true)).toBe('__Host-dbwatch_session');
     expect(sessionCookieName(false)).toBe('dbwatch_session');
   });
