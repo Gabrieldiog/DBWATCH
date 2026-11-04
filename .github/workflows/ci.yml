@@ -45,13 +45,18 @@ jobs:
           POSTGRES_DB: dbwatch_test
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
       - run: pnpm build
+      # O E2E roda primeiro, num banco recém-migrado com só os usuários demo (como o da apresentação):
+      # o teste do último ADMIN depende disso. Os testes da API criam outros ADMINs e rodam depois
+      - name: Migrations e banco-alvo das consultas
+        run: pnpm db:migrate && pnpm db:target
       - run: pnpm --filter @dbwatch/web exec playwright install --with-deps chromium
       - name: E2E e acessibilidade no navegador (o Playwright sobe a API e o web do build)
         run: pnpm --filter @dbwatch/web test:e2e
         env:
           DATABASE_URL: postgres://dbwatch_app:ci-app@127.0.0.1:5433/dbwatch_test
+          TARGET_DATABASE_URL: postgres://dbwatch_target_ro:ci-target@127.0.0.1:5433/dbwatch_target
           MONITOR_DATABASE_URL: postgres://dbwatch_monitor:ci-monitor@127.0.0.1:5433/dbwatch_test
           LAB_ENABLED: 'true'
           LAB_DATABASE_URL: postgres://dbwatch_lab:ci-lab@127.0.0.1:5433/dbwatch_test
+      - run: pnpm test

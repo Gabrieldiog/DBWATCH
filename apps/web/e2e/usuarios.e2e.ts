@@ -36,6 +36,10 @@ test('o banco barra dar papel a si mesmo e tirar o último ADMIN, e a tela mostr
   await login(page, 'ADMIN', '/usuarios');
   await row(page, ana).getByRole('button', { name: '+ Auditoria' }).click();
   await expect(row(page, ana).getByRole('alert')).toHaveText('Ninguém atribui papel a si mesmo');
+  // Pré-condição: banco limpo da demonstração, com a Ana como única ADMIN ativa. Sem isso, remover funcionaria de verdade
+  const users = (await (await page.request.get('/api/users')).json()) as { status: string; roles: string[] }[];
+  const admins = users.filter((u) => u.status === 'ACTIVE' && u.roles.includes('ADMIN'));
+  expect(admins, 'o E2E precisa de um banco com só os usuários demo (no CI ele roda antes dos testes da API)').toHaveLength(1);
   await row(page, ana).getByRole('button', { name: 'Remover Administração' }).click();
   await expect(row(page, ana).getByRole('alert').filter({ hasText: 'pelo menos um ADMIN ativo' })).toBeVisible();
   await page.reload();

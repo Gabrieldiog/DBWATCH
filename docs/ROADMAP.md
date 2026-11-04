@@ -332,6 +332,13 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 ### PK-13 · QA final
 
 - **Inclui:** suíte completa; navegação exploratória num navegador real com gravação; auditoria de acessibilidade; revisão de segurança do diff completo; teste de carga leve na aprovação concorrente; correções.
+- **Divisão:** a primeira checagem do QA achou o CI vermelho desde o PK-11d, então a correção saiu antes, num pack próprio (13a). O restante do QA segue no 13b.
+
+#### PK-13a · CI verde de novo ✅
+
+> **Registro de QA (04/11/2026):** o CI do GitHub estava vermelho desde o PK-11d, com duas causas. (1) O passo do E2E não recebia a `TARGET_DATABASE_URL`: a API respondia 503 nas consultas e quatro testes falhavam (consultas e auditoria). Localmente isso não aparecia, porque o `.env` preenchia o que faltava. (2) O E2E rodava no mesmo banco em que os testes da API já tinham criado outros ADMINs; assim, "tirar o último ADMIN" funcionava de verdade e o teste falhava. **Correção:** o E2E passou a rodar num banco recém-migrado, só com os usuários demo (como o da apresentação), antes dos testes da API; o passo ganhou a URL do banco-alvo; o teste do último ADMIN ganhou uma pré-condição explícita, que falha dizendo o motivo em vez de tirar o papel da Ana. **Ensaio fiel do CI:** banco de testes recriado do zero, `.env` fora do caminho e só as variáveis do CI (`env -i`), na mesma ordem do `ci.yml`: migrations e banco-alvo, 54/54 E2E, 37/37 da web e 131/131 da API.
+
+- **Lição registrada:** depois de cada push, conferir o resultado do CI no GitHub, não só a suíte local.
 
 ### PK-14 · Deploy na VPS *(exige autorização explícita)*
 
@@ -384,5 +391,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-12a | ✅ Concluído | 03/11/2026 |
 | PK-12b | ✅ Concluído | 03/11/2026 |
 | PK-12c | ✅ Concluído | 04/11/2026 |
-| PK-13 | ⏳ Próximo | — |
+| PK-13a | ✅ Concluído | 04/11/2026 |
+| PK-13b | ⏳ Próximo | — |
 | PK-14 a PK-16 | 📋 Planejado | — |
