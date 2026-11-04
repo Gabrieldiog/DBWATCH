@@ -26,9 +26,9 @@ Tudo o que for mostrado é **real** e reproduzível. Quando algo for um experime
 | 1:00 | **Arquitetura** | Um slide com o diagrama de componentes e as cinco camadas de defesa | O front não decide nada. API e banco garantem as regras |
 | 2:00 | **PAM: pedido** | Diego pede acesso READ ao "financeiro" por 15 min, com justificativa | Validação, máquina de estados, `UNIQUE` parcial |
 | 3:00 | **PAM: autoaprovação** | Mostrar no `psql` o `UPDATE` direto tentando a autoaprovação → `23514` | **CHECK constraint**: mesmo se a API tivesse um bug, o banco recusa |
-| 3:45 | **PAM: corrida** | Bruno e Carla clicam "Aprovar" quase juntos (ou o script de concorrência) | **Lock de linha + `UPDATE` condicional**: um vence e o outro recebe 409. Uma concessão só |
+| 3:45 | **PAM: corrida** | Bruno e Carla clicam "Aprovar" quase juntos (ou o script `infra/carga/aprovacao-concorrente.mjs`, que repete a corrida 30 vezes) | **Lock de linha + `UPDATE` condicional**: um vence e o outro recebe 409. Uma concessão só |
 | 4:30 | **Concessão** | Diego vê o anel de contagem regressiva e executa uma consulta do catálogo | `EXCLUDE` com `tstzrange`; transação `READ ONLY`; `statement_timeout` |
-| 5:30 | **Auditoria** | Eva filtra pelo `correlation_id` e vê pedido → aprovação → concessão → consulta | Trilha completa ligando os eventos |
+| 5:30 | **Auditoria** | Eva clica no código da execução da consulta de Diego e vê o registro dela (quem, o quê, quando, resultado); depois filtra pela ação `pam.request_approve` e vê as duas aprovações do pedido | Cada requisição tem o seu código (`correlation_id`), que liga tudo o que ela gravou; o fluxo inteiro aparece pelas ações |
 | 6:15 | **Adulteração** | No `psql` como superusuário, desligar o trigger e alterar um registro → Eva clica "Verificar integridade" → elo em coral | **Triggers + cadeia de hash**: a mudança é detectada e a linha exata é apontada |
 | 7:15 | **Rollback** | Lab: transferência com falha | **Atomicidade**: o débito que já tinha acontecido é desfeito |
 | 8:00 | **Lock ao vivo** | Lab: espera por lock; o grafo do monitor desenha "A bloqueia B" | `pg_locks` + `pg_blocking_pids()`; dados **observados** no PostgreSQL |

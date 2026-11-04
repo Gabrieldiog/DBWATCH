@@ -55,3 +55,13 @@ test('endereço que não existe responde 404 com página própria', async ({ pag
   expect(res?.status()).toBe(404);
   await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible();
 });
+
+// Defesa em profundidade contra clickjacking: as telas não podem ser postas num iframe de outro site
+test('as telas mandam os cabeçalhos que proíbem iframe e adivinhação de tipo', async ({ request }) => {
+  for (const path of ['/entrar', '/painel']) {
+    const headers = (await request.get(path, { maxRedirects: 0 })).headers();
+    expect(headers['x-frame-options']).toBe('DENY');
+    expect(headers['content-security-policy']).toBe("frame-ancestors 'none'");
+    expect(headers['x-content-type-options']).toBe('nosniff');
+  }
+});

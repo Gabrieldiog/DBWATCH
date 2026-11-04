@@ -12,4 +12,9 @@ export default tseslint.config(
       'no-empty': ['error', { allowEmptyCatch: false }],
     },
   },
+  // Scripts de infra rodam direto no Node
+  {
+    files: ['infra/**/*.mjs'],
+    languageOptions: { globals: { process: 'readonly', console: 'readonly', fetch: 'readonly', performance: 'readonly' } },
+  },
 );

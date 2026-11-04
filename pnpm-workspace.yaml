@@ -1,3 +1,8 @@
 packages:
   - apps/*
   - packages/*
+
+# multer 2.4.0 (via @nestjs/platform-express 12.2.0) tem DoS alto (GHSA-q7qp-rjg7-q26m). Nenhuma rota usa upload,
+# mas a versão corrigida é a mesma que o Nest 12.3.2 já usa; sai daqui quando o Nest for atualizado
+overrides:
+  multer: 2.5.0

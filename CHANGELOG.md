@@ -7,10 +7,16 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Corrigido
 
+- As telas do Next agora mandam `X-Frame-Options`, `frame-ancestors 'none'`, `nosniff` e `Referrer-Policy`, como a API já fazia.
+- `multer` fixado em 2.5.0 (falha alta de DoS na 2.4.0, não alcançável no DBWATCH); `pnpm audit` passou a rodar no CI.
 - CI vermelho desde o PK-11d: o E2E agora roda num banco limpo (como o da apresentação) e recebe a URL do banco-alvo das consultas.
 - `GET /api/monitor/locks` mostrava a última amostra que teve lock, mesmo quando o bloqueio já tinha acabado; agora lê sempre a amostra mais nova.
 
 ### Adicionado
+
+- **PK-13b · QA final**
+  - Atalho "Pular para o conteúdo" no console, para quem navega por teclado.
+  - Script `infra/carga/aprovacao-concorrente.mjs`: a corrida de aprovação repetida, para a demonstração e para carga leve.
 
 - **PK-12c · Laboratório**
   - Tela "Laboratório" com os cinco experimentos rotulados LAB e a linha do tempo das sessões A e B, com tempo, resultado e SQLSTATE de cada passo.

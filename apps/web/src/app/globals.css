@@ -822,3 +822,24 @@ dialog::backdrop {
     margin-left: 24px;
   }
 }
+
+/* Fora da tela até receber foco pelo teclado */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 10;
+  padding: 8px 16px;
+  border: 2px solid var(--scan);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+.console-main:focus {
+  outline: none;
+}

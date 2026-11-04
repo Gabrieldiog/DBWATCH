@@ -36,6 +36,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Dependências sem falha alta conhecida
+        run: pnpm audit --prod --audit-level high
       - name: Cria os papéis do banco (mesmo script do Compose)
         run: sh infra/postgres/init/01-roles.sh
         env:

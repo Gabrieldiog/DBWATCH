@@ -82,3 +82,15 @@ for (const colorScheme of ['light', 'dark'] as const) {
     });
   });
 }
+
+// WCAG 2.4.1: o primeiro Tab oferece pular o menu, e o Enter leva o foco direto ao conteúdo da tela
+test('teclado: o primeiro Tab pula o menu direto para o conteúdo', async ({ page }) => {
+  await login(page, 'APPROVER');
+  // Carregamento normal da tela: depois do login, o Next ainda ajusta o foco da navegação e atropelaria o Tab
+  await page.goto('/acessos');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Pular para o conteúdo' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#conteudo')).toBeFocused();
+});
