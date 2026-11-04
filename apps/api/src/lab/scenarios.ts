@@ -51,16 +51,19 @@ export const SCENARIOS: Record<string, Scenario> = {
   'espera-de-lock': {
     title: 'A e B atualizam a mesma linha: B espera A confirmar, e nenhuma atualização se perde',
     async run(lab) {
+      // O papel do lab desiste de lock em 5 s; só esta sessão B aceita esperar mais, e isso aparece na linha do tempo
+      await lab.run('B', "SET lock_timeout = '10s'");
       await lab.run('A', 'BEGIN');
       await lab.run('A', MOVE(-10, 1));
       const blocked = lab.run('B', MOVE(-20, 1));
       await lab.waitForLock('B');
-      await lab.pause(1_500);
+      // 6 s: mais que o intervalo de 5 s do coletor, para o grafo do monitor pegar o bloqueio ao vivo
+      await lab.pause(6_000);
       await lab.run('A', 'COMMIT');
       const b = await blocked;
       const { rows } = await lab.run('A', BALANCES);
       const waited = lab.steps.find((s) => s.session === 'B' && s.sql === MOVE(-20, 1))?.ms ?? 0;
-      return !b.sqlstate && rows[0]?.saldo === 70 && waited >= 1_500;
+      return !b.sqlstate && rows[0]?.saldo === 70 && waited >= 6_000;
     },
   },
   deadlock: {

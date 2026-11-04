@@ -37,9 +37,9 @@ describe('LAB: laboratório de concorrência com duas sessões reais', () => {
     expect(body.outcome).toBe('OK');
     expect(body.steps.some((s) => s.note === 'B está esperando um lock')).toBe(true);
     const waited = body.steps.find((s) => s.session === 'B' && s.sql?.startsWith('UPDATE'));
-    expect(waited!.ms).toBeGreaterThanOrEqual(1_500);
+    expect(waited!.ms).toBeGreaterThanOrEqual(6_000);
     expect(await balances()).toEqual([70, 50]);
-  });
+  }, 20_000);
 
   it('T-LAB-03 deadlock: exatamente uma sessão recebe 40P01 e a outra confirma', async () => {
     const body = (await run('deadlock').expect(200)).body as Run;
@@ -89,5 +89,5 @@ describe('LAB: laboratório de concorrência com duas sessões reais', () => {
     } finally {
       await off.close();
     }
-  });
+  }, 20_000);
 });

@@ -776,3 +776,49 @@ dialog::backdrop {
     animation: none;
   }
 }
+
+/* Linha do tempo do lab: sessão A à esquerda, B à direita, na ordem real em que o banco respondeu */
+.steps {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.cards .step > * {
+  display: block;
+  margin: 0;
+}
+
+.step {
+  width: 50%;
+  padding: 6px 12px;
+  border-left: 3px solid var(--scan);
+  overflow-wrap: anywhere;
+}
+
+.step-B {
+  margin-left: 50%;
+  border-left-color: var(--signal);
+}
+
+.step-slow {
+  border-left-color: var(--amber);
+  background: var(--surface-raised);
+}
+
+.step-error {
+  border-left-color: var(--coral);
+}
+
+@media (max-width: 600px) {
+  .step,
+  .step-B {
+    width: auto;
+    margin-left: 0;
+  }
+
+  .step-B {
+    margin-left: 24px;
+  }
+}

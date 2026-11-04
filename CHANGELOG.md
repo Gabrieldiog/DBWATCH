@@ -11,6 +11,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-12c · Laboratório**
+  - Tela "Laboratório" com os cinco experimentos rotulados LAB e a linha do tempo das sessões A e B, com tempo, resultado e SQLSTATE de cada passo.
+  - O cenário "espera de lock" segura o lock por 6 s, o bastante para o grafo do monitor mostrar o bloqueio ao vivo.
+
 - **PK-12b · Monitor: grafo de bloqueio e eventos ao vivo**
   - Grafo "quem bloqueia quem" desenhado a partir da última amostra de `pg_locks`, com a tabela de cada lock ao lado.
   - Eventos ao vivo pelo SSE: rollbacks da API, espera longa por lock, transação parada, deadlock e break-glass, cada rollback com link para a trilha de auditoria.
