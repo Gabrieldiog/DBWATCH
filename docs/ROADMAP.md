@@ -340,6 +340,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Lição registrada:** depois de cada push, conferir o resultado do CI no GitHub, não só a suíte local.
 
+#### PK-13b · QA final: navegação gravada, carga, acessibilidade e segurança ✅
+
+> **Registro de QA (04/11/2026):** CI do PK-13a verde no GitHub (PR e main). **Navegação exploratória gravada** (72 s, Chromium 1280×720) contra um banco limpo, seguindo o DEMO.md: Diego pede o Financeiro, Bruno e Carla aprovam (1 de 2, 2 de 2), Diego vê a contagem e roda o faturamento, Eva segue o código na auditoria e verifica a cadeia (íntegra), um superusuário desliga o trigger e altera um registro, Eva verifica de novo (o registro exato é apontado), Ana roda os quatro experimentos do lab e abre o monitor; depois cada papel abre todas as telas do seu menu. Nenhum erro de console, nenhuma exceção e nenhuma resposta HTTP de erro em todo o percurso. **Carga leve** (`infra/carga/aprovacao-concorrente.mjs`): 30/30 corridas com Bruno e Carla aprovando o mesmo pedido ao mesmo tempo deram um 200, um 409 e uma concessão só; aprovar em p50 de 15 ms e p95 de 21 ms; 200 leituras da fila, 20 em paralelo, p95 de 95 ms e 0 erros. **Acessibilidade:** foco visível em todos os elementos focáveis de nove telas, nenhuma animação com movimento reduzido; faltava o atalho para pular o menu (9 a 13 Tabs até o conteúdo), que entrou com teste. **Segurança:** SQL só parametrizado (os dois `$queryRawUnsafe` montam o texto só com constantes); `next` do login só aceita caminho relativo; toda rota declara permissão e a sem declaração é negada e auditada; cookies `HttpOnly`, `SameSite=Strict` e `Secure` em produção. Achados corrigidos: as telas do Next não mandavam cabeçalho contra iframe (clickjacking), e o `multer` 2.4.0 tinha falha alta de DoS (não alcançável, porque nenhuma rota faz upload; fixado em 2.5.0). O `pnpm audit` que o SECURITY.md citava não rodava no CI e passou a rodar. Testes de mutação: tirar o alvo do atalho de teclado faz o teste falhar; o teste novo dos cabeçalhos falhou contra o build anterior. Lint, typecheck, 37/37 da web, 131/131 da API e 56/56 E2E, duas vezes no banco de desenvolvimento e uma no ensaio fiel do CI.
+
+- **Inclui:** cabeçalhos de segurança nas telas; atalho "Pular para o conteúdo"; `pnpm audit` no CI; `multer` corrigido; script da corrida de aprovação para a demonstração e para carga leve; DEMO.md corrigido (o código da execução liga o que uma requisição gravou, não o fluxo inteiro).
+
 ### PK-14 · Deploy na VPS *(exige autorização explícita)*
 
 - **Inclui:** compose de produção; Caddy com HTTPS; PostgreSQL sem porta pública; `.env` no servidor; backup com `pg_dump`; checklist de deploy e de rollback.
@@ -392,5 +398,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-12b | ✅ Concluído | 03/11/2026 |
 | PK-12c | ✅ Concluído | 04/11/2026 |
 | PK-13a | ✅ Concluído | 04/11/2026 |
-| PK-13b | ⏳ Próximo | — |
-| PK-14 a PK-16 | 📋 Planejado | — |
+| PK-13b | ✅ Concluído | 04/11/2026 |
+| PK-14 | ⏳ Próximo (exige autorização) | — |
+| PK-15 e PK-16 | 📋 Planejado | — |

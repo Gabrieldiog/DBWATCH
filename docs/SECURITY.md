@@ -76,7 +76,7 @@ flowchart LR
 | Rate limit | 20 tentativas de login por IP por minuto (`LOGIN_RATE_LIMIT`), em memória. O excesso recebe 429 antes de chegar ao banco e não vai para a auditoria, para que um ataque em massa não a inunde |
 | ACL de login | Regras de permitir ou negar por faixa de IP, usuário, dia da semana e janela de horário (fuso de Brasília), avaliadas no banco por `iam.login_acl_decision`: a de menor prioridade que casar decide; sem regra, vale só a senha. A ACL é checada **depois** da senha certa, para não revelar a quem não sabe a senha que existe uma regra. O banco recusa uma regra que negue todos, sempre |
 | Enumeração de usuários | E-mail inexistente recebe a mesma resposta e paga o mesmo custo do Argon2 que uma senha errada |
-| Cabeçalhos | `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (exceto o Swagger em `/api/docs`), `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` |
+| Cabeçalhos | `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (exceto o Swagger em `/api/docs`), `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`. Nas telas do Next (PK-13b): `X-Frame-Options: DENY`, `Content-Security-Policy: frame-ancestors 'none'`, `nosniff` e `Referrer-Policy: same-origin`; uma CSP completa nas telas exigiria nonce nos scripts do Next e ficou fora do MVP |
 | Expiração | 30 min de inatividade e 8 h absolutas. `last_seen_at` é atualizado no máximo uma vez por minuto, para não gerar escrita a cada requisição |
 | Logout | Revoga a sessão no banco (`revoked_at`) e apaga o cookie |
 | Encerrar sessões | Cada usuário vê e encerra as próprias sessões. O administrador pode revogar todas as sessões de um usuário. Desativar um usuário revoga suas sessões na mesma transação |
@@ -124,7 +124,7 @@ Observações:
 - Na VPS, o `.env` fica com permissão `600`, fora do diretório servido.
 - **Dados reais nunca são usados**: o banco-alvo e o seed são fictícios.
 - **Logs** estruturados em JSON, com uma lista de campos proibidos (`password`, `token`, `cookie`, `authorization`, `params`) removidos antes da escrita.
-- **Dependências:** `pnpm audit` no CI; versões fixadas no lockfile.
+- **Dependências:** `pnpm audit --prod --audit-level high` no CI (entrou no PK-13b; antes estava só no papel); versões fixadas no lockfile. Uma dependência indireta corrigida sem atualizar o pacote que a traz fica em `overrides` no `pnpm-workspace.yaml`, com o motivo ao lado.
 - **Cabeçalhos HTTP:** `Content-Security-Policy` restritiva, `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin`, `Strict-Transport-Security` na VPS e `frame-ancestors 'none'`.
 
 ## 7. Limites conhecidos

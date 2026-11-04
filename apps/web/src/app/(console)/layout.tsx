@@ -11,6 +11,10 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
   const me = await requireMe();
   return (
     <div className="console">
+      {/* Primeiro foco da página: quem navega por teclado pula os itens do menu */}
+      <a href="#conteudo" className="skip-link">
+        Pular para o conteúdo
+      </a>
       <nav className="sidebar" aria-label="Principal">
         <Link href="/painel" className="brand">
           <Image src="/dbwatch-icon.png" alt="" width={32} height={32} style={{ borderRadius: 8 }} />
@@ -40,7 +44,9 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
         <LogoutButton />
         <ThemeToggle />
       </nav>
-      <div className="console-main">{children}</div>
+      <div className="console-main" id="conteudo" tabIndex={-1}>
+        {children}
+      </div>
     </div>
   );
 }
