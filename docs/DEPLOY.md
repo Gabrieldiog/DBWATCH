@@ -4,7 +4,7 @@ Como o DBWATCH roda na VPS: três contêineres (`db`, `api`, `web`) numa rede pr
 
 > **HTTPS:** sem domínio não há certificado, então o cookie de sessão viaja sem `Secure` (o login funciona em `http://IP:porta`) e a API avisa isso no log. Com domínio e HTTPS na frente, basta trocar `APP_ORIGIN` para `https://...`.
 >
-> **A VPS é compartilhada** com outro sistema em produção. O DBWATCH não mexe em nada dele: usa pasta, rede, volume e porta próprios, e cada contêiner tem limite de memória (db 384 MB, api 384 MB, web 256 MB).
+> **A VPS é compartilhada** com outro sistema em produção. O DBWATCH não mexe em nada dele: usa pasta, rede, volume e porta próprios, e cada contêiner tem limite de memória (db 384 MB, api 384 MB, web 256 MB) e de CPU (0,5 núcleo cada); rode os comandos pesados com `nice -n 19`.
 
 ## Peças
 
@@ -24,7 +24,8 @@ Se a VPS for `amd64` e o seu computador `arm64`, construa para a arquitetura da 
 
 ```bash
 export DBWATCH_TAG=$(date +%Y%m%d-%H%M)   # a etiqueta serve para o rollback
-DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose -f docker-compose.prod.yml --env-file .env.prod.local build api web tools
+DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose -f docker-compose.prod.yml --env-file .env.prod.local build api web
+docker buildx build --platform linux/amd64 --target tools -f apps/api/Dockerfile -t dbwatch-tools:$DBWATCH_TAG --load .   # o compose reaproveitou a imagem arm64 no alvo tools
 for i in api web tools; do docker save dbwatch-$i:$DBWATCH_TAG; done | gzip | ssh root@IP-DA-VPS 'gunzip | docker load'
 ```
 
