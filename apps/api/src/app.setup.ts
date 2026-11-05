@@ -1,6 +1,6 @@
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { sessionCookieName } from './auth/credentials';
+import { secureCookie, sessionCookieName } from './auth/credentials';
 import { correlationId } from './common/correlation-id';
 import { originCheck, securityHeaders } from './common/security';
 import type { Env } from './config/env';
@@ -8,7 +8,7 @@ import type { Env } from './config/env';
 // Compartilhado entre main.ts e os testes, para testarmos a mesma configuração que roda
 export function configureApp(app: NestExpressApplication, env: Env): void {
   app.disable('x-powered-by');
-  app.set('trust proxy', 'loopback');
+  app.set('trust proxy', env.TRUST_PROXY);
   app.setGlobalPrefix('api');
   app.use(correlationId);
   app.use(securityHeaders);
@@ -21,7 +21,7 @@ export function setupDocs(app: NestExpressApplication, env: Env): void {
     .setTitle('DBWATCH API')
     .setDescription('Acessos privilegiados e PostgreSQL sob vigilância. Faça login e o cookie de sessão vale para as demais rotas.')
     .setVersion('0.4.0')
-    .addCookieAuth(sessionCookieName(env.NODE_ENV === 'production'))
+    .addCookieAuth(sessionCookieName(secureCookie(env.APP_ORIGIN)))
     .build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
 }

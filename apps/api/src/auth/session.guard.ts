@@ -6,7 +6,7 @@ import { setContextUser } from '../common/correlation-id';
 import type { Env } from '../config/env';
 import { ENV } from '../database/prisma.service';
 import { AuthService, type SessionUser } from './auth.service';
-import { readCookie, sessionCookieName } from './credentials';
+import { readCookie, secureCookie, sessionCookieName } from './credentials';
 import { REQUIRED_PERMISSIONS } from './permissions';
 import { IS_PUBLIC } from './public.decorator';
 
@@ -32,7 +32,7 @@ export class SessionGuard implements CanActivate {
     if (this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, targets)) return true;
     const required = this.reflector.getAllAndOverride<string[] | undefined>(REQUIRED_PERMISSIONS, targets);
     const req = context.switchToHttp().getRequest<Request>();
-    const token = readCookie(req.header('cookie'), sessionCookieName(this.env.NODE_ENV === 'production'));
+    const token = readCookie(req.header('cookie'), sessionCookieName(secureCookie(this.env.APP_ORIGIN)));
     const user = token ? await this.auth.resolveSession(token) : null;
     if (!user) throw new UnauthorizedException('Sessão inválida ou expirada');
     users.set(req, user);
