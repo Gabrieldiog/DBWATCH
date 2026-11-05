@@ -7,7 +7,7 @@ import { clientIp, RateLimiter } from '../common/security';
 import type { Env } from '../config/env';
 import { ENV } from '../database/prisma.service';
 import { AuthService } from './auth.service';
-import { ABSOLUTE_TIMEOUT_MS, loginSchema, sessionCookieName } from './credentials';
+import { ABSOLUTE_TIMEOUT_MS, loginSchema, secureCookie, sessionCookieName } from './credentials';
 import { Authenticated } from './permissions';
 import { Public } from './public.decorator';
 import { currentUser } from './session.guard';
@@ -18,15 +18,15 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   private readonly limiter: RateLimiter;
   private readonly cookie: string;
-  private readonly production: boolean;
+  private readonly secure: boolean;
 
   constructor(
     private readonly auth: AuthService,
     @Inject(ENV) env: Env,
   ) {
     this.limiter = new RateLimiter(env.LOGIN_RATE_LIMIT, 60_000);
-    this.production = env.NODE_ENV === 'production';
-    this.cookie = sessionCookieName(this.production);
+    this.secure = secureCookie(env.APP_ORIGIN);
+    this.cookie = sessionCookieName(this.secure);
   }
 
   @Public()
@@ -55,7 +55,7 @@ export class AuthController {
     const token = await this.auth.login(parsed.data, { ip: clientIp(req), userAgent: req.header('user-agent') });
     res.cookie(this.cookie, token, {
       httpOnly: true,
-      secure: this.production,
+      secure: this.secure,
       sameSite: 'strict',
       path: '/',
       maxAge: ABSOLUTE_TIMEOUT_MS,
@@ -69,7 +69,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Revoga a sessão atual no banco e apaga o cookie' })
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     await this.auth.logout(currentUser(req).sessionId);
-    res.clearCookie(this.cookie, { path: '/', httpOnly: true, secure: this.production, sameSite: 'strict' });
+    res.clearCookie(this.cookie, { path: '/', httpOnly: true, secure: this.secure, sameSite: 'strict' });
   }
 
   @Get('sessions')

@@ -6,6 +6,12 @@ describe('loadEnv', () => {
     const env = loadEnv({ DATABASE_URL: 'postgres://u:p@localhost:5432/db' });
     expect(env.API_HOST).toBe('127.0.0.1');
     expect(env.API_PORT).toBe(4000);
+    expect(env.TRUST_PROXY).toBe('loopback');
+  });
+
+  it('aceita uniquelocal para rodar atrás do web no Compose', () => {
+    const env = loadEnv({ DATABASE_URL: 'postgres://u:p@localhost:5432/db', TRUST_PROXY: 'uniquelocal' });
+    expect(env.TRUST_PROXY).toBe('uniquelocal');
   });
 
   it('recusa configuração inválida sem revelar valores', () => {

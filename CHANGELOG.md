@@ -14,6 +14,12 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-14 · Deploy**
+  - Dockerfiles da API e do web, `docker-compose.prod.yml` (só o web publica porta, limite de memória por contêiner), `.env.prod.example` e `infra/deploy/backup.sh` (`pg_dump` diário, 7 dias).
+  - `docs/DEPLOY.md` com deploy, atualização, rollback e restauração do backup.
+  - Variável `TRUST_PROXY` (`loopback` ou `uniquelocal`) para a API ver o IP real do cliente atrás do web.
+  - O cookie de sessão só é `Secure` com `APP_ORIGIN` em `https://`, e a API avisa no log quando roda em produção sem HTTPS.
+
 - **PK-13b · QA final**
   - Atalho "Pular para o conteúdo" no console, para quem navega por teclado.
   - Script `infra/carga/aprovacao-concorrente.mjs`: a corrida de aprovação repetida, para a demonstração e para carga leve.
