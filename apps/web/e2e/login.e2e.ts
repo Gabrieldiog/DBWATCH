@@ -65,3 +65,15 @@ test('as telas mandam os cabeçalhos que proíbem iframe e adivinhação de tipo
     expect(headers['x-content-type-options']).toBe('nosniff');
   }
 });
+
+// A página inicial apresenta o projeto e já entra: sem tela intermediária com um botão só
+test('a página inicial mostra o status real do banco e já tem o login', async ({ page }) => {
+  const { email, password } = demoUser('AUDITOR');
+  await page.goto('/');
+  await expect(page.getByText(/PostgreSQL no ar, \d+ ms/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'O que o banco garante, mesmo se a aplicação errar' })).toBeVisible();
+  await page.getByLabel('E-mail').fill(email);
+  await page.getByLabel('Senha').fill(password);
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL('/painel');
+});

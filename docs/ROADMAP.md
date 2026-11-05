@@ -355,9 +355,11 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** CHANGELOG; notas de release; README final com capturas de tela; três ensaios do [DEMO.md](DEMO.md); vídeo de backup.
 
-### PK-16 · Landing page *(se sobrar tempo)*
+### PK-16 · Página de entrada com login ✅
 
-- **Inclui:** página pública de apresentação do projeto, com motion.
+> **Registro de QA (05/11/2026):** pedido do Gabriel depois do deploy: a raiz mostrava só a logo, um botão "Entrar", o link para os testes (vazio em produção) e o seletor de tema. Agora `/` e `/entrar` são a mesma página: apresentação curta, o login já visível, o fluxo pedir, aprovar, usar e expira sozinho, e as seis garantias do banco, cada uma com a regra real das migrations (os textos foram conferidos contra o SQL; a exceção do break-glass está dita). O status do PostgreSQL é lido da API a cada visita. Lint, typecheck, 37/37 testes da web e build; `pnpm test:e2e` com 57/57 duas vezes no Chromium contra a API e o PostgreSQL de verdade, incluindo o teste novo (a raiz mostra o status real e entra direto no painel). A primeira rodada pegou um erro meu: o status do banco também tinha `role="status"` e duplicava a região ao vivo do aviso de sessão; como é calculado uma vez no carregamento, deixou de ser região ao vivo. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal; no celular a ordem é título, login, fluxo e garantias. O radar do login é a única animação, como manda o DESIGN.md. Não houve teste de mutação neste pack.
+
+- **Inclui:** página de entrada com apresentação e login juntos; o link "Ver os testes automatizados" saiu da entrada (a página `/testes` continua existindo).
 
 > **Referência estudada:** o JumpServer (PAM de código aberto, GPL v3) foi lido só como fonte de **ideias**; nenhum código foi copiado. As ideias aproveitadas aparecem nos packs acima. Ver [ADR-022](DECISIONS.md#adr-022--jumpserver-só-como-referência-de-ideias).
 
@@ -400,4 +402,5 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-13a | ✅ Concluído | 04/11/2026 |
 | PK-13b | ✅ Concluído | 04/11/2026 |
 | PK-14 | ⏳ Próximo (exige autorização) | — |
-| PK-15 e PK-16 | 📋 Planejado | — |
+| PK-16 | ✅ Concluído (antes do PK-15, a pedido) | 05/11/2026 |
+| PK-15 | 📋 Planejado | — |

@@ -130,18 +130,9 @@ a {
 }
 
 /* Tela de entrada: o radar é a única animação contínua decorativa do sistema */
-.login {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
-  align-items: center;
-  gap: 48px;
-  padding: 32px clamp(16px, 6vw, 96px);
-}
-
 .login-radar {
-  justify-self: center;
-  width: min(520px, 100%);
+  align-self: center;
+  width: 168px;
   aspect-ratio: 1;
   position: relative;
 }
@@ -564,15 +555,6 @@ dialog::backdrop {
 }
 
 @media (max-width: 860px) {
-  .login {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .login-radar {
-    width: min(240px, 70vw);
-  }
-
   .console {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -842,4 +824,177 @@ dialog::backdrop {
 
 .console-main:focus {
   outline: none;
+}
+
+/* Entrada: apresentação curta do projeto e o login na mesma página */
+.entrada {
+  display: grid;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px clamp(16px, 5vw, 56px) 32px;
+}
+
+.entrada-top,
+.entrada-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pulse {
+  margin: 0;
+  color: var(--coral);
+  font-size: 14px;
+}
+
+.pulse::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pulse-up {
+  color: var(--signal);
+}
+
+.entrada-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+  grid-template-areas: 'hero login' 'flow login' 'rules rules';
+  gap: 40px 64px;
+  align-items: start;
+}
+
+.entrada-hero {
+  grid-area: hero;
+}
+
+.entrada-flow {
+  grid-area: flow;
+}
+
+.entrada-login {
+  grid-area: login;
+}
+
+.entrada-hero h1 {
+  max-width: 21ch;
+  margin: 8px 0 20px;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.entrada-lead {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+/* Sequência de verdade, então numerada: o número sai do próprio <ol> */
+.flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: passo;
+  border-top: 2px solid var(--scan);
+}
+
+.flow li {
+  display: grid;
+  gap: 4px;
+  padding: 16px 20px 0 0;
+  counter-increment: passo;
+}
+
+.flow strong::before {
+  content: counter(passo) '. ';
+  color: var(--scan);
+}
+
+.flow span {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.entrada-login {
+  gap: 14px;
+}
+
+.entrada-login h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.rules {
+  grid-area: rules;
+}
+
+.rules h2 {
+  margin: 0 0 20px;
+  font-size: 24px;
+}
+
+.rules ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 0 48px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rules li {
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
+}
+
+.rules h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.rules p {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+}
+
+.rules code {
+  color: var(--scan);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.entrada-foot {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.entrada-foot p {
+  margin: 0;
+}
+
+@media (max-width: 860px) {
+  .entrada-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'hero' 'login' 'flow' 'rules';
+  }
+
+  .flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

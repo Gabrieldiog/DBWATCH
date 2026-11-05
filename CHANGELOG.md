@@ -14,6 +14,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-16 · Página de entrada**
+  - A raiz e o `/entrar` viraram uma página só: o que o DBWATCH faz, o fluxo de um acesso, as seis garantias do banco com a regra SQL de cada uma e o login já visível.
+
 - **PK-13b · QA final**
   - Atalho "Pular para o conteúdo" no console, para quem navega por teclado.
   - Script `infra/carga/aprovacao-concorrente.mjs`: a corrida de aprovação repetida, para a demonstração e para carga leve.
