@@ -14,6 +14,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-16 · Página de entrada**
+  - A raiz e o `/entrar` viraram uma página só: o que o DBWATCH faz, o fluxo de um acesso, as seis garantias do banco com a regra SQL de cada uma e o login já visível.
+
 - **PK-14 · Deploy**
   - Dockerfiles da API e do web, `docker-compose.prod.yml` (só o web publica porta, limite de memória por contêiner), `.env.prod.example` e `infra/deploy/backup.sh` (`pg_dump` diário, 7 dias).
   - `docs/DEPLOY.md` com deploy, atualização, rollback e restauração do backup.
