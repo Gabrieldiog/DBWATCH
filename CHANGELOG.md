@@ -14,6 +14,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-17a · Pontos do roteiro**
+  - Monitor: contador de deadlocks dos últimos 30 minutos e a fonte de cada dado e de cada evento.
+  - Auditoria: filtros por pessoa (e-mail) e por período.
+  - Laboratório: depois de cada experimento, a explicação do conceito com um exemplo da vida real.
+
 - **PK-16 · Página de entrada**
   - A raiz e o `/entrar` viraram uma página só: o que o DBWATCH faz, o fluxo de um acesso, as seis garantias do banco com a regra SQL de cada uma e o login já visível.
 

@@ -11,6 +11,8 @@ const filterSchema = z
     action: z.string().regex(/^[a-z]+(\.[a-z_]+)+$/).optional(),
     outcome: z.enum(['SUCCESS', 'DENIED', 'FAILURE']).optional(),
     actorId: z.uuid().optional(),
+    // Quem lê a auditoria não lista usuários: a tela filtra pessoa pelo e-mail
+    actorEmail: z.email().max(254).optional(),
     resourceId: z.string().max(120).optional(),
     correlationId: z.uuid().optional(),
     from: z.iso.datetime({ offset: true }).optional(),

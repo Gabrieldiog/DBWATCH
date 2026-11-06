@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { outcomeOf, rowsText } from '../src/lib/lab';
+import { CONCEPT, outcomeOf, rowsText } from '../src/lib/lab';
 
 describe('laboratório (unitário)', () => {
   it('resultado do passo com o significado do SQLSTATE e a espera destacada', () => {
@@ -12,5 +12,9 @@ describe('laboratório (unitário)', () => {
 
   it('o que o SELECT leu, linha por linha', () => {
     expect(rowsText([{ id: 1, saldo: 100 }, { id: 2, saldo: 50 }])).toBe('id 1 · saldo 100 / id 2 · saldo 50');
+  });
+
+  it('todo cenário da API tem a explicação do conceito', () => {
+    expect(Object.keys(CONCEPT).sort()).toEqual(['deadlock', 'espera-de-lock', 'leitura-nao-repetivel', 'transferencia-falha', 'write-skew']);
   });
 });

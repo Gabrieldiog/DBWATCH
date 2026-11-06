@@ -27,6 +27,7 @@ export interface AuditFilter {
   action?: string;
   outcome?: AuditOutcome;
   actorId?: string;
+  actorEmail?: string;
   resourceId?: string;
   correlationId?: string;
   from?: string;
@@ -67,6 +68,7 @@ export class AuditService {
     if (f.action) where.push(Prisma.sql`a.action = ${f.action}`);
     if (f.outcome) where.push(Prisma.sql`a.outcome = ${f.outcome}::audit.audit_outcome`);
     if (f.actorId) where.push(Prisma.sql`a.actor_id = ${f.actorId}::uuid`);
+    if (f.actorEmail) where.push(Prisma.sql`lower(u.email) = lower(${f.actorEmail})`);
     if (f.resourceId) where.push(Prisma.sql`a.resource_id = ${f.resourceId}`);
     if (f.correlationId) where.push(Prisma.sql`a.correlation_id = ${f.correlationId}::uuid`);
     if (f.from) where.push(Prisma.sql`a.occurred_at >= ${f.from}::timestamptz`);

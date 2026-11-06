@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { OUTCOME, outcomeOf, rowsText, slow, type Run, type Scenario } from '../lib/lab';
+import { CONCEPT, OUTCOME, outcomeOf, rowsText, slow, type Run, type Scenario } from '../lib/lab';
 import { send } from '../lib/send';
 import { Badge } from './badge';
 
@@ -53,6 +53,11 @@ export function LabRunner({ scenario }: { scenario: Scenario }) {
               </li>
             ))}
           </ol>
+          {CONCEPT[run.scenario] && (
+            <p className="concept">
+              <strong>O que isso mostra:</strong> {CONCEPT[run.scenario]}
+            </p>
+          )}
         </>
       )}
     </li>

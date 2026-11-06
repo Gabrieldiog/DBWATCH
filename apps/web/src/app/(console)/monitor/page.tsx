@@ -3,7 +3,7 @@ import { AutoRefresh } from '../../../components/auto-refresh';
 import { EventFeed } from '../../../components/event-feed';
 import { LineChart } from '../../../components/line-chart';
 import { LockGraph } from '../../../components/lock-graph';
-import { pick, staleFor, time, type Lock, type MonitorEvent, type Overview, type RawPoint } from '../../../lib/monitor';
+import { pick, staleFor, time, total, type Lock, type MonitorEvent, type Overview, type RawPoint } from '../../../lib/monitor';
 import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Monitor' };
@@ -28,6 +28,8 @@ export default async function Monitor() {
     ['Esperando lock', o.waitingOnLock],
     ['Pares bloqueados', o.blockedPairs],
     ['Cache hit', cache === undefined ? 'sem dado' : `${cache}%`],
+    // Contador nativo do pg_stat_database: sobe quando o PostgreSQL derruba uma vítima de deadlock
+    ['Deadlocks (30 min)', total(pick(rows, 'deadlocks'))],
   ];
 
   return (
@@ -50,6 +52,7 @@ export default async function Monitor() {
         <p className="note">Última amostra às {time(o.sampledAt)}.</p>
       )}
       <h2>Agora no PostgreSQL</h2>
+      <p className="note">Fonte: PostgreSQL observado (pg_stat_activity, pg_locks e pg_stat_database).</p>
       <dl className="stats">
         {stats.map(([label, value]) => (
           <div key={label} className="panel">
@@ -59,11 +62,16 @@ export default async function Monitor() {
         ))}
       </dl>
       <h2>Bloqueios agora</h2>
+      <p className="note">Fonte: PostgreSQL observado (pg_locks e pg_blocking_pids).</p>
       <LockGraph locks={locks} />
       <h2>Eventos ao vivo</h2>
+      <p className="note">Cada evento diz a fonte: o PostgreSQL (alertas do coletor), a aplicação (rollbacks e break-glass) ou o LAB.</p>
       <EventFeed initial={events} canAudit={me.permissions.includes('audit:read')} />
       <h2>Últimos 30 minutos no banco da aplicação</h2>
-      <p className="note">A própria coleta grava uma transação por amostra, por isso os commits nunca chegam a zero.</p>
+      <p className="note">
+        Fonte: PostgreSQL observado (pg_stat_database). A própria coleta grava uma transação por amostra, por isso os
+        commits nunca chegam a zero.
+      </p>
       <div className="charts">
         <LineChart title="Commits a cada 5 s" unit="commits" points={pick(rows, 'commits')} />
         <LineChart title="Rollbacks a cada 5 s" unit="rollbacks" points={pick(rows, 'rollbacks')} />

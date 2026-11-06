@@ -8,10 +8,10 @@ export type Overview = {
   blockedPairs: number;
 };
 // O pg devolve bigint e numeric como texto; null = contador zerou entre amostras (reinício), nunca taxa negativa
-export type RawPoint = { sampledAt: string; commits: string | null; rollbacks: string | null; cacheHitPct: string | null };
+export type RawPoint = { sampledAt: string; commits: string | null; rollbacks: string | null; deadlocks: string | null; cacheHitPct: string | null };
 export type Point = { t: string; v: number | null };
 
-export const pick = (rows: RawPoint[], key: 'commits' | 'rollbacks' | 'cacheHitPct'): Point[] =>
+export const pick = (rows: RawPoint[], key: 'commits' | 'rollbacks' | 'deadlocks' | 'cacheHitPct'): Point[] =>
   rows.map((r) => ({ t: r.sampledAt, v: r[key] === null ? null : Number(r[key]) }));
 
 // Coleta parada = três intervalos sem amostra nova; o monitor diz isso em vez de mostrar número velho
@@ -101,3 +101,13 @@ export function describeEvent(e: MonitorEvent): [string, string] {
 }
 
 export const SEVERITY: Record<string, [string, 'muted' | 'wait' | 'bad']> = { info: ['Info', 'muted'], medium: ['Média', 'wait'], high: ['Alta', 'bad'] };
+
+// Soma do período; null (contador reiniciado) não entra na conta
+export const total = (points: Point[]) => points.reduce((sum, p) => sum + (p.v ?? 0), 0);
+
+// De onde veio cada evento: o PRD exige que nenhum dado apareça sem fonte
+export function sourceOf(e: Pick<MonitorEvent, 'kind' | 'code'>): ['PostgreSQL' | 'Aplicação' | 'LAB', 'db' | 'app' | 'lab'] {
+  if (e.kind === 'LAB') return ['LAB', 'lab'];
+  if (e.kind === 'TX_ROLLBACK' || e.code === 'BREAK_GLASS') return ['Aplicação', 'app'];
+  return ['PostgreSQL', 'db'];
+}
