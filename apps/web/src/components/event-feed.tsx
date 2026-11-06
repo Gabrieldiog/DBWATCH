@@ -13,12 +13,12 @@ export function EventFeed({ initial, canAudit }: { initial: MonitorEvent[]; canA
 
   useEffect(() => {
     const source = new EventSource('/api/monitor/stream');
-    // A API manda eventos com nome (TX_ROLLBACK, ALERT): o onmessage padrão não receberia nenhum
+    // A API manda eventos com nome (TX_ROLLBACK, ALERT, LAB): o onmessage padrão não receberia nenhum
     const add = (msg: MessageEvent<string>) => {
       const e = fromStream(JSON.parse(msg.data));
-      setEvents((list) => [e, ...list.filter((x) => x.id !== e.id)].slice(0, 8));
+      setEvents((list) => [e, ...list.filter((x) => x.id !== e.id)].slice(0, 12));
     };
-    for (const kind of ['TX_ROLLBACK', 'ALERT']) source.addEventListener(kind, add);
+    for (const kind of ['TX_ROLLBACK', 'ALERT', 'LAB']) source.addEventListener(kind, add);
     source.onopen = () => setState('on');
     source.onerror = () => setState('off');
     return () => source.close();

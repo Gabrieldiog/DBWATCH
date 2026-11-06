@@ -1010,3 +1010,15 @@ dialog::backdrop {
   border-radius: 6px;
   background: var(--surface-raised);
 }
+
+.simulation {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  border-left: 4px solid var(--amber);
+}
+
+.simulation h2,
+.simulation p {
+  margin: 0;
+}

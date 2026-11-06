@@ -38,6 +38,10 @@ Tudo o que for mostrado é **real** e reproduzível. Quando algo for um experime
 | 11:15 | **Qualidade** | Mostrar o CI verde e a contagem de testes de banco e de segurança | Cada regra tem um teste que tenta violá-la |
 | 11:45 | **Fechamento** | Logo + limites honestos (superusuário, amostragem) + próximos passos | Engenharia responsável: sabemos o que garantimos e o que não |
 
+### Incidente ao vivo (LAB, ~35 s)
+
+No Monitor, a Ana aperta **▶ Iniciar simulação**. Quatro sessões reais encenam o fechamento do mês: um relatório esquece uma transação aberta e trava o caixa (o grafo desenha relatório → caixa), o caixa desiste com `55P03` depois de 8 s e tenta de novo, o PostgreSQL derruba a transação esquecida depois de 20 s parada (`idle_in_transaction_session_timeout`) e, no fim, resolve um deadlock entre duas transferências (`40P01`, a vítima é repetida). Cada passo aparece no fluxo de eventos com a fonte LAB, ao lado dos alertas que o próprio coletor dispara. O que dizer: "isto é o que um DBA veria num incidente real, e nada aqui é encenado na tela: a tela só observa o banco".
+
 ### Versão curta (~6 min)
 
 Abertura → autoaprovação barrada no banco → corrida de aprovação → adulteração detectada → deadlock ao vivo → fechamento.

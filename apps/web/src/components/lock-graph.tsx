@@ -28,7 +28,8 @@ export function LockGraph({ locks }: { locks: Lock[] }) {
           <g key={n.pid} transform={`translate(${n.x} ${n.y})`} className={n.waiting ? 'lock-node lock-waiting' : 'lock-node'}>
             <circle r="22" />
             <text dy="5">{n.pid}</text>
-            <text dy="40" className="lock-app">{n.app.slice(0, 18)}</text>
+            {/* "dbwatch-sim:relatorio" vira "relatorio"; o nome completo está na tabela ao lado */}
+            <text dy="40" className="lock-app">{(n.app.split(':').pop() ?? '').slice(0, 18)}</text>
           </g>
         ))}
       </svg>

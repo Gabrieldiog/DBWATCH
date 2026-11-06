@@ -373,6 +373,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** contador de deadlocks no monitor (contador nativo do `pg_stat_database`); a fonte escrita em cada bloco e em cada evento (PostgreSQL, Aplicação ou LAB); filtros de pessoa por e-mail (a API ganhou `actorEmail`, parametrizado e sem diferenciar maiúsculas) e de período no fuso de Goiás na auditoria; "O que isso mostra" depois de cada experimento do lab.
 
+#### PK-17b · Simulação de incidente ao vivo ✅
+
+> **Registro de QA (06/11/2026):** lint, typecheck, 40/40 da web, 134/134 da API e build; `pnpm test:e2e` com 60/60 duas vezes. T-LAB-07 na API: a simulação roda sozinha contra o PostgreSQL, quem não tem `lab:run` recebe 403, uma segunda simulação ou experimento durante a primeira recebe 409, e a narração gravada traz o `55P03`, o `idle_in_transaction_session_timeout`, o `40P01` e o total final de 140,00. No E2E, a Ana aperta o play no Monitor e a tela mostra o grafo relatório → caixa e a narração chegando pelo SSE até "Simulação concluída". Erro pego pelo teste antes da entrega: a tela não ouvia eventos SSE do tipo `LAB` (eventos com nome não chegam ao `onmessage`), então a narração não aparecia. O E2E passou a olhar só os eventos que chegam ao vivo depois do clique, porque rodadas interrompidas deixavam narrações antigas na lista inicial. Axe sem violação séria com o painel na tela, nos dois temas; vídeo de 35 s gravado para a apresentação.
+
+- **Inclui:** `POST /api/lab/simulacao` (202, uns 35 s em segundo plano, com o mesmo advisory lock dos experimentos e registro `lab.simulation` na auditoria); migration que aceita eventos `LAB` no `monitor.app_events`; narração gravada pelo papel da aplicação (o papel do lab continua sem ver o schema `monitor`); botão "Iniciar simulação" no Monitor para quem tem `lab:run`; DEMO.md com o bloco do incidente ao vivo.
+
 > **Referência estudada:** o JumpServer (PAM de código aberto, GPL v3) foi lido só como fonte de **ideias**; nenhum código foi copiado. As ideias aproveitadas aparecem nos packs acima. Ver [ADR-022](DECISIONS.md#adr-022--jumpserver-só-como-referência-de-ideias).
 
 ## 5. Status
@@ -416,5 +422,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-14 | ✅ Concluído | 04/11/2026 |
 | PK-16 | ✅ Concluído (antes do PK-15, a pedido) | 05/11/2026 |
 | PK-17a | ✅ Concluído | 06/11/2026 |
-| PK-17b | ⏳ Próximo | — |
+| PK-17b | ✅ Concluído | 06/11/2026 |
+| PK-17c | ⏳ Próximo | — |
 | PK-15 | 📋 Planejado | — |

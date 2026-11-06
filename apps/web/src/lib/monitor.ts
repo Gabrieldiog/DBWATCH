@@ -84,6 +84,7 @@ export const fromStream = (r: Raw): MonitorEvent =>
 const secs = (ms: unknown) => `${Math.round(Number(ms) / 1000)} s`;
 export function describeEvent(e: MonitorEvent): [string, string] {
   const d = e.detail;
+  if (e.kind === 'LAB') return [String(d.titulo ?? 'LAB'), String(d.texto ?? '')];
   switch (e.code) {
     case 'TX_ROLLBACK':
       return ['Rollback na API', `${e.operation} ${e.sqlstate ? `voltou com SQLSTATE ${e.sqlstate}` : 'voltou por uma regra da API'}`];
