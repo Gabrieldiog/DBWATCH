@@ -14,6 +14,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-17c · Laboratório: índices**
+  - Sexto cenário: a mesma consulta numa tabela de 200 mil leituras sem índice, com B-tree e com BRIN, com o plano real, as páginas lidas e o tamanho de cada índice. Também em `infra/lab/06-indices.sql` para o psql.
+
 - **PK-17b · Simulação de incidente ao vivo (LAB)**
   - Botão "Iniciar simulação" no Monitor: quatro sessões reais encenam o fechamento do mês (transação esquecida, espera de lock, `lock_timeout`, a transação derrubada pelo próprio PostgreSQL e um deadlock resolvido), e cada passo é narrado no fluxo de eventos com a fonte LAB.
 

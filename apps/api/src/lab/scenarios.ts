@@ -35,6 +35,24 @@ async function bothLeave(lab: LabRecorder, level: string): Promise<{ left: numbe
   return { left: Number(rows[0]?.n), failed: results.filter((r) => r.sqlstate === '40001').length };
 }
 
+// Uma hora de leituras (300 linhas de 200 mil); o mesmo SELECT nos três caminhos, com o plano real do PostgreSQL
+const HOUR = "lida_em >= '2026-10-15 10:00:00-03' AND lida_em < '2026-10-15 11:00:00-03'";
+type PlanNode = { 'Node Type': string; 'Index Name'?: string; 'Shared Hit Blocks'?: number; 'Shared Read Blocks'?: number; Plans?: PlanNode[] };
+const nodes = (n: PlanNode): PlanNode[] => [n, ...(n.Plans ?? []).flatMap(nodes)];
+
+async function measure(lab: LabRecorder, label: string, table: string, on: string[]) {
+  // Um passo só com os três parâmetros do planejador (valem só nesta sessão); a tela mostra o que ficou ligado
+  const flags = ['seqscan', 'indexscan', 'bitmapscan'].map((f) => `set_config('enable_${f}', '${on.includes(`enable_${f}`) ? 'on' : 'off'}', false) AS ${f}`);
+  await lab.run('A', `SELECT ${flags.join(', ')}`);
+  const { rows } = await lab.run('A', `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT count(*), round(avg(valor), 2) FROM lab.${table} WHERE ${HOUR}`);
+  const [plan] = rows[0]?.['QUERY PLAN'] as [{ Plan: PlanNode; 'Execution Time': number }];
+  const all = nodes(plan.Plan);
+  const pages = (plan.Plan['Shared Hit Blocks'] ?? 0) + (plan.Plan['Shared Read Blocks'] ?? 0);
+  const path = all.map((n) => n['Node Type'] + (n['Index Name'] ? ` (${n['Index Name']})` : '')).join(' → ');
+  lab.note('A', `${label}: ${path}; ${plan['Execution Time'].toFixed(2)} ms e ${pages} páginas lidas`);
+  return { types: all.map((n) => n['Node Type']), indexes: all.map((n) => n['Index Name']), pages };
+}
+
 // Contas começam sempre em Ana = 100 e Bruno = 50
 export const SCENARIOS: Record<string, Scenario> = {
   'transferencia-falha': {
@@ -90,6 +108,30 @@ export const SCENARIOS: Record<string, Scenario> = {
       lab.note('A', 'Variante 2: REPEATABLE READ (a transação inteira vê a mesma foto)');
       const sameInRepeatableRead = await readTwice(lab, 'REPEATABLE READ');
       return !sameInReadCommitted && sameInRepeatableRead;
+    },
+  },
+  indices: {
+    title: 'Uma hora de leituras em 200 mil: sem índice, com B-tree e com BRIN (EXPLAIN ANALYZE de verdade)',
+    async run(lab) {
+      lab.note('A', 'A mesma consulta nos três caminhos; o planejador é forçado com enable_seqscan, enable_indexscan e enable_bitmapscan');
+      const seq = await measure(lab, 'Sem índice', 'leituras', ['enable_seqscan']);
+      const btree = await measure(lab, 'B-tree', 'leituras', ['enable_indexscan']);
+      const brin = await measure(lab, 'BRIN', 'leituras_brin', ['enable_bitmapscan']);
+      const { rows } = await lab.run(
+        'A',
+        `SELECT pg_size_pretty(pg_relation_size('lab.leituras')) AS tabela,
+                pg_size_pretty(pg_relation_size('lab.leituras_lida_em_btree')) AS btree,
+                pg_size_pretty(pg_relation_size('lab.leituras_brin_lida_em_brin')) AS brin,
+                pg_relation_size('lab.leituras_brin_lida_em_brin') < pg_relation_size('lab.leituras_lida_em_btree') / 10 AS brin_menor`,
+      );
+      return (
+        seq.types.includes('Seq Scan') &&
+        btree.indexes.includes('leituras_lida_em_btree') &&
+        brin.indexes.includes('leituras_brin_lida_em_brin') &&
+        btree.pages < seq.pages / 10 &&
+        brin.pages < seq.pages / 2 &&
+        rows[0]?.brin_menor === true
+      );
     },
   },
   'write-skew': {

@@ -35,6 +35,17 @@ test('espera de lock: B espera 6 s e o grafo do monitor desenha o bloqueio ao vi
   await expect(lock.locator('.step-B.step-slow')).toContainText(/ok em \d{4,} ms, esperando/);
 });
 
+test('índices pela tela: o plano real de cada caminho e o tamanho de cada índice', async ({ page }) => {
+  await login(page, 'ADMIN', '/laboratorio');
+  const indices = card(page, 'sem índice, com B-tree e com BRIN');
+  await indices.getByRole('button', { name: 'Rodar experimento' }).click();
+  await expect(indices.getByRole('status')).toContainText('Comportamento confirmado no banco', { timeout: 15_000 });
+  await expect(indices.locator('.step').filter({ hasText: 'Sem índice:' })).toContainText('Seq Scan');
+  await expect(indices.locator('.step').filter({ hasText: 'BRIN:' })).toContainText(/páginas lidas/);
+  await expect(indices.getByText(/Leu: tabela .* btree .* brin/)).toBeVisible();
+  await expect(indices.getByText('O que isso mostra:')).toBeVisible();
+});
+
 test('quem não tem lab:run recebe 404', async ({ page }) => {
   await login(page, 'AUDITOR');
   expect((await page.goto('/laboratorio'))?.status()).toBe(404);

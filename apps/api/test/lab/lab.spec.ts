@@ -41,6 +41,17 @@ describe('LAB: laboratório de concorrência com duas sessões reais', () => {
     expect(await balances()).toEqual([70, 50]);
   }, 20_000);
 
+  it('T-LAB-08 índices: a mesma consulta lê muito menos páginas com B-tree e BRIN, e o BRIN é minúsculo', async () => {
+    const body = (await run('indices').expect(200)).body as Run;
+    expect(body.outcome).toBe('OK');
+    const notes = body.steps.map((s) => s.note).filter(Boolean).join('\n');
+    expect(notes).toMatch(/Sem índice: .*Seq Scan/);
+    expect(notes).toMatch(/B-tree: .*leituras_lida_em_btree/);
+    expect(notes).toMatch(/BRIN: .*Bitmap Index Scan \(leituras_brin_lida_em_brin\)/);
+    const sizes = body.steps.find((s) => s.rows?.[0]?.brin)?.rows?.[0];
+    expect(sizes).toMatchObject({ brin_menor: true });
+  });
+
   it('T-LAB-03 deadlock: exatamente uma sessão recebe 40P01 e a outra confirma', async () => {
     const body = (await run('deadlock').expect(200)).body as Run;
     expect(body.outcome).toBe('OK');

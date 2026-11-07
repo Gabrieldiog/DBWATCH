@@ -70,4 +70,8 @@ describe('LAB: os scripts de infra/lab rodam como prometem, em dois terminais', 
     expect(await play('05-write-skew.sql')).toEqual(['40001']);
     expect(await read('SELECT count(*)::int FROM lab.on_call WHERE on_duty')).toEqual([1]);
   });
+
+  it('06 índices: os três caminhos rodam pelo psql sem erro', async () => {
+    expect(await play('06-indices.sql')).toEqual([]);
+  });
 });
