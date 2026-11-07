@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { device, forbiddenPath, initials, loginUrl, navFor } from '../src/lib/console';
+import { aclWhen, device, forbiddenPath, initials, loginUrl, navFor } from '../src/lib/console';
 
 const labels = (permissions: string[]) => navFor(permissions).flatMap((g) => g.items.map((i) => i.label));
 
@@ -54,5 +54,12 @@ describe('forbiddenPath (unitário)', () => {
     expect(forbiddenPath('/acessos/123', ['grant:revoke'])).toBe(false);
     expect(forbiddenPath('/sessoes', [])).toBe(false);
     expect(forbiddenPath('/painelzinho', [])).toBe(false); // não é a tela /painel; quem responde é o 404 do Next
+  });
+});
+
+describe('aclWhen (unitário)', () => {
+  it('descreve a regra com dias ISO e trata nulo como qualquer', () => {
+    expect(aclWhen({ ipRange: '10.0.0.0/8', weekdays: [1, 7], startTime: '22:00', endTime: '23:59' })).toBe('IP em 10.0.0.0/8, Seg, Dom, das 22:00 às 23:59');
+    expect(aclWhen({ ipRange: null, weekdays: null, startTime: null, endTime: null })).toBe('qualquer IP, todos os dias, o dia todo');
   });
 });

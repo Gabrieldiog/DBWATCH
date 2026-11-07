@@ -14,6 +14,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-17e · Break-glass e ACL de login na tela**
+  - Formulário de acesso de emergência em "Pedir acesso" e fila de revisão em "Aprovações".
+  - Regras de login por IP e horário em "Usuários", com os erros das CHECKs do banco mostrados na tela.
+
 - **PK-17d · Pendências menores**
   - Criar usuário sem digitar senha: a API gera uma senha inicial forte e mostra uma vez só.
   - Tela "Minhas sessões" para ver onde a conta está aberta e encerrar outro aparelho.

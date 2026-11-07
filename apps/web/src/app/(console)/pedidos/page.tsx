@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ActionButton } from '../../../components/action-button';
+import { BreakGlassForm } from '../../../components/break-glass-form';
 import { Badge } from '../../../components/badge';
 import { RequestForm } from '../../../components/request-form';
 import { approvals, LEVEL, minutes, STATUS, when, type AccessRequest, type Resource } from '../../../lib/pam';
@@ -8,7 +9,7 @@ import { apiGet, requirePermission } from '../../../lib/session';
 export const metadata: Metadata = { title: 'Pedir acesso' };
 
 export default async function Pedidos() {
-  await requirePermission('request:create');
+  const me = await requirePermission('request:create');
   const [resources, mine] = await Promise.all([
     apiGet<Resource[]>('/resources'),
     apiGet<AccessRequest[]>('/requests/mine'),
@@ -21,6 +22,17 @@ export default async function Pedidos() {
         diferentes.
       </p>
       <RequestForm resources={resources} />
+      {me.permissions.includes('breakglass:use') && (
+        <section aria-labelledby="emergencia">
+          <h2 id="emergencia">Emergência (break-glass)</h2>
+          <p>
+            Para incidente em andamento: leitura liberada na hora, sem esperar aprovação, por no máximo 15 minutos. É a
+            única exceção à regra de que ninguém decide o próprio pedido, por isso dispara um alerta no Monitor e
+            outra pessoa revisa depois.
+          </p>
+          <BreakGlassForm resources={resources} />
+        </section>
+      )}
       <h2>Meus pedidos</h2>
       {mine.length === 0 ? (
         <p className="panel">Você ainda não fez nenhum pedido.</p>

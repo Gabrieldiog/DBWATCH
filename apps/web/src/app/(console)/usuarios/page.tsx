@@ -1,20 +1,22 @@
 import type { Metadata } from 'next';
+import { AclForm } from '../../../components/acl-form';
 import { ActionButton } from '../../../components/action-button';
 import { Badge } from '../../../components/badge';
 import { UserForm } from '../../../components/user-form';
-import { ROLE_LABEL } from '../../../lib/console';
+import { aclWhen, ROLE_LABEL, type AclRule } from '../../../lib/console';
 import type { Tone } from '../../../lib/pam';
 import { when } from '../../../lib/pam';
 import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Usuários' };
 type User = { id: string; email: string; displayName: string; status: string; lastLoginAt: string | null; roles: string[] };
+const ACL_ACTION: Record<string, [string, Tone]> = { ALLOW: ['Permitir', 'ok'], DENY: ['Negar', 'bad'] };
 const USER_STATUS: Record<string, [string, Tone]> = { ACTIVE: ['Ativo', 'ok'], DISABLED: ['Desativado', 'muted'] };
 
 export default async function Usuarios() {
   const me = await requirePermission('user:manage');
   const canAssign = me.permissions.includes('role:assign');
-  const users = await apiGet<User[]>('/users');
+  const [users, rules] = await Promise.all([apiGet<User[]>('/users'), apiGet<AclRule[]>('/login-acl')]);
   return (
     <main className="console-page">
       <h1>Usuários</h1>
@@ -81,6 +83,47 @@ export default async function Usuarios() {
           </tbody>
         </table>
       </div>
+      <h2>Regras de login por IP e horário</h2>
+      <p>
+        O banco avalia na ordem da prioridade e a primeira regra que casar decide (função{' '}
+        <code>iam.login_acl_decision</code>). Sem regra que case, vale só a senha. Uma regra que negue todo mundo,
+        sempre, é recusada por uma CHECK.
+      </p>
+      <AclForm />
+      {rules.length === 0 ? (
+        <p className="panel">Nenhuma regra: qualquer IP entra a qualquer hora, desde que acerte a senha.</p>
+      ) : (
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Prioridade</th>
+                <th scope="col">Ação</th>
+                <th scope="col">Quando vale</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">
+                  <span className="sr-only">Ações</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rules.map((r) => (
+                <tr key={r.id}>
+                  <td data-label="Prioridade">{r.priority}</td>
+                  <td data-label="Ação">
+                    <Badge entry={ACL_ACTION[r.action]} fallback={r.action} />
+                  </td>
+                  <td data-label="Quando vale">{aclWhen(r)}</td>
+                  <td data-label="Descrição">{r.description}</td>
+                  <td>
+                    <ActionButton label="Remover regra" path={`/login-acl/${r.id}`} method="DELETE" small />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }

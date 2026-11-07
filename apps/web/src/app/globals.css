@@ -1048,3 +1048,12 @@ dialog::backdrop {
     animation: none;
   }
 }
+
+/* Ação de exceção: a cor de alerta deixa claro que não é o caminho normal */
+.button-danger {
+  background: var(--coral);
+}
+
+.break-glass {
+  border-left: 4px solid var(--coral);
+}

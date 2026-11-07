@@ -52,3 +52,15 @@ export function device(ua: string | null): string {
   if (!browser && !os) return ua.slice(0, 60);
   return `${browser ?? 'Navegador'}${os ? ` no ${os}` : ''}`;
 }
+
+// Dias na numeração ISO do PostgreSQL (extract(isodow)): 1 = segunda, 7 = domingo
+export const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+export type AclRule = { id: string; priority: number; action: string; ipRange: string | null; weekdays: number[] | null; startTime: string | null; endTime: string | null; description: string };
+
+// Quando a regra vale, em uma frase; campo nulo no banco quer dizer "qualquer"
+export function aclWhen(r: Pick<AclRule, 'ipRange' | 'weekdays' | 'startTime' | 'endTime'>): string {
+  const ip = r.ipRange ? `IP em ${r.ipRange}` : 'qualquer IP';
+  const days = r.weekdays?.length ? r.weekdays.map((d) => WEEKDAYS[d - 1]).join(', ') : 'todos os dias';
+  const hours = r.startTime ? `das ${r.startTime} às ${r.endTime}` : 'o dia todo';
+  return `${ip}, ${days}, ${hours}`;
+}

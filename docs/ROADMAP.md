@@ -392,6 +392,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** senha inicial gerada pela API (a senha manual continua aceita pela API); tela "Minhas sessões" no menu de todo mundo; esqueleto de carregamento em todas as telas do console; barreira de permissão no layout.
 - **Fica para o PK-17e:** telas de break-glass e de ACL de login (hoje só na API). Troca obrigatória da senha inicial no primeiro login não entra (pediria rota e tela novas).
 
+#### PK-17e · Telas de break-glass e ACL de login ✅
+
+> **Registro de QA (07/11/2026):** lint, typecheck, 43/43 da web e build; `pnpm test:e2e` com 69/69 duas vezes seguidas no mesmo banco. Sem mudança na API: as telas usam as rotas e as regras de banco que já existiam desde o PK-05b e o PK-08. No E2E, a Ana abre um break-glass de 5 min pela tela (o contador mostra quantos caracteres faltam para os 40), o Bruno vê o card na fila de revisão e revisa com nota pelo diálogo, e o card some; quem não tem `breakglass:use` não vê o formulário. Na ACL, uma regra que negaria todo mundo, sempre, volta com a mensagem da CHECK do banco; uma regra válida (faixa de documentação 203.0.113.0/24, sábado, das 22:00 às 23:30) aparece descrita em português e é removida pela tela. Erro pego pelo E2E: o seletor de card do teste de aprovações passou a casar também com o card de break-glass do mesmo recurso; ficou restrito à fila de pedidos. Axe sem violação séria na tela de pedir acesso com o formulário de emergência. Capturas em 1280 e 375 px sem rolagem horizontal.
+
+- **Inclui:** formulário de emergência em "Pedir acesso" (só para quem tem `breakglass:use`); fila "Break-glass para revisar" em "Aprovações"; regras de login por IP e horário em "Usuários", com criação e remoção.
+
 > **Referência estudada:** o JumpServer (PAM de código aberto, GPL v3) foi lido só como fonte de **ideias**; nenhum código foi copiado. As ideias aproveitadas aparecem nos packs acima. Ver [ADR-022](DECISIONS.md#adr-022--jumpserver-só-como-referência-de-ideias).
 
 ## 5. Status
@@ -438,5 +444,5 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-17b | ✅ Concluído | 06/11/2026 |
 | PK-17c | ✅ Concluído | 07/11/2026 |
 | PK-17d | ✅ Concluído | 07/11/2026 |
-| PK-17e | ⏳ Próximo (telas de break-glass e ACL de login) | — |
+| PK-17e | ✅ Concluído | 07/11/2026 |
 | PK-15 | 📋 Planejado | — |

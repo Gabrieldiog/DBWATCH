@@ -7,7 +7,8 @@ async function approver(browser: Browser, nth = 0): Promise<Page> {
   await login(page, 'APPROVER', '/aprovacoes', nth);
   return page;
 }
-const card = (page: Page, resource: string) => page.getByRole('listitem').filter({ hasText: `em ${resource}` });
+// Só a fila de pedidos (a primeira lista); a de break-glass vem depois e também cita o recurso
+const card = (page: Page, resource: string) => page.locator('ul.cards').first().getByRole('listitem').filter({ hasText: `em ${resource}` });
 
 // T-E2E-02 até a aprovação; a contagem regressiva do acesso vem com a tela "Meus acessos"
 test('T-E2E-02 solicitante pede pelo formulário e o aprovador aprova', async ({ page, browser }) => {

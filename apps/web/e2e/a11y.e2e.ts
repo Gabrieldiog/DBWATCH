@@ -76,6 +76,12 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoSeriousViolations(page);
     });
 
+    test('pedir acesso com o formulário de emergência', async ({ page }) => {
+      await login(page, 'ADMIN', '/pedidos');
+      await expect(page.getByRole('heading', { name: /Emergência/ })).toBeVisible();
+      await expectNoSeriousViolations(page);
+    });
+
     test('minhas sessões', async ({ page }) => {
       await login(page, 'REQUESTER', '/sessoes');
       await expectNoSeriousViolations(page);
