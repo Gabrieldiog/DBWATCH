@@ -1,6 +1,6 @@
 # Roteiro da demonstração: InovaTech 2026
 
-> Status: **rascunho** (PK-00). Será ensaiado e ajustado no PK-15. O tempo disponível no evento ainda precisa ser confirmado (questão Q-4 do [PRD](PRD.md#7-questões-em-aberto)).
+> Status: **ensaiado** (PK-15, 07/11/2026). A parte da tela roda sozinha pelo ensaio automatizado (seção 5), que também gera o vídeo de backup. O tempo disponível no evento ainda precisa ser confirmado (questão Q-4 do [PRD](PRD.md#7-questões-em-aberto)).
 
 ## 1. Mensagem central
 
@@ -10,7 +10,8 @@ Tudo o que for mostrado é **real** e reproduzível. Quando algo for um experime
 
 ## 2. Preparação (antes de entrar na sala)
 
-- [ ] Ambiente da VPS no ar, `GET /api/health` verde. Ambiente local idêntico rodando no notebook como plano B.
+- [ ] Ambiente da VPS no ar (`http://2.25.95.101:8088`), com a página inicial mostrando "PostgreSQL no ar". Ambiente local idêntico rodando no notebook como plano B.
+- [ ] Na véspera: rodar `pnpm --filter @dbwatch/web ensaio` no ambiente local. Se passar, o roteiro inteiro funciona naquele banco; o vídeo novo fica em `apps/web/ensaio-results/`.
 - [ ] Seed recém-aplicado: os usuários de demonstração (`diego.solicitante`, `bruno.aprovador`, `eva.auditora`, `ana.admin`) com senhas que **nunca aparecem na tela** (login feito antes, em janelas separadas).
 - [ ] Quatro janelas ou perfis de navegador já logados: Diego, Bruno, Eva e Ana.
 - [ ] Um terminal com `psql` conectado como `dbwatch_lab`, com os scripts de `infra/lab/` abertos.
@@ -35,6 +36,7 @@ Tudo o que for mostrado é **real** e reproduzível. Quando algo for um experime
 | 9:00 | **Deadlock** | Lab: deadlock; a aresta se rompe e o contador nativo sobe | O PostgreSQL detecta o ciclo e aborta uma vítima com `40P01` |
 | 10:00 | **Isolamento** | Lab: write skew em `READ COMMITTED` vs `SERIALIZABLE` | Níveis de isolamento; `40001` como proteção |
 | 10:45 | **Índices** (se houver tempo) | Lab: `EXPLAIN ANALYZE` sem índice × B-tree × BRIN | Custo, páginas lidas, tamanho do índice |
+| 11:00 | **Break-glass** (se houver tempo) | Ana abre um acesso de emergência em "Pedir acesso"; o alerta "Acesso de emergência" sobe no Monitor; Bruno revisa em "Aprovações" | A única exceção à separação de funções, limitada por CHECK (15 min, 40 caracteres) e revisada por outra pessoa |
 | 11:15 | **Qualidade** | Mostrar o CI verde e a contagem de testes de banco e de segurança | Cada regra tem um teste que tenta violá-la |
 | 11:45 | **Fechamento** | Logo + limites honestos (superusuário, amostragem) + próximos passos | Engenharia responsável: sabemos o que garantimos e o que não |
 
@@ -55,7 +57,27 @@ Abertura → autoaprovação barrada no banco → corrida de aprovação → adu
 | Um cenário do lab falha | Rodar o mesmo cenário pelo script em `infra/lab/` com dois terminais `psql` (o caminho mais transparente) |
 | Projetor com cores lavadas | Tema claro + zoom maior; os estados também têm ícone e texto |
 
-## 5. Perguntas prováveis da banca
+## 5. Ensaio automatizado e vídeo de backup
+
+`pnpm --filter @dbwatch/web ensaio` (com o build feito, como o E2E) percorre a parte do roteiro que acontece na tela, no navegador de verdade, contra a API e o banco de verdade, e grava um vídeo de 1280×720. Os blocos de `psql` (autoaprovação barrada e adulteração) ficam de fora: são mostrados no terminal ao vivo.
+
+Tempos medidos no ensaio de 07/11/2026, sem narração (as pausas para falar ficam por conta de quem apresenta):
+
+| Bloco | Tempo na tela |
+| --- | --- |
+| Abertura: página inicial com o status real do banco | 5 s |
+| PAM: Diego pede acesso a Clientes | 6 s |
+| PAM: Bruno aprova | 4 s |
+| Concessão: contagem regressiva e consulta do catálogo | 9 s |
+| Auditoria: Eva verifica a cadeia de hash | 7 s |
+| Laboratório: rollback, lock, deadlock, isolamento e índices | 30 s |
+| Incidente ao vivo no Monitor (LAB) | 32 s |
+| Break-glass: Ana abre, o alerta sobe e Bruno revisa | 5 s |
+| **Total** | **98 s** |
+
+Conclusão do ensaio: a tela nunca é o gargalo. Os 12 minutos são de fala; se o tempo encurtar, a versão curta cabe com folga.
+
+## 6. Perguntas prováveis da banca
 
 | Pergunta | Resposta curta | Onde está |
 | --- | --- | --- |

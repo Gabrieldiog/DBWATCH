@@ -9,7 +9,7 @@
 
 **Gerenciamento de acessos privilegiados e monitoramento de PostgreSQL, com cada ação registrada em uma trilha de auditoria protegida.**
 
-[![Status](https://img.shields.io/badge/status-em_desenvolvimento-2EEDC0?style=flat-square&labelColor=050E1E)](docs/ROADMAP.md)
+[![Versão](https://img.shields.io/badge/versão-1.0.0-2EEDC0?style=flat-square&labelColor=050E1E)](CHANGELOG.md)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-19D3D0?style=flat-square&logo=postgresql&logoColor=white&labelColor=050E1E)](docs/DATA_MODEL.md)
 [![NestJS](https://img.shields.io/badge/API-NestJS-FD6A62?style=flat-square&logo=nestjs&logoColor=white&labelColor=050E1E)](docs/ARCHITECTURE.md)
 [![Next.js](https://img.shields.io/badge/Web-Next.js-E4EEF7?style=flat-square&logo=nextdotjs&logoColor=white&labelColor=050E1E)](docs/DESIGN.md)
@@ -18,6 +18,7 @@
 
 [O que é](#-o-que-é-o-dbwatch) •
 [Visão geral](#-visão-geral) •
+[Telas](#️-telas) •
 [Arquitetura](#-arquitetura) •
 [Segurança](#-segurança-o-backend-nunca-confia-no-front) •
 [Monitor](#-database-monitor) •
@@ -31,8 +32,7 @@
 ---
 
 > [!IMPORTANT]
-> **Estado atual: fundação, papéis do banco e auditoria protegida prontos (PK-01 a PK-03), implementação em andamento.**
-> Este README descreve o sistema **projetado**. A tabela [Status de implementação](#-status-de-implementação) mostra o que já existe e o que ainda é plano. Nada aqui afirma que uma funcionalidade funciona antes de ela estar implementada e testada.
+> **Versão 1.0.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 137 testes de API e banco, 43 testes unitários do front e 69 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
 
 ## 💡 O que é o DBWATCH?
 
@@ -154,6 +154,17 @@ sequenceDiagram
     API->>DB: INSERT query_execution + audit_log (sem valores sensíveis)
     Note over S,T: Depois de 30 min, a concessão expira e novas execuções são negadas e auditadas
 ```
+
+## 🖥️ Telas
+
+Capturas de um banco recém-criado, com os usuários fictícios da demonstração. Nenhum número é desenhado à mão: tudo vem do PostgreSQL.
+
+| | |
+| --- | --- |
+| ![Página inicial com o status real do banco e o login](docs/assets/telas/entrada.png) | ![Monitor durante o incidente simulado: o grafo mostra o relatório bloqueando o caixa e os eventos chegam ao vivo](docs/assets/telas/monitor-incidente.png) |
+| **Entrada:** o status do PostgreSQL é medido a cada visita, e cada promessa aponta para a regra SQL que a garante | **Monitor:** o incidente simulado (LAB) com o grafo de bloqueio vindo de `pg_locks` e o `55P03` chegando pelo SSE |
+| ![Laboratório: deadlock com a linha do tempo das duas sessões e o 40P01](docs/assets/telas/laboratorio-deadlock.png) | ![Auditoria com a cadeia de hash verificada](docs/assets/telas/auditoria.png) |
+| **Laboratório:** duas sessões reais se travam e o PostgreSQL derruba uma com `40P01` | **Auditoria:** a verificação recalcula a cadeia de hash inteira dentro do banco |
 
 ## 🏗️ Arquitetura
 
@@ -320,7 +331,9 @@ O DBWATCH é testado de baixo para cima, sempre contra um **PostgreSQL real**, p
   ╱              Unidade (regras de negócio)           ╲ máquina de estados, expiração, validação
 ```
 
-Exemplos de testes que fazem parte do plano:
+**Números da versão 1.0.0** (todos rodam no CI a cada PR): 137 testes de API e banco em 26 arquivos, 43 testes unitários do front e 69 testes E2E no Chromium, com axe nos dois temas. Os números de cada pack, com os erros que os testes pegaram antes da entrega, estão no [ROADMAP](docs/ROADMAP.md).
+
+Exemplos de testes da suíte:
 
 - Um aprovador tenta aprovar o próprio pedido → **403 na API** e, mesmo pulando a API, **`23514` (check_violation) no banco**.
 - Dois aprovadores aprovam o mesmo pedido em paralelo → **exatamente um** recebe 200 e o outro recebe 409. Só **uma** concessão é criada.
@@ -337,35 +350,35 @@ dbwatch/
 ├── apps/
 │   ├── api/                      # NestJS (o carro-chefe)
 │   │   ├── src/
-│   │   │   ├── common/           # filtro de erros, pipe Zod, correlation-id, guards globais
-│   │   │   ├── database/         # PrismaService, pools pg por papel, helper de transação
-│   │   │   ├── auth/             # login, sessões, hash, bloqueio por tentativas
-│   │   │   ├── iam/              # usuários, papéis, permissões
-│   │   │   ├── pam/              # recursos, solicitações, concessões, consultas controladas
+│   │   │   ├── common/           # erros, correlation-id, segurança HTTP
+│   │   │   ├── config/           # variáveis de ambiente validadas com Zod
+│   │   │   ├── database/         # PrismaService e transação com o usuário da sessão
+│   │   │   ├── auth/             # login, sessões no servidor, permissões por rota
+│   │   │   ├── iam/              # usuários, papéis e ACL de login
+│   │   │   ├── pam/              # pedidos, aprovações, concessões, consultas e break-glass
 │   │   │   ├── audit/            # gravação, consulta e verificação da cadeia de hash
-│   │   │   ├── monitor/          # coletor pg_stat_*, eventos da aplicação, SSE
-│   │   │   └── lab/              # cenários de concorrência (ativados por variável de ambiente)
-│   │   ├── prisma/               # schema.prisma, migrations/, seed.ts
-│   │   └── test/                 # unit/ · db/ · integration/ · security/ · concurrency/
+│   │   │   ├── monitor/          # coletor pg_stat_*, eventos e SSE
+│   │   │   └── lab/              # cenários de concorrência e a simulação de incidente
+│   │   ├── prisma/               # schema.prisma e migrations/
+│   │   └── test/                 # auth · audit · db · iam · lab · monitor · pam
 │   └── web/                      # Next.js
-│       ├── src/app/              # (auth)/login · (console)/dashboard, requests, approvals,
-│       │                         #   grants, audit, monitor, lab, admin
-│       ├── src/components/       # ui/ · charts/ · motion/
-│       ├── src/lib/              # cliente da API, sessão, formatação
-│       └── e2e/                  # Playwright
-├── packages/
-│   └── contracts/                # schemas Zod e tipos compartilhados
+│       ├── src/app/              # entrar · (console)/painel, pedidos, aprovacoes, acessos,
+│       │                         #   consultas, auditoria, monitor, laboratorio, usuarios, sessoes
+│       ├── src/components/       # formulários, grafo de bloqueio, gráficos, contagem regressiva
+│       ├── src/lib/              # funções puras (testadas sem navegador) e sessão
+│       ├── test/                 # testes unitários
+│       └── e2e/                  # Playwright: fluxos, acessibilidade e o ensaio gravado
 ├── infra/
-│   ├── postgres/                 # criação de papéis e bancos, parâmetros do servidor
-│   ├── lab/                      # roteiros SQL dos experimentos (para rodar no psql)
-│   └── deploy/                   # compose de produção e Caddyfile
-├── docs/                         # PRD, arquitetura, dados, segurança, testes, demo…
-├── docker-compose.yml
-├── pnpm-workspace.yaml
+│   ├── postgres/init/            # papéis e bancos criados na primeira subida
+│   ├── target/                   # banco-alvo fictício das consultas controladas
+│   ├── lab/                      # os seis experimentos em SQL, para rodar no psql
+│   ├── carga/                    # corrida de aprovações repetida 30 vezes
+│   └── deploy/                   # backup do banco de produção
+├── docs/                         # PRD, arquitetura, dados, segurança, testes, demo, deploy…
+├── docker-compose.yml            # PostgreSQL de desenvolvimento e de testes
+├── docker-compose.prod.yml       # produção: banco, API e web (só o web publica porta)
 └── package.json
 ```
-
-> Já existem `apps/api`, `apps/web`, o Docker Compose e o CI (PK-01). Os módulos de domínio, `packages/contracts` e `infra/` chegam nos packs seguintes.
 
 ## 🚀 Como executar
 
@@ -397,7 +410,8 @@ A documentação interativa da API fica em http://localhost:3000/api/docs (Swagg
 | `pnpm db:migrate` · `pnpm db:status` | Aplica e confere as migrations | ✅ |
 | `pnpm db:seed` | Usuários fictícios de demonstração, um por papel, com senhas aleatórias | ✅ |
 | `pnpm test:e2e` | Fluxos e acessibilidade (axe) no Chromium, contra a API e o banco de verdade. Rode `pnpm build` antes; sobe API e web se não estiverem no ar. Gera senhas demo novas, como o `pnpm db:seed`. Se a API já estiver no ar, suba-a com `LOGIN_RATE_LIMIT=1000`: a suíte entra mais de 20 vezes por minuto | ✅ |
-| `pnpm lab:<cenario>` | Experimentos do laboratório pelo terminal | PK-09 |
+| `pnpm --filter @dbwatch/web ensaio` | Ensaio da apresentação: percorre o roteiro no navegador, mede cada bloco e grava o vídeo de backup em `apps/web/ensaio-results/` | ✅ |
+| `infra/lab/*.sql` | Os experimentos do laboratório pelo `psql`, em dois terminais | ✅ |
 
 ## 🗺️ Roadmap
 
@@ -414,18 +428,13 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 
 | Item | Status |
 | --- | --- |
-| Diagnóstico, arquitetura e planejamento | ✅ Concluído |
-| Identidade visual (logo, paleta, tipografia) | ✅ Concluído |
-| Monorepo e ambiente local (PK-01) | ✅ Concluído |
-| Banco, papéis e migrations (PK-02) | ✅ Concluído |
-| Auditoria protegida (PK-03) | ✅ Concluído (rotas HTTP no PK-05) |
-| Página de testes automatizados (`/testes`) | ✅ Concluído |
-| Autenticação com sessão no servidor e Swagger (PK-04) | ✅ Concluído |
-| Permissões e rotas da auditoria (PK-05) | ⏳ Próximo |
-| Solicitações, aprovações e concessões (PK-06, PK-07) | 📋 Planejado |
-| Monitor e laboratório (PK-08, PK-09) | 📋 Planejado |
-| Interface web (PK-10 a PK-12) | 📋 Planejado |
-| QA final, deploy e release (PK-13 a PK-15) | 📋 Planejado |
+| Planejamento, identidade visual e ambiente (PK-00, PK-01) | ✅ Concluído |
+| Banco, papéis, migrations e auditoria protegida (PK-02, PK-03) | ✅ Concluído |
+| Autenticação, permissões, usuários, sessões e ACL de login (PK-04, PK-05) | ✅ Concluído |
+| Pedidos, aprovações, concessões, consultas e break-glass (PK-06, PK-07) | ✅ Concluído |
+| Monitor, laboratório e simulação de incidente (PK-08, PK-09, PK-17b) | ✅ Concluído |
+| Interface web completa (PK-10 a PK-12, PK-16, PK-17) | ✅ Concluído |
+| QA final, deploy na VPS e release v1.0.0 (PK-13 a PK-15) | ✅ Concluído |
 
 ## 📚 Documentação
 
