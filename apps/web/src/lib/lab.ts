@@ -41,6 +41,8 @@ export const CONCEPT: Record<string, string> = {
     'Deadlock: cada sessão espera um lock que a outra segura. O PostgreSQL detecta o ciclo em cerca de 1 s (deadlock_timeout) e derruba uma vítima com 40P01. A aplicação precisa tentar de novo a transação derrubada.',
   'leitura-nao-repetivel':
     'Níveis de isolamento: em READ COMMITTED cada comando vê o que já foi confirmado, então a mesma leitura muda no meio da transação. Em REPEATABLE READ a transação inteira enxerga a mesma foto, como um relatório que precisa fechar a conta.',
+  indices:
+    'Índices: sem índice, o banco lê a tabela inteira para achar uma hora de leituras. O B-tree vai direto às linhas e lê poucas páginas, mas ocupa megabytes. O BRIN guarda só o mínimo e o máximo de cada faixa de páginas: lê um pouco a mais e cabe em kilobytes, ótimo para dados que chegam em ordem, como logs e sensores.',
   'write-skew':
     'Write skew: cada transação lê que há 2 de plantão e tira uma pessoa diferente. Nenhum lock é disputado, então em READ COMMITTED a regra quebra sem erro. Em SERIALIZABLE o PostgreSQL percebe a dependência e derruba uma com 40001.',
 };

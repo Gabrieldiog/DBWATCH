@@ -19,5 +19,6 @@ docker compose exec postgres psql -U dbwatch_lab -d dbwatch
 | `03-deadlock.sql` | Deadlock | Em ~1 s, um terminal recebe `ERROR 40P01` |
 | `04-leitura-nao-repetivel.sql` | READ COMMITTED x REPEATABLE READ | A leitura muda na primeira parte e não muda na segunda |
 | `05-write-skew.sql` | Write skew e SERIALIZABLE | Parte 1 termina com 0 de plantão; parte 2 dá `ERROR 40001` e termina com 1 |
+| `06-indices.sql` | Sem índice × B-tree × BRIN (só o terminal A) | Seq Scan lê mais de mil páginas; o B-tree lê poucas; o BRIN lê algumas centenas e ocupa poucos kB |
 
 Um teste automatizado (`apps/api/test/lab/scripts.spec.ts`) executa estes arquivos bloco a bloco com duas conexões reais, para garantir que eles fazem exatamente o que está escrito aqui.

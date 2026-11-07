@@ -379,6 +379,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** `POST /api/lab/simulacao` (202, uns 35 s em segundo plano, com o mesmo advisory lock dos experimentos e registro `lab.simulation` na auditoria); migration que aceita eventos `LAB` no `monitor.app_events`; narração gravada pelo papel da aplicação (o papel do lab continua sem ver o schema `monitor`); botão "Iniciar simulação" no Monitor para quem tem `lab:run`; DEMO.md com o bloco do incidente ao vivo.
 
+#### PK-17c · Sexto cenário do lab: índices ✅
+
+> **Registro de QA (07/11/2026):** lint, typecheck, 40/40 da web, 136/136 da API e build; `pnpm test:e2e` com 61/61 duas vezes. T-LAB-08: a mesma consulta (uma hora de leituras em 200 mil) roda sem índice, com B-tree e com BRIN, e o plano real confirma cada caminho; números de uma execução: Seq Scan 11,9 ms e 1.471 páginas, B-tree 0,16 ms e 7 páginas, BRIN 1,5 ms e 136 páginas; BRIN com 24 kB contra 4.408 kB do B-tree. O script `infra/lab/06-indices.sql` roda pelo psql no teste de paridade. Teste de mutação: medir o "BRIN" na tabela do B-tree faz o T-LAB-08 falhar. Capturas em 1280 e 375 px sem rolagem horizontal. Com isso, o laboratório chega aos seis cenários do PRD (O-4).
+
+- **Inclui:** migration com as leituras fictícias (duas cópias iguais, uma com B-tree e outra com BRIN, só leitura para o papel do lab); cenário `indices` com `EXPLAIN (ANALYZE, BUFFERS)` e o planejador forçado por sessão; tamanho real dos índices; explicação do conceito na tela; script 06 para o psql.
+
 > **Referência estudada:** o JumpServer (PAM de código aberto, GPL v3) foi lido só como fonte de **ideias**; nenhum código foi copiado. As ideias aproveitadas aparecem nos packs acima. Ver [ADR-022](DECISIONS.md#adr-022--jumpserver-só-como-referência-de-ideias).
 
 ## 5. Status
@@ -423,5 +429,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-16 | ✅ Concluído (antes do PK-15, a pedido) | 05/11/2026 |
 | PK-17a | ✅ Concluído | 06/11/2026 |
 | PK-17b | ✅ Concluído | 06/11/2026 |
-| PK-17c | ⏳ Próximo | — |
+| PK-17c | ✅ Concluído | 07/11/2026 |
+| PK-17d | ⏳ Próximo (pendências menores) | — |
 | PK-15 | 📋 Planejado | — |

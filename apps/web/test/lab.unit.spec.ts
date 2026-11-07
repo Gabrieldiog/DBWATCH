@@ -15,6 +15,6 @@ describe('laboratório (unitário)', () => {
   });
 
   it('todo cenário da API tem a explicação do conceito', () => {
-    expect(Object.keys(CONCEPT).sort()).toEqual(['deadlock', 'espera-de-lock', 'leitura-nao-repetivel', 'transferencia-falha', 'write-skew']);
+    expect(Object.keys(CONCEPT).sort()).toEqual(['deadlock', 'espera-de-lock', 'indices', 'leitura-nao-repetivel', 'transferencia-falha', 'write-skew']);
   });
 });
