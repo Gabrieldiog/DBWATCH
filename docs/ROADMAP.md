@@ -353,9 +353,11 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 - **Inclui:** `apps/api/Dockerfile`, `apps/web/Dockerfile`, `docker-compose.prod.yml`, `.env.prod.example`, `infra/deploy/backup.sh` e [DEPLOY.md](DEPLOY.md) (deploy, atualização, rollback e restauração); `TRUST_PROXY` na API, para enxergar o IP real do cliente atrás do web.
 - **Mudança de escopo:** sem domínio, o acesso é `http://IP:porta` e não há Caddy nem HTTPS; o cookie vai sem `Secure` e a API avisa no log. Com domínio, é só trocar `APP_ORIGIN`.
 
-### PK-15 · Release v1.0.0 e ensaio
+### PK-15 · Release v1.0.0 e ensaio ✅
 
-- **Inclui:** CHANGELOG; notas de release; README final com capturas de tela; três ensaios do [DEMO.md](DEMO.md); vídeo de backup.
+> **Registro de QA (07/11/2026):** o ensaio virou um roteiro automatizado (`pnpm --filter @dbwatch/web ensaio`, config própria do Playwright, fora da suíte de testes) que percorre a parte do DEMO.md que acontece na tela e grava o vídeo. Três ensaios completos passaram (os dois últimos num banco de desenvolvimento recriado do zero, como o da apresentação), com 97 a 98 s de tela; os tempos por bloco estão no DEMO.md. Erros pegos pelos ensaios, todos no próprio roteiro: depois do Sair, o login seguinte começava antes do navegador chegar à tela de entrada, e a tela de entrada sem destino mandava para o painel; a simulação ficava fora do quadro do vídeo, então o roteiro passou a rolar até o grafo. O vídeo de backup (1 min 43 s, 1280×720) foi entregue ao Gabriel e não fica no repositório. Capturas do README tiradas de um banco recém-criado. Lint, typecheck, 43/43 da web, 137/137 da API e 69/69 E2E. Ensaios com narração humana, no projetor da sala, ficam com o Gabriel.
+
+- **Inclui:** CHANGELOG com a versão 1.0.0 e destaques (as notas de release); README final com capturas de tela; DEMO.md ensaiado; ensaio automatizado e vídeo de backup.
 
 ### PK-16 · Página de entrada com login ✅
 
@@ -445,4 +447,4 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-17c | ✅ Concluído | 07/11/2026 |
 | PK-17d | ✅ Concluído | 07/11/2026 |
 | PK-17e | ✅ Concluído | 07/11/2026 |
-| PK-15 | 📋 Planejado | — |
+| PK-15 | ✅ Concluído | 07/11/2026 |

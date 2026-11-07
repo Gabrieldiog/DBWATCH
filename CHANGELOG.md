@@ -5,14 +5,23 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ## [Não lançado]
 
-### Corrigido
+## [1.0.0] - 2026-11-07
 
-- As telas do Next agora mandam `X-Frame-Options`, `frame-ancestors 'none'`, `nosniff` e `Referrer-Policy`, como a API já fazia.
-- `multer` fixado em 2.5.0 (falha alta de DoS na 2.4.0, não alcançável no DBWATCH); `pnpm audit` passou a rodar no CI.
-- CI vermelho desde o PK-11d: o E2E agora roda num banco limpo (como o da apresentação) e recebe a URL do banco-alvo das consultas.
-- `GET /api/monitor/locks` mostrava a última amostra que teve lock, mesmo quando o bloqueio já tinha acabado; agora lê sempre a amostra mais nova.
+Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
+
+### Destaques
+
+- **PAM:** pedido justificado, aprovação por outra pessoa (duas para recurso sensível), concessão temporária com expiração pelo relógio do banco, consultas controladas e break-glass revisado depois. A separação de funções e a não sobreposição de concessões são garantidas por CHECK, EXCLUDE, trigger e RLS no PostgreSQL.
+- **Auditoria:** append-only com cadeia de hash verificada dentro do banco, filtros por pessoa, ação, período e código da execução.
+- **Monitor:** amostras reais de `pg_stat_activity`, `pg_locks` e `pg_stat_database` a cada 5 s, grafo de bloqueio, contador de deadlocks e eventos ao vivo por SSE.
+- **Laboratório (LAB):** seis experimentos reais (rollback, espera de lock, deadlock, leitura não repetível, write skew e índices) e a simulação de um incidente de 35 s.
+- **Qualidade:** 137 testes de API e banco, 43 unitários do front e 69 E2E no Chromium com axe, todos no CI; deploy em contêineres na VPS.
 
 ### Adicionado
+
+- **PK-15 · Release e ensaio**
+  - Ensaio automatizado da apresentação (`pnpm --filter @dbwatch/web ensaio`): percorre o roteiro no navegador, mede cada bloco e grava o vídeo de backup.
+  - README final com capturas de tela, números reais dos testes e estrutura atual; DEMO.md ensaiado, com os tempos medidos e o bloco do break-glass.
 
 - **PK-17e · Break-glass e ACL de login na tela**
   - Formulário de acesso de emergência em "Pedir acesso" e fila de revisão em "Aprovações".
@@ -217,3 +226,14 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
   - Identidade visual: logo do suricato sentinela em vários tamanhos, paleta dos modos claro e escuro com contraste AA calculado e tipografia.
   - Validação do DDL principal (constraints, auditoria append-only, cadeia de hash e aprovação concorrente) num PostgreSQL 16.15 descartável.
   - `.gitignore` e `.editorconfig`.
+
+### Corrigido
+
+- As telas do Next agora mandam `X-Frame-Options`, `frame-ancestors 'none'`, `nosniff` e `Referrer-Policy`, como a API já fazia.
+- `multer` fixado em 2.5.0 (falha alta de DoS na 2.4.0, não alcançável no DBWATCH); `pnpm audit` passou a rodar no CI.
+- CI vermelho desde o PK-11d: o E2E agora roda num banco limpo (como o da apresentação) e recebe a URL do banco-alvo das consultas.
+- `GET /api/monitor/locks` mostrava a última amostra que teve lock, mesmo quando o bloqueio já tinha acabado; agora lê sempre a amostra mais nova.
+
+
+[Não lançado]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Gabrieldiog/DBWATCH/releases/tag/v1.0.0

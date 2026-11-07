@@ -20,6 +20,7 @@ secrets/
 # Testes e relatórios
 playwright-report/
 test-results/
+ensaio-results/
 blob-report/
 
 # Dados locais do PostgreSQL e dumps
