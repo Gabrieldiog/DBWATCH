@@ -5,10 +5,14 @@ import { approvals, LEVEL, minutes, SENSITIVITY, when, type AccessRequest } from
 import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Aprovações' };
+type BreakGlass = { id: string; justification: string; requestedMinutes: number; createdAt: string; requester: { id: string; email: string }; resource: { name: string } };
 
 export default async function Aprovacoes() {
   const me = await requirePermission('request:review');
-  const queue = await apiGet<AccessRequest[]>('/requests/queue');
+  const [queue, emergencies] = await Promise.all([
+    apiGet<AccessRequest[]>('/requests/queue'),
+    apiGet<BreakGlass[]>('/break-glass/pending'),
+  ]);
   return (
     <main className="console-page">
       <h1>Aprovações</h1>
@@ -40,6 +44,32 @@ export default async function Aprovacoes() {
             </li>
           );
         })}
+      </ul>
+      <h2>Break-glass para revisar</h2>
+      <p>
+        Acessos de emergência que já aconteceram sem aprovação. A revisão é de outra pessoa (o banco recusa quem abriu)
+        e a nota fica na trilha de auditoria.
+      </p>
+      {emergencies.length === 0 && <p className="panel">Nenhum break-glass esperando revisão.</p>}
+      <ul className="cards">
+        {emergencies.map((b) => (
+          <li key={b.id} className="panel break-glass">
+            <h3>
+              {b.requester.email} abriu leitura em {b.resource.name}
+            </h3>
+            <p>
+              {minutes(b.requestedMinutes)} · aberto em {when(b.createdAt)}
+            </p>
+            <blockquote>{b.justification}</blockquote>
+            <ActionButton
+              label="Revisar"
+              path={`/break-glass/${b.id}/review`}
+              primary
+              disabled={b.requester.id === me.id}
+              reason={{ title: `Revisar o break-glass de ${b.requester.email}`, field: 'note', min: 5 }}
+            />
+          </li>
+        ))}
       </ul>
     </main>
   );

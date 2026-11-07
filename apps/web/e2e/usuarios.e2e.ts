@@ -6,13 +6,14 @@ const row = (page: Page, email: string) => page.getByRole('row').filter({ hasTex
 // Fluxo do admin: criar, dar papel, a pessoa entra, desativar derruba a sessão dela no banco
 test('admin cria usuário, dá papel e desativar encerra a sessão da pessoa', async ({ page, browser }) => {
   const email = `e2e-${Date.now()}@dbwatch.test`;
-  const password = `senha-longa-${Date.now()}`;
   await login(page, 'ADMIN', '/usuarios');
   await page.getByLabel('Nome').fill('Pessoa do Teste');
   await page.getByLabel('E-mail').fill(email);
-  await page.getByLabel(/Senha inicial/).fill(password);
   await page.getByRole('button', { name: 'Criar usuário' }).click();
   await expect(page.getByRole('main').getByRole('status')).toContainText(`${email} criado`);
+  // A senha inicial é gerada pela API e aparece só nesta resposta; recarregar a tela faz ela sumir
+  const password = (await page.locator('code.secret').textContent())!;
+  expect(password).toMatch(/^[\w-]{16}$/);
   await expect(row(page, email)).toContainText('Ativo');
 
   await row(page, email).getByRole('button', { name: '+ Solicitante' }).click();
@@ -23,6 +24,8 @@ test('admin cria usuário, dá papel e desativar encerra a sessão da pessoa', a
   expect(res.status()).toBe(204);
   expect((await other.request.get('/api/auth/me')).status()).toBe(200);
 
+  await page.reload();
+  await expect(page.locator('code.secret')).toHaveCount(0);
   await row(page, email).getByRole('button', { name: 'Desativar' }).click();
   await expect(row(page, email)).toContainText('Desativado');
   expect((await other.request.get('/api/auth/me')).status()).toBe(401);

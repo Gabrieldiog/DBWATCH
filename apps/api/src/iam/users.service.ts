@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { type AuditTarget, AuditedTransaction } from '../audit/audited-transaction';
 import { hashPassword } from '../auth/credentials';
@@ -22,11 +23,15 @@ export class UsersService {
     return users.map(({ roles, ...u }) => ({ ...u, roles: roles.map((r) => r.role.code).sort() }));
   }
 
+  // 12 bytes do gerador criptográfico = 16 caracteres base64url (96 bits). O banco guarda só o hash;
+  // a senha gerada não vai para a auditoria nem para o log, aparece uma vez na resposta e some
   async create(input: NewUser) {
-    const passwordHash = await hashPassword(input.password);
-    return this.run({ action: 'iam.user_create', resourceType: 'user', resourceId: input.email }, (tx) =>
+    const generated = input.password ? undefined : randomBytes(12).toString('base64url');
+    const passwordHash = await hashPassword(input.password ?? generated!);
+    const user = await this.run({ action: 'iam.user_create', resourceType: 'user', resourceId: input.email }, (tx) =>
       tx.user.create({ data: { email: input.email, displayName: input.displayName, passwordHash }, select: PUBLIC_FIELDS }),
     );
+    return generated ? { ...user, initialPassword: generated } : user;
   }
 
   // Desativar revoga todas as sessões na mesma transação: ou as duas coisas acontecem, ou nenhuma
