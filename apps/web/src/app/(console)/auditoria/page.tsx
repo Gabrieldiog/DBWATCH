@@ -32,6 +32,18 @@ export default async function Auditoria({ searchParams }: Props) {
           <input name="action" defaultValue={filter.action} placeholder="pam.query_execute" />
         </label>
         <label className="field">
+          Pessoa (e-mail)
+          <input name="actorEmail" type="email" defaultValue={filter.actorEmail} placeholder="diego.solicitante@dbwatch.test" />
+        </label>
+        <label className="field">
+          De
+          <input name="from" type="datetime-local" defaultValue={filter.from} />
+        </label>
+        <label className="field">
+          Até
+          <input name="to" type="datetime-local" defaultValue={filter.to} />
+        </label>
+        <label className="field">
           Resultado
           <select name="outcome" defaultValue={filter.outcome ?? ''}>
             <option value="">Todos</option>

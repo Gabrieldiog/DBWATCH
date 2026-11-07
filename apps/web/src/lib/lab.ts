@@ -30,3 +30,17 @@ export function outcomeOf(s: Step): string {
 // O que o SELECT enxergou é a prova do experimento: "saldo 100" e depois "saldo 70"
 export const rowsText = (rows: Record<string, unknown>[]) =>
   rows.map((r) => Object.entries(r).map(([k, v]) => `${k} ${v}`).join(' · ')).join(' / ');
+
+// O que cada experimento prova, em linguagem de sala de aula, com um exemplo do mundo real
+export const CONCEPT: Record<string, string> = {
+  'transferencia-falha':
+    'Atomicidade: a transação é tudo ou nada. O crédito no Bruno já tinha acontecido, mas a CHECK barrou o débito na Ana e o ROLLBACK desfez os dois. Na vida real, um Pix que falha no meio não pode criar dinheiro do nada.',
+  'espera-de-lock':
+    'Lock de linha: quem altera uma linha segura o lock até o COMMIT, e a outra transação espera em vez de sobrescrever. Por isso a Ana termina com 70 (100 − 10 − 20): nenhuma atualização se perde, como dois caixas mexendo na mesma conta.',
+  deadlock:
+    'Deadlock: cada sessão espera um lock que a outra segura. O PostgreSQL detecta o ciclo em cerca de 1 s (deadlock_timeout) e derruba uma vítima com 40P01. A aplicação precisa tentar de novo a transação derrubada.',
+  'leitura-nao-repetivel':
+    'Níveis de isolamento: em READ COMMITTED cada comando vê o que já foi confirmado, então a mesma leitura muda no meio da transação. Em REPEATABLE READ a transação inteira enxerga a mesma foto, como um relatório que precisa fechar a conta.',
+  'write-skew':
+    'Write skew: cada transação lê que há 2 de plantão e tira uma pessoa diferente. Nenhum lock é disputado, então em READ COMMITTED a regra quebra sem erro. Em SERIALIZABLE o PostgreSQL percebe a dependência e derruba uma com 40001.',
+};

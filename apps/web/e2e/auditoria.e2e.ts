@@ -28,6 +28,20 @@ test('T-E2E-04 auditora filtra pelo código da execução e verifica a integrida
   await expect(page.getByRole('main').getByRole('status')).toHaveText(/Cadeia íntegra: \d+ registros conferidos/);
 });
 
+test('filtra pela pessoa (e-mail) e pelo período de hoje', async ({ page }) => {
+  const diego = demoUser('REQUESTER').email;
+  await login(page, 'AUDITOR', '/auditoria');
+  await page.getByLabel('Pessoa (e-mail)').fill(diego.toUpperCase());
+  const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+  await page.getByLabel('De', { exact: true }).fill(`${today}T00:00`);
+  await page.getByRole('button', { name: 'Filtrar' }).click();
+  await expect(page).toHaveURL(/actorEmail=/);
+  const rows = page.locator('tbody tr');
+  await expect(rows.first()).toBeVisible();
+  // Quem: só o Diego em todas as linhas (o banco compara o e-mail sem diferenciar maiúsculas)
+  expect(new Set(await page.locator('tbody td[data-label="Quem"]').allTextContents())).toEqual(new Set([diego]));
+});
+
 test('filtro inválido vira aviso na tela, sem chamar a API', async ({ page }) => {
   await login(page, 'AUDITOR', '/auditoria');
   await page.goto('/auditoria?correlationId=nao-e-uuid');

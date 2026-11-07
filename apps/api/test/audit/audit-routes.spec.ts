@@ -40,6 +40,14 @@ describe('rotas da auditoria', () => {
     expect(all).toEqual([...all].sort((x, y) => y - x));
   });
 
+  it('filtra pela pessoa pelo e-mail, sem diferenciar maiúsculas', async () => {
+    const email = (await get({ actorId: auditor.id }).expect(200)).body.items[0].actorEmail as string;
+    const res = await get({ actorEmail: email.toUpperCase() }).expect(200);
+    expect(res.body.items.length).toBeGreaterThan(0);
+    expect(res.body.items.every((i: { actorId: string }) => i.actorId === auditor.id)).toBe(true);
+    await get({ actorEmail: "x' OR 1=1 --" }).expect(400);
+  });
+
   it('filtra por resultado e por período', async () => {
     const res = await get({ outcome: 'DENIED', from: new Date(Date.now() - 3_600_000).toISOString() }).expect(200);
     expect(res.body.items.every((i: { outcome: string }) => i.outcome === 'DENIED')).toBe(true);

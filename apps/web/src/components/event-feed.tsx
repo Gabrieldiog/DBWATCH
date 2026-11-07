@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { describeEvent, fromStream, SEVERITY, time, type MonitorEvent } from '../lib/monitor';
+import { describeEvent, fromStream, SEVERITY, sourceOf, time, type MonitorEvent } from '../lib/monitor';
 import { Badge } from './badge';
 
 const STATE = { connecting: 'Conectando ao fluxo ao vivo…', on: 'Ao vivo: eventos novos entram no topo na hora.', off: 'Conexão perdida. O navegador tenta de novo sozinho.' };
@@ -33,13 +33,14 @@ export function EventFeed({ initial, canAudit }: { initial: MonitorEvent[]; canA
         <ol className="events" aria-live="polite">
           {events.map((e) => {
             const [title, detail] = describeEvent(e);
+            const [source, tone] = sourceOf(e);
             return (
-              <li key={e.id} className={`panel event event-${e.kind === 'TX_ROLLBACK' ? 'app' : 'db'} ${e.fresh ? 'event-new' : ''}`}>
+              <li key={e.id} className={`panel event event-${tone} ${e.fresh ? 'event-new' : ''}`}>
                 <Badge entry={SEVERITY[e.severity]} fallback={e.severity} />
                 <strong>{title}</strong>
                 <span>{detail}</span>
                 <span className="note">
-                  {time(e.occurredAt)}
+                  Fonte: {source} · {time(e.occurredAt)}
                   {canAudit && e.correlationId && (
                     <>
                       {' · '}

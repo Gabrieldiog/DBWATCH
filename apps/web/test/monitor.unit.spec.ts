@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { describeEvent, fromStream, layout, linePath, niceMax, pick, staleFor, summary } from '../src/lib/monitor';
+import { describeEvent, fromStream, layout, linePath, niceMax, pick, sourceOf, staleFor, summary, total } from '../src/lib/monitor';
 
 describe('monitor (unitário)', () => {
   it('converte o texto do pg em número e mantém o null do contador reiniciado', () => {
-    const rows = [{ sampledAt: 't1', commits: '12', rollbacks: null, cacheHitPct: '99.5' }];
+    const rows = [{ sampledAt: 't1', commits: '12', rollbacks: null, deadlocks: '1', cacheHitPct: '99.5' }];
     expect(pick(rows, 'commits')).toEqual([{ t: 't1', v: 12 }]);
     expect(pick(rows, 'rollbacks')).toEqual([{ t: 't1', v: null }]);
   });
@@ -43,5 +43,13 @@ describe('monitor (unitário)', () => {
     expect(describeEvent(e)).toEqual(['Rollback na API', 'iam.role_assign voltou com SQLSTATE 23514']);
     const wait = describeEvent({ ...e, code: 'LOCK_WAIT', detail: { bloqueado: 20, bloqueador: 10, app: 'B', esperaMs: 5400 } });
     expect(wait[1]).toBe('pid 20 (B) espera o pid 10 há 5 s');
+  });
+
+  it('deadlocks somados no período e a fonte de cada evento', () => {
+    expect(total([1, null, 2, 0].map((v, i) => ({ t: String(i), v })))).toBe(3);
+    expect(sourceOf({ kind: 'TX_ROLLBACK', code: 'TX_ROLLBACK' })[0]).toBe('Aplicação');
+    expect(sourceOf({ kind: 'ALERT', code: 'BREAK_GLASS' })[0]).toBe('Aplicação');
+    expect(sourceOf({ kind: 'ALERT', code: 'DEADLOCK' })[0]).toBe('PostgreSQL');
+    expect(sourceOf({ kind: 'LAB', code: 'SIM_STEP' })[0]).toBe('LAB');
   });
 });

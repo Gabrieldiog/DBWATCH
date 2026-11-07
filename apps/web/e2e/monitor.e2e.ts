@@ -32,6 +32,9 @@ test('o rollback provocado na API aparece no gráfico do monitor sozinho', async
     .toBe(true);
   // Este mesmo rollback (pelo código da execução, não um de outra rodada) chega pelo SSE, ligado à trilha de auditoria
   await expect(page.locator(`a[href="/auditoria?correlationId=${correlationId}"]`)).toBeVisible();
+  await expect(page.getByRole('listitem').filter({ has: page.locator(`a[href="/auditoria?correlationId=${correlationId}"]`) })).toContainText(
+    'Fonte: Aplicação',
+  );
 });
 
 // Duas sessões psql reais disputam um advisory lock (não toca em dado nenhum); o timeout do papel é zerado só nelas

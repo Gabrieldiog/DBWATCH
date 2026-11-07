@@ -363,6 +363,16 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** página de entrada com apresentação e login juntos; o link "Ver os testes automatizados" saiu da entrada (a página `/testes` continua existindo).
 
+### PK-17 · Lacunas do PRD e simulação ao vivo
+
+- **Origem:** uma conferência item por item do PRD (06/11) achou pontos prometidos no roteiro que faltavam na tela. Dividido em 17a (pontos do roteiro), 17b (simulação de incidente ao vivo, pedido do Gabriel), 17c (cenário de índices) e as pendências menores depois.
+
+#### PK-17a · Pontos do roteiro ✅
+
+> **Registro de QA (06/11/2026):** lint, typecheck, 40/40 da web, 133/133 da API e build; `pnpm test:e2e` com 58/58 duas vezes. Novos E2E: a auditora filtra pela pessoa (e-mail em maiúsculas) e pelo período de hoje e só vê linhas do Diego; o rollback provocado aparece com "Fonte: Aplicação"; depois do deadlock pela tela aparece a explicação do conceito e o contador de deadlocks do monitor sobe na amostra seguinte. Teste de mutação: tirar a cláusula do e-mail na API faz o teste de rota falhar. Capturas em 1280 e 375 px sem rolagem horizontal.
+
+- **Inclui:** contador de deadlocks no monitor (contador nativo do `pg_stat_database`); a fonte escrita em cada bloco e em cada evento (PostgreSQL, Aplicação ou LAB); filtros de pessoa por e-mail (a API ganhou `actorEmail`, parametrizado e sem diferenciar maiúsculas) e de período no fuso de Goiás na auditoria; "O que isso mostra" depois de cada experimento do lab.
+
 > **Referência estudada:** o JumpServer (PAM de código aberto, GPL v3) foi lido só como fonte de **ideias**; nenhum código foi copiado. As ideias aproveitadas aparecem nos packs acima. Ver [ADR-022](DECISIONS.md#adr-022--jumpserver-só-como-referência-de-ideias).
 
 ## 5. Status
@@ -405,4 +415,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-13b | ✅ Concluído | 04/11/2026 |
 | PK-14 | ✅ Concluído | 04/11/2026 |
 | PK-16 | ✅ Concluído (antes do PK-15, a pedido) | 05/11/2026 |
-| PK-15 | ⏳ Próximo | — |
+| PK-17a | ✅ Concluído | 06/11/2026 |
+| PK-17b | ⏳ Próximo | — |
+| PK-15 | 📋 Planejado | — |
