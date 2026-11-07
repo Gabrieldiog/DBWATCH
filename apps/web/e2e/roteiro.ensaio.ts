@@ -87,13 +87,13 @@ test('ensaio do roteiro da apresentação', async ({ page, browser }) => {
       await rodar(page, texto);
   });
 
-  await bloco('Incidente ao vivo no Monitor (LAB)', async () => {
+  await bloco('Bot da simulação no Monitor (LAB): acesso, incidente e verificação', async () => {
     await page.goto('/monitor');
     await page.getByRole('button', { name: '▶ Iniciar simulação' }).click();
     // O que importa fica abaixo dos números: o grafo de bloqueio e o fluxo de eventos
     await page.getByRole('heading', { name: 'Bloqueios agora' }).evaluate((h) => h.scrollIntoView({ block: 'start', behavior: 'smooth' }));
     const fim = page.locator('.events li.event-new').filter({ hasText: 'Simulação concluída' });
-    await expect(fim).toContainText('total das contas 140.00', { timeout: 60_000 });
+    await expect(fim).toBeVisible({ timeout: 90_000 });
     await narrar(page, 3);
   });
 

@@ -40,9 +40,15 @@ Tudo o que for mostrado é **real** e reproduzível. Quando algo for um experime
 | 11:15 | **Qualidade** | Mostrar o CI verde e a contagem de testes de banco e de segurança | Cada regra tem um teste que tenta violá-la |
 | 11:45 | **Fechamento** | Logo + limites honestos (superusuário, amostragem) + próximos passos | Engenharia responsável: sabemos o que garantimos e o que não |
 
-### Incidente ao vivo (LAB, ~35 s)
+### O bot da simulação (LAB, ~55 s)
 
-No Monitor, a Ana aperta **▶ Iniciar simulação**. Quatro sessões reais encenam o fechamento do mês: um relatório esquece uma transação aberta e trava o caixa (o grafo desenha relatório → caixa), o caixa desiste com `55P03` depois de 8 s e tenta de novo, o PostgreSQL derruba a transação esquecida depois de 20 s parada (`idle_in_transaction_session_timeout`) e, no fim, resolve um deadlock entre duas transferências (`40P01`, a vítima é repetida). Cada passo aparece no fluxo de eventos com a fonte LAB, ao lado dos alertas que o próprio coletor dispara. O que dizer: "isto é o que um DBA veria num incidente real, e nada aqui é encenado na tela: a tela só observa o banco".
+No Monitor, a Ana aperta **▶ Iniciar simulação** e o sistema se demonstra sozinho, em três atos, tudo de verdade. Dica: deixe a janela da Eva também no Monitor; para ela, cada passo do bot tem o link "ver na auditoria".
+
+**Ato 1, um acesso do começo ao fim.** O bot age como os personagens do seed (nunca como uma pessoa real), pelos mesmos serviços das rotas: Diego pede leitura em Clientes; Diego tenta aprovar o próprio pedido e a API recusa ("Ninguém decide o próprio pedido"); em seguida o mesmo `UPDATE` vai direto ao banco, como se a API tivesse um bug, e o PostgreSQL recusa com `23514` na regra `access_requests_sod_ck` (o próprio monitor mostra o rollback da aplicação logo abaixo); Bruno aprova e a concessão nasce com prazo; Diego consulta os clientes. Cada ação fica na auditoria com o autor certo e a marca `simulacao` (quem apertou o play). O que dizer: "a regra existe duas vezes: na API e no banco; o bot acabou de provar as duas".
+
+**Ato 2, o incidente.** Quatro sessões reais encenam o fechamento do mês: um relatório esquece uma transação aberta e trava o caixa (o grafo desenha relatório → caixa), o caixa desiste com `55P03` depois de 8 s e tenta de novo, o PostgreSQL derruba a transação esquecida depois de 20 s parada (`idle_in_transaction_session_timeout`) e, no fim, resolve um deadlock entre duas transferências (`40P01`, a vítima é repetida). Cada passo aparece no fluxo de eventos com a fonte LAB, ao lado dos alertas que o próprio coletor dispara. O que dizer: "isto é o que um DBA veria num incidente real, e nada aqui é encenado na tela: a tela só observa o banco".
+
+**Ato 3, alguém confere.** Eva recalcula a cadeia de hash da trilha inteira dentro do banco: "Cadeia íntegra: N registros conferidos, incluindo cada passo desta simulação".
 
 ### Versão curta (~6 min)
 
@@ -61,7 +67,7 @@ Abertura → autoaprovação barrada no banco → corrida de aprovação → adu
 
 `pnpm --filter @dbwatch/web ensaio` (com o build feito, como o E2E) percorre a parte do roteiro que acontece na tela, no navegador de verdade, contra a API e o banco de verdade, e grava um vídeo de 1280×720. Os blocos de `psql` (autoaprovação barrada e adulteração) ficam de fora: são mostrados no terminal ao vivo.
 
-Tempos medidos no ensaio de 07/11/2026, sem narração (as pausas para falar ficam por conta de quem apresenta):
+Tempos medidos no ensaio de 07/11/2026 (bot de três atos incluído), sem narração (as pausas para falar ficam por conta de quem apresenta):
 
 | Bloco | Tempo na tela |
 | --- | --- |
@@ -71,9 +77,9 @@ Tempos medidos no ensaio de 07/11/2026, sem narração (as pausas para falar fic
 | Concessão: contagem regressiva e consulta do catálogo | 9 s |
 | Auditoria: Eva verifica a cadeia de hash | 7 s |
 | Laboratório: rollback, lock, deadlock, isolamento e índices | 30 s |
-| Incidente ao vivo no Monitor (LAB) | 32 s |
+| Bot da simulação no Monitor (LAB): acesso, incidente e verificação | 49 s |
 | Break-glass: Ana abre, o alerta sobe e Bruno revisa | 5 s |
-| **Total** | **98 s** |
+| **Total** | **115 s** |
 
 Conclusão do ensaio: a tela nunca é o gargalo. Os 12 minutos são de fala; se o tempo encurtar, a versão curta cabe com folga.
 

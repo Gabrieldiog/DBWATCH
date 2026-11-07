@@ -359,6 +359,12 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** CHANGELOG com a versão 1.0.0 e destaques (as notas de release); README final com capturas de tela; DEMO.md ensaiado; ensaio automatizado e vídeo de backup.
 
+### PK-18 · O bot da simulação ✅
+
+> **Registro de QA (07/11/2026):** pedido do Gabriel: o ▶ do PK-17b cobria só o lado do banco (lock e deadlock), faltava "a pessoa pedindo acesso" e alguém verificando. Agora são três atos, uns 50 s. Ato 1: o bot age como Diego, Bruno e Eva (só os e-mails do seed, nunca uma pessoa real) pelos mesmos serviços das rotas, com RLS, CHECKs e auditoria; a autoaprovação é barrada duas vezes, pela API (403) e, num UPDATE direto que simula um bug na API, pelo banco (`23514`, `access_requests_sod_ck`). Ato 2: o incidente do 17b. Ato 3: Eva verifica a cadeia. T-LAB-07 ampliado: a narração traz as duas recusas, a aprovação, a consulta, o incidente com o total 140,00 e a cadeia íntegra; os seis registros de auditoria ligados aos eventos têm o autor certo (Diego, Diego, Diego, Bruno, Diego, Eva), o resultado certo (SUCCESS, DENIED, FAILURE, SUCCESS, SUCCESS, SUCCESS) e a marca `simulacao` com o e-mail de quem apertou o play. Teste de mutação: tirar a marca da auditoria faz o T-LAB-07 falhar. No ensaio, o roteiro manual deixou o Diego com um acesso vivo em Clientes e o bot limpou pelo caminho normal (revogação auditada) antes de começar. Lint, typecheck, 43/43 da web, 137/137 da API e 69/69 E2E; ensaio completo em 115 s.
+
+- **Inclui:** `StoryService` (atos 1 e 3); eventos do LAB com o código da execução (o Monitor mostra "ver na auditoria" para quem tem `audit:read`); a marca `simulacao` em todo registro de auditoria feito pelo bot; verificação da cadeia reaproveitada entre a rota e o bot.
+
 ### PK-16 · Página de entrada com login ✅
 
 > **Registro de QA (05/11/2026):** pedido do Gabriel depois do deploy: a raiz mostrava só a logo, um botão "Entrar", o link para os testes (vazio em produção) e o seletor de tema. Agora `/` e `/entrar` são a mesma página: apresentação curta, o login já visível, o fluxo pedir, aprovar, usar e expira sozinho, e as seis garantias do banco, cada uma com a regra real das migrations (os textos foram conferidos contra o SQL; a exceção do break-glass está dita). O status do PostgreSQL é lido da API a cada visita. Lint, typecheck, 37/37 testes da web e build; `pnpm test:e2e` com 57/57 duas vezes no Chromium contra a API e o PostgreSQL de verdade, incluindo o teste novo (a raiz mostra o status real e entra direto no painel). A primeira rodada pegou um erro meu: o status do banco também tinha `role="status"` e duplicava a região ao vivo do aviso de sessão; como é calculado uma vez no carregamento, deixou de ser região ao vivo. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal; no celular a ordem é título, login, fluxo e garantias. O radar do login é a única animação, como manda o DESIGN.md. Não houve teste de mutação neste pack.
@@ -448,3 +454,4 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-17d | ✅ Concluído | 07/11/2026 |
 | PK-17e | ✅ Concluído | 07/11/2026 |
 | PK-15 | ✅ Concluído | 07/11/2026 |
+| PK-18 | ✅ Concluído | 07/11/2026 |

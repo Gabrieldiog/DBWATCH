@@ -14,10 +14,14 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 - **PAM:** pedido justificado, aprovação por outra pessoa (duas para recurso sensível), concessão temporária com expiração pelo relógio do banco, consultas controladas e break-glass revisado depois. A separação de funções e a não sobreposição de concessões são garantidas por CHECK, EXCLUDE, trigger e RLS no PostgreSQL.
 - **Auditoria:** append-only com cadeia de hash verificada dentro do banco, filtros por pessoa, ação, período e código da execução.
 - **Monitor:** amostras reais de `pg_stat_activity`, `pg_locks` e `pg_stat_database` a cada 5 s, grafo de bloqueio, contador de deadlocks e eventos ao vivo por SSE.
-- **Laboratório (LAB):** seis experimentos reais (rollback, espera de lock, deadlock, leitura não repetível, write skew e índices) e a simulação de um incidente de 35 s.
+- **Laboratório (LAB):** seis experimentos reais (rollback, espera de lock, deadlock, leitura não repetível, write skew e índices) e um bot que demonstra o sistema sozinho em três atos (acesso, incidente e verificação).
 - **Qualidade:** 137 testes de API e banco, 43 unitários do front e 69 E2E no Chromium com axe, todos no CI; deploy em contêineres na VPS.
 
 ### Adicionado
+
+- **PK-18 · O bot da simulação**
+  - O ▶ do Monitor virou uma história em três atos, toda real: Diego pede acesso, tenta aprovar o próprio pedido (a API recusa e, pulando a API, o banco recusa com `23514`), Bruno aprova, Diego consulta; depois o incidente no banco; no fim, Eva verifica a cadeia de hash.
+  - O bot age só como os personagens do seed, pelos mesmos serviços das rotas; cada ação fica na auditoria com o autor certo, a marca `simulacao` e o link a partir do Monitor.
 
 - **PK-15 · Release e ensaio**
   - Ensaio automatizado da apresentação (`pnpm --filter @dbwatch/web ensaio`): percorre o roteiro no navegador, mede cada bloco e grava o vídeo de backup.

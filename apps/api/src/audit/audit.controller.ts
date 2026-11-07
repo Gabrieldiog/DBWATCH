@@ -38,16 +38,7 @@ export class AuditController {
   @Get('verify')
   @RequirePermission('audit:verify')
   @ApiOperation({ summary: 'Recalcula a cadeia de hash e aponta a primeira linha adulterada, se houver' })
-  async verify() {
-    const report = await this.audit.verify();
-    const intact = report.firstBrokenPosition === null;
-    // Quem fiscaliza também deixa rastro: a verificação entra na própria trilha
-    await this.audit.record({
-      action: 'audit.verify',
-      outcome: 'SUCCESS',
-      reason: intact ? 'cadeia_integra' : 'cadeia_adulterada',
-      metadata: { checked: report.checked, firstBrokenPosition: report.firstBrokenPosition },
-    });
-    return { intact, ...report };
+  verify() {
+    return this.audit.verifyRecorded();
   }
 }

@@ -21,9 +21,9 @@ export class LabController {
   @Post('simulacao')
   @HttpCode(202)
   @RequirePermission('lab:run')
-  @ApiOperation({ summary: 'LAB: inicia o incidente "fechamento do mês" (uns 35 s); cada passo aparece no fluxo de eventos do monitor' })
-  simulate() {
-    return this.lab.simulate();
+  @ApiOperation({ summary: 'LAB: o bot da simulação (uns 55 s): um acesso do começo ao fim, o incidente "fechamento do mês" e a verificação da trilha; cada passo aparece no Monitor' })
+  simulate(@Req() req: Request) {
+    return this.lab.simulate(currentUser(req).email);
   }
 
   @Post(':scenario/run')

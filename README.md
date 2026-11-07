@@ -358,7 +358,7 @@ dbwatch/
 │   │   │   ├── pam/              # pedidos, aprovações, concessões, consultas e break-glass
 │   │   │   ├── audit/            # gravação, consulta e verificação da cadeia de hash
 │   │   │   ├── monitor/          # coletor pg_stat_*, eventos e SSE
-│   │   │   └── lab/              # cenários de concorrência e a simulação de incidente
+│   │   │   └── lab/              # cenários de concorrência e o bot da simulação
 │   │   ├── prisma/               # schema.prisma e migrations/
 │   │   └── test/                 # auth · audit · db · iam · lab · monitor · pam
 │   └── web/                      # Next.js
@@ -432,7 +432,7 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Banco, papéis, migrations e auditoria protegida (PK-02, PK-03) | ✅ Concluído |
 | Autenticação, permissões, usuários, sessões e ACL de login (PK-04, PK-05) | ✅ Concluído |
 | Pedidos, aprovações, concessões, consultas e break-glass (PK-06, PK-07) | ✅ Concluído |
-| Monitor, laboratório e simulação de incidente (PK-08, PK-09, PK-17b) | ✅ Concluído |
+| Monitor, laboratório e o bot da simulação (PK-08, PK-09, PK-17b, PK-18) | ✅ Concluído |
 | Interface web completa (PK-10 a PK-12, PK-16, PK-17) | ✅ Concluído |
 | QA final, deploy na VPS e release v1.0.0 (PK-13 a PK-15) | ✅ Concluído |
 
