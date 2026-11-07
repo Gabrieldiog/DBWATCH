@@ -14,6 +14,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-17b · Simulação de incidente ao vivo (LAB)**
+  - Botão "Iniciar simulação" no Monitor: quatro sessões reais encenam o fechamento do mês (transação esquecida, espera de lock, `lock_timeout`, a transação derrubada pelo próprio PostgreSQL e um deadlock resolvido), e cada passo é narrado no fluxo de eventos com a fonte LAB.
+
 - **PK-17a · Pontos do roteiro**
   - Monitor: contador de deadlocks dos últimos 30 minutos e a fonte de cada dado e de cada evento.
   - Auditoria: filtros por pessoa (e-mail) e por período.

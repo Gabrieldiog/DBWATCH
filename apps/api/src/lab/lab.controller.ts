@@ -18,6 +18,14 @@ export class LabController {
     return this.lab.scenarios();
   }
 
+  @Post('simulacao')
+  @HttpCode(202)
+  @RequirePermission('lab:run')
+  @ApiOperation({ summary: 'LAB: inicia o incidente "fechamento do mês" (uns 35 s); cada passo aparece no fluxo de eventos do monitor' })
+  simulate() {
+    return this.lab.simulate();
+  }
+
   @Post(':scenario/run')
   @HttpCode(200)
   @RequirePermission('lab:run')

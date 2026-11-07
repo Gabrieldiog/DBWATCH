@@ -1,10 +1,12 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Client } from 'pg';
 import { AuditService } from '../audit/audit.service';
+import { PrismaService } from '../database/prisma.service';
 import type { Env } from '../config/env';
 import { ENV } from '../database/prisma.service';
 import { LabRecorder } from './lab-recorder';
 import { SCENARIOS } from './scenarios';
+import { runIncident, type Narrate } from './simulation';
 
 // Um experimento por vez no banco inteiro: advisory lock de sessão, solto quando a conexão fecha
 const LAB_LOCK = 4_242_001;
@@ -18,7 +20,34 @@ export class LabService {
   constructor(
     @Inject(ENV) private readonly env: Env,
     private readonly audit: AuditService,
+    private readonly prisma: PrismaService,
   ) {}
+
+  // LAB: o incidente roda em segundo plano (uns 35 s) e conta cada passo no fluxo de eventos do monitor.
+  // A conexão guardiã segura o mesmo advisory lock dos experimentos até o fim: um por vez no banco inteiro
+  async simulate() {
+    const url = this.enabled();
+    const guard = new Client({ connectionString: url, application_name: 'dbwatch-lab:simulacao' });
+    guard.on('error', () => undefined);
+    await guard.connect();
+    const { rows } = await guard.query<{ ok: boolean }>('SELECT pg_try_advisory_lock($1) AS ok', [LAB_LOCK]);
+    if (!rows[0]!.ok) {
+      await guard.end();
+      throw new ConflictException('Já existe um experimento rodando; tente em alguns segundos');
+    }
+    await guard.query(RESET);
+    await this.audit.record({ action: 'lab.simulation', outcome: 'SUCCESS', resourceType: 'lab_simulation', metadata: { cenario: 'fechamento-do-mes' } });
+    const narrate: Narrate = async (severity, titulo, texto) => {
+      await this.prisma.$executeRaw`
+        INSERT INTO monitor.app_events (kind, code, severity, operation, detail)
+        VALUES ('LAB', 'SIM_STEP', ${severity}, 'lab.simulacao', jsonb_build_object('titulo', ${titulo}::text, 'texto', ${texto}::text))`;
+    };
+    void runIncident(url, narrate)
+      .catch((err: unknown) => narrate('high', 'A simulação parou com erro', `SQLSTATE ${(err as { code?: string }).code ?? 'desconhecido'}`))
+      .catch(() => undefined)
+      .finally(() => guard.end().catch(() => undefined));
+    return { status: 'iniciada', segundos: 35 };
+  }
 
   scenarios() {
     this.enabled();

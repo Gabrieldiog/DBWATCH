@@ -51,5 +51,7 @@ describe('monitor (unitário)', () => {
     expect(sourceOf({ kind: 'ALERT', code: 'BREAK_GLASS' })[0]).toBe('Aplicação');
     expect(sourceOf({ kind: 'ALERT', code: 'DEADLOCK' })[0]).toBe('PostgreSQL');
     expect(sourceOf({ kind: 'LAB', code: 'SIM_STEP' })[0]).toBe('LAB');
+    const lab = { id: 9, occurredAt: 't', kind: 'LAB', code: 'SIM_STEP', severity: 'high', operation: null, sqlstate: null, correlationId: null };
+    expect(describeEvent({ ...lab, detail: { titulo: 'Deadlock', texto: 'Erro 40P01' } })).toEqual(['Deadlock', 'Erro 40P01']);
   });
 });

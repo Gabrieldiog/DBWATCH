@@ -3,6 +3,7 @@ import { AutoRefresh } from '../../../components/auto-refresh';
 import { EventFeed } from '../../../components/event-feed';
 import { LineChart } from '../../../components/line-chart';
 import { LockGraph } from '../../../components/lock-graph';
+import { SimulationButton } from '../../../components/simulation-button';
 import { pick, staleFor, time, total, type Lock, type MonitorEvent, type Overview, type RawPoint } from '../../../lib/monitor';
 import { apiGet, requirePermission } from '../../../lib/session';
 
@@ -51,6 +52,7 @@ export default async function Monitor() {
       ) : (
         <p className="note">Última amostra às {time(o.sampledAt)}.</p>
       )}
+      {me.permissions.includes('lab:run') && <SimulationButton />}
       <h2>Agora no PostgreSQL</h2>
       <p className="note">Fonte: PostgreSQL observado (pg_stat_activity, pg_locks e pg_stat_database).</p>
       <dl className="stats">
