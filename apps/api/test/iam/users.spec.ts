@@ -41,6 +41,24 @@ describe('administração de usuários', () => {
     await as(requester.cookie).send('post', '/api/users', { ...body, email: `d-${email}` }).expect(403);
   });
 
+  it('T-IAM-06 sem senha, a API gera uma forte, devolve uma vez e ela não fica em lugar nenhum além do hash', async () => {
+    const email = `gerada-${randomUUID()}@dbwatch.test`;
+    const res = await as(admin.cookie).send('post', '/api/users', { email, displayName: 'Senha Gerada' }).expect(201);
+    const generated: string = res.body.initialPassword;
+    expect(generated).toMatch(/^[\w-]{16}$/);
+    await login(email, generated).expect(204);
+    // Não volta na listagem nem na trilha de auditoria; no banco só existe o hash Argon2id
+    const list = await as(admin.cookie).get('/api/users').expect(200);
+    expect(JSON.stringify(list.body)).not.toContain(generated);
+    const [audit] = await sql("SELECT row_to_json(e)::text AS row FROM audit.audit_log e WHERE resource_id = $1", [email]);
+    expect(audit.row).not.toContain(generated);
+    const [user] = await sql('SELECT password_hash FROM iam.users WHERE email = $1', [email]);
+    expect(user.password_hash).toMatch(/^\$argon2id\$/);
+    // Duas criações seguidas não repetem a senha
+    const again = await as(admin.cookie).send('post', '/api/users', { email: `b-${email}`, displayName: 'Outra' }).expect(201);
+    expect(again.body.initialPassword).not.toBe(generated);
+  });
+
   it('T-IAM-02 desativar revoga as 3 sessões na mesma transação e registra o antes/depois', async () => {
     const user = await loginAs(app, ['REQUESTER']);
     const cookies = [user.cookie];

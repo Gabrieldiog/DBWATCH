@@ -32,7 +32,7 @@ export class UsersController {
 
   @Post()
   @RequirePermission('user:manage')
-  @ApiOperation({ summary: 'Cria um usuário (senha com pelo menos 12 caracteres)' })
+  @ApiOperation({ summary: 'Cria um usuário; sem senha, a API gera uma e devolve só nesta resposta (initialPassword)' })
   create(@Body() body: unknown) {
     return this.users.create(parse(newUserSchema, body));
   }

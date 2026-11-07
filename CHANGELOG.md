@@ -14,6 +14,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ### Adicionado
 
+- **PK-17d · Pendências menores**
+  - Criar usuário sem digitar senha: a API gera uma senha inicial forte e mostra uma vez só.
+  - Tela "Minhas sessões" para ver onde a conta está aberta e encerrar outro aparelho.
+  - Esqueleto de carregamento nas telas do console; telas fora do papel continuam respondendo 404 de verdade.
+
 - **PK-17c · Laboratório: índices**
   - Sexto cenário: a mesma consulta numa tabela de 200 mil leituras sem índice, com B-tree e com BRIN, com o plano real, as páginas lidas e o tamanho de cada índice. Também em `infra/lab/06-indices.sql` para o psql.
 

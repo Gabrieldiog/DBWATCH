@@ -1022,3 +1022,29 @@ dialog::backdrop {
 .simulation p {
   margin: 0;
 }
+
+/* Esqueleto de carregamento: o pulso só existe enquanto a resposta da API não chega */
+.skeleton {
+  height: 16px;
+  border-radius: 6px;
+  background: var(--grid);
+  animation: skeleton 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes skeleton {
+  to {
+    opacity: 0.45;
+  }
+}
+
+/* Senha inicial: selecionável de uma vez para copiar e entregar à pessoa */
+.secret {
+  user-select: all;
+  font-size: 1.05em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

@@ -365,7 +365,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 ### PK-17 · Lacunas do PRD e simulação ao vivo
 
-- **Origem:** uma conferência item por item do PRD (06/11) achou pontos prometidos no roteiro que faltavam na tela. Dividido em 17a (pontos do roteiro), 17b (simulação de incidente ao vivo, pedido do Gabriel), 17c (cenário de índices) e as pendências menores depois.
+- **Origem:** uma conferência item por item do PRD (06/11) achou pontos prometidos no roteiro que faltavam na tela. Dividido em 17a (pontos do roteiro), 17b (simulação de incidente ao vivo, pedido do Gabriel), 17c (cenário de índices), 17d (sessões, senha inicial e carregando) e 17e (break-glass e ACL de login).
 
 #### PK-17a · Pontos do roteiro ✅
 
@@ -384,6 +384,13 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 > **Registro de QA (07/11/2026):** lint, typecheck, 40/40 da web, 136/136 da API e build; `pnpm test:e2e` com 61/61 duas vezes. T-LAB-08: a mesma consulta (uma hora de leituras em 200 mil) roda sem índice, com B-tree e com BRIN, e o plano real confirma cada caminho; números de uma execução: Seq Scan 11,9 ms e 1.471 páginas, B-tree 0,16 ms e 7 páginas, BRIN 1,5 ms e 136 páginas; BRIN com 24 kB contra 4.408 kB do B-tree. O script `infra/lab/06-indices.sql` roda pelo psql no teste de paridade. Teste de mutação: medir o "BRIN" na tabela do B-tree faz o T-LAB-08 falhar. Capturas em 1280 e 375 px sem rolagem horizontal. Com isso, o laboratório chega aos seis cenários do PRD (O-4).
 
 - **Inclui:** migration com as leituras fictícias (duas cópias iguais, uma com B-tree e outra com BRIN, só leitura para o papel do lab); cenário `indices` com `EXPLAIN (ANALYZE, BUFFERS)` e o planejador forçado por sessão; tamanho real dos índices; explicação do conceito na tela; script 06 para o psql.
+
+#### PK-17d · Pendências menores: sessões, senha inicial e carregando ✅
+
+> **Registro de QA (07/11/2026):** lint, typecheck, 42/42 da web, 137/137 da API e build; `pnpm test:e2e` com 64/64. T-IAM-06: sem senha no pedido, a API gera 16 caracteres aleatórios (96 bits do gerador criptográfico), devolve só nessa resposta, a pessoa entra com ela, e a senha não aparece na listagem nem na auditoria (no banco só o hash Argon2id). No E2E, a Ana cria um usuário, lê a senha na tela e a senha some ao recarregar; outra pessoa abre um segundo "aparelho", vê "Esta sessão" sem botão de encerrar e encerra o outro pela tela, que passa a receber 401. Erro pego pelo E2E antes da entrega: com o esqueleto de carregamento, o Next já começava a responder com 200 e as telas fora do papel deixavam de dar 404 (7 testes vermelhos); o layout do console passou a negar a tela antes do esqueleto. Teste de mutação: tirar a senha gerada da resposta faz o T-IAM-06 falhar. Capturas em 1280 e 375 px sem rolagem horizontal.
+
+- **Inclui:** senha inicial gerada pela API (a senha manual continua aceita pela API); tela "Minhas sessões" no menu de todo mundo; esqueleto de carregamento em todas as telas do console; barreira de permissão no layout.
+- **Fica para o PK-17e:** telas de break-glass e de ACL de login (hoje só na API). Troca obrigatória da senha inicial no primeiro login não entra (pediria rota e tela novas).
 
 > **Referência estudada:** o JumpServer (PAM de código aberto, GPL v3) foi lido só como fonte de **ideias**; nenhum código foi copiado. As ideias aproveitadas aparecem nos packs acima. Ver [ADR-022](DECISIONS.md#adr-022--jumpserver-só-como-referência-de-ideias).
 
@@ -430,5 +437,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-17a | ✅ Concluído | 06/11/2026 |
 | PK-17b | ✅ Concluído | 06/11/2026 |
 | PK-17c | ✅ Concluído | 07/11/2026 |
-| PK-17d | ⏳ Próximo (pendências menores) | — |
+| PK-17d | ✅ Concluído | 07/11/2026 |
+| PK-17e | ⏳ Próximo (telas de break-glass e ACL de login) | — |
 | PK-15 | 📋 Planejado | — |

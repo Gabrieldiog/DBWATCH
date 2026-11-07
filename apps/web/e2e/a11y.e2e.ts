@@ -76,6 +76,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoSeriousViolations(page);
     });
 
+    test('minhas sessões', async ({ page }) => {
+      await login(page, 'REQUESTER', '/sessoes');
+      await expectNoSeriousViolations(page);
+    });
+
     test('página não encontrada', async ({ page }) => {
       await page.goto('/nao-existe');
       await expectNoSeriousViolations(page);

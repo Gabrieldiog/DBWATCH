@@ -37,7 +37,10 @@ test('no celular a tabela vira blocos e a página não rola para o lado', async 
   await login(page, 'REQUESTER', '/pedidos');
   await pendingRequest(page.request, 'Catálogo de produtos');
   await page.reload();
-  const box = await page.locator('td[data-label="Estado"]').first().boundingBox();
+  // A tabela chega depois do esqueleto de carregamento: mede só quando ela aparece
+  const cell = page.locator('td[data-label="Estado"]').first();
+  await expect(cell).toBeVisible();
+  const box = await cell.boundingBox();
   expect(box!.x + box!.width).toBeLessThanOrEqual(375);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });

@@ -6,6 +6,7 @@ export const NAV: NavItem[] = [
   { href: '/painel', label: 'Visão geral', group: '', anyOf: [], icon: 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z' },
   { href: '/monitor', label: 'Monitor', group: '', anyOf: ['monitor:read'], icon: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M7 12a5 5 0 1 0 10 0a5 5 0 1 0-10 0M12 12l6-6' },
   { href: '/laboratorio', label: 'Laboratório', group: '', anyOf: ['lab:run'], icon: 'M9 3v6l-5 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-9V3M8 3h8' },
+  { href: '/sessoes', label: 'Minhas sessões', group: '', anyOf: [], icon: 'M3 5h18v11H3zM8 20h8M12 16v4' },
   { href: '/pedidos', label: 'Pedir acesso', group: 'Acesso', anyOf: ['request:create'], icon: 'M12 5v14M5 12h14' },
   { href: '/aprovacoes', label: 'Aprovações', group: 'Acesso', anyOf: ['request:review'], icon: 'M5 12l5 5 9-10' },
   { href: '/acessos', label: 'Meus acessos', group: 'Acesso', anyOf: ['grant:read:own', 'grant:revoke'], icon: 'M4 15a4 4 0 1 0 8 0a4 4 0 1 0-8 0M11 12l9-9M17 6l3 3' },
@@ -21,6 +22,14 @@ export function navFor(permissions: readonly string[]) {
     .filter((g) => g.items.length > 0);
 }
 
+// Tela do console que a pessoa não pode ver. O layout chama antes do esqueleto de carregamento começar a ser
+// enviado; depois disso o Next já mandou status 200 e o notFound() da página não vira mais um 404 de verdade
+export function forbiddenPath(path: string, permissions: readonly string[]): boolean {
+  const pathname = path.split('?')[0]!;
+  const item = NAV.find((i) => pathname === i.href || pathname.startsWith(`${i.href}/`));
+  return !!item && item.anyOf.length > 0 && !item.anyOf.some((p) => permissions.includes(p));
+}
+
 export const ROLE_LABEL: Record<string, string> = { ADMIN: 'Administração', APPROVER: 'Aprovação', REQUESTER: 'Solicitante', AUDITOR: 'Auditoria' };
 
 export function initials(name: string): string {
@@ -33,4 +42,13 @@ export function loginUrl(path: string, expired: boolean): string {
   const query = new URLSearchParams({ next: path });
   if (expired) query.set('motivo', 'expirou');
   return `/entrar?${query}`;
+}
+
+// Resumo legível do user-agent gravado na sessão; o texto completo continua no title para quem quiser conferir
+export function device(ua: string | null): string {
+  if (!ua) return 'Navegador desconhecido';
+  const browser = [['Edge', /Edg\//], ['Firefox', /Firefox\//], ['Chrome', /Chrome\//], ['Safari', /Safari\//]].find(([, re]) => (re as RegExp).test(ua))?.[0];
+  const os = [['Android', /Android/], ['iOS', /iPhone|iPad/], ['Windows', /Windows/], ['macOS', /Mac OS X/], ['Linux', /Linux/]].find(([, re]) => (re as RegExp).test(ua))?.[0];
+  if (!browser && !os) return ua.slice(0, 60);
+  return `${browser ?? 'Navegador'}${os ? ` no ${os}` : ''}`;
 }
