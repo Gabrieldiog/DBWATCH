@@ -18,7 +18,8 @@ export function EventFeed({ initial, canAudit }: { initial: MonitorEvent[]; canA
       const e = fromStream(JSON.parse(msg.data));
       setEvents((list) => [e, ...list.filter((x) => x.id !== e.id)].slice(0, 12));
     };
-    for (const kind of ['TX_ROLLBACK', 'ALERT', 'LAB']) source.addEventListener(kind, add);
+    // Eventos com nome só chegam a quem ouve aquele nome: cada tipo novo precisa entrar aqui
+    for (const kind of ['TX_ROLLBACK', 'ALERT', 'LAB', 'ACTIVITY']) source.addEventListener(kind, add);
     source.onopen = () => setState('on');
     source.onerror = () => setState('off');
     return () => source.close();
