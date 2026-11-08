@@ -12,6 +12,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
   - SQL pronto por recurso, em três grupos: ler, alterar (precisa de Escrita) e o que o banco recusa.
   - A auditoria do console guarda o nível do acesso usado.
 
+- **PK-24 · Console SQL para quem não é de TI**
+  - Erro explicado em português (nível de acesso, outra tabela, estrutura, sintaxe, tempo-limite, regras da tabela), com a resposta original do PostgreSQL embaixo.
+  - Recursos em cartões com o acesso de cada um, exemplos coloridos por intenção (ler, alterar, o banco recusa) e o comando num terminal; Ctrl + Enter executa.
+  - Resultado em português ("1 linha alterada") e listas de escolha com a mesma seta nos dois temas.
+
 ## [1.1.0] - 2026-11-08
 
 Tudo o que mudou depois do primeiro uso de verdade: o sistema passou a se demonstrar sozinho, cada tela explica o que é, e o nível Escrita ganhou uso, sempre com o banco decidindo o limite.
