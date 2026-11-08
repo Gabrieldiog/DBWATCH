@@ -56,6 +56,9 @@ export async function runIncident(url: string, narrate: Narrate): Promise<void> 
         await pause(1_000);
       }
     }
+    // O aviso de erro da conexão do relatório chega no Node depois de o caixa já ter destravado: em vez de depender
+    // dessa ordem, pergunta à própria conexão se o banco a encerrou
+    killed ||= await relatorio.query('SELECT 1').then(() => false, () => true);
     await narrate(
       killed ? 'high' : 'info',
       'O banco destravou sozinho',

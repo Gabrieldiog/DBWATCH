@@ -248,6 +248,7 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Corrigido
 
+- CI do main vermelho desde o PK-20b: o teste do bot da simulação falhava às vezes (a narração dependia da ordem em que o aviso da conexão derrubada chegava ao Node; agora pergunta à própria conexão), e um teste do PK-20c tinha erro de tipo.
 - As telas do Next agora mandam `X-Frame-Options`, `frame-ancestors 'none'`, `nosniff` e `Referrer-Policy`, como a API já fazia.
 - `multer` fixado em 2.5.0 (falha alta de DoS na 2.4.0, não alcançável no DBWATCH); `pnpm audit` passou a rodar no CI.
 - CI vermelho desde o PK-11d: o E2E agora roda num banco limpo (como o da apresentação) e recebe a URL do banco-alvo das consultas.
