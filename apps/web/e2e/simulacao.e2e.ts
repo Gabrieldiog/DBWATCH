@@ -33,3 +33,31 @@ test('quem não roda o laboratório não vê o botão da simulação', async ({ 
   await expect(page.getByRole('heading', { name: 'Agora no PostgreSQL' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Iniciar simulação/ })).toHaveCount(0);
 });
+
+test('passo a passo: o bot faz uma ação e espera o próximo clique, até o fim', async ({ page }) => {
+  test.setTimeout(240_000);
+  await login(page, 'ADMIN', '/monitor');
+  const live = page.locator('.events li.event-new.event-lab');
+  const status = page.getByRole('main').getByRole('status').filter({ hasText: /Parado|concluída/ });
+  // A rodada anterior pode estar soltando o laboratório: o 409 aparece e basta clicar de novo
+  await expect(async () => {
+    await page.getByRole('button', { name: 'Passo a passo' }).click();
+    await expect(status).toContainText('Parado', { timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
+  await expect(live.filter({ hasText: 'Simulação iniciada' })).toBeVisible();
+  await expect(live.filter({ hasText: 'Ato 1' })).toHaveCount(0); // parado de verdade
+
+  const next = page.getByRole('button', { name: 'Próximo passo' });
+  await next.click();
+  await expect(live.filter({ hasText: 'Ato 1: um acesso do começo ao fim' })).toBeVisible();
+  const done = page.getByRole('main').getByRole('status').filter({ hasText: 'Simulação concluída' });
+  for (let i = 0; i < 40; i++) {
+    // Espera a resposta da API (o bot parou ou terminou) antes de olhar a tela de novo
+    await expect(next.or(done)).toBeVisible({ timeout: 60_000 });
+    if (await done.isVisible()) break;
+    await Promise.all([page.waitForResponse((r) => r.url().endsWith('/lab/simulacao/proximo')), next.click()]);
+  }
+  await expect(status).toContainText('Simulação concluída');
+  await expect(live.filter({ hasText: 'Incidente resolvido' })).toContainText('total das contas 140.00');
+  await expect(page.getByRole('button', { name: '▶ Iniciar simulação' })).toBeEnabled();
+});

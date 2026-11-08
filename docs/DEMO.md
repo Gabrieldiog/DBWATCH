@@ -54,6 +54,8 @@ No Monitor, a Ana aperta **▶ Iniciar simulação** e o sistema se demonstra so
 
 **Ato 3, alguém confere.** Eva recalcula a cadeia de hash da trilha inteira dentro do banco: "Cadeia íntegra: N registros conferidos, incluindo cada passo desta simulação".
 
+**Passo a passo (você controla o ritmo).** Em vez do ▶, o botão **Passo a passo** faz o bot dar uma ação e parar: o evento aparece no Monitor, você explica, e só então clica em **Próximo passo**. Nos atos 1 e 3 cada ação é um passo; no incidente o bot só para onde nenhum lock fica preso (antes do relatório, depois que o banco destrava, depois do deadlock e no fim), porque os tempos do banco (lock_timeout e o corte da transação esquecida) não esperam ninguém. Se ninguém clicar por 5 min, o bot termina sozinho e solta o laboratório.
+
 ### Versão curta (~6 min)
 
 Abertura → autoaprovação barrada no banco → corrida de aprovação → adulteração detectada → deadlock ao vivo → fechamento.

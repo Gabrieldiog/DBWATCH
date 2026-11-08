@@ -20,7 +20,8 @@ async function transfer(c: Client, [first, second]: string[]) {
   await c.query('COMMIT');
 }
 
-export async function runIncident(url: string, narrate: Narrate): Promise<void> {
+// hold: no passo a passo, o bot para ali até o próximo clique; só é chamado quando nenhuma transação está aberta
+export async function runIncident(url: string, narrate: Narrate, hold: () => Promise<void> = async () => undefined): Promise<void> {
   const open = async (app: string) => {
     const c = new Client({ connectionString: url, application_name: `dbwatch-sim:${app}` });
     await c.connect();
@@ -38,6 +39,7 @@ export async function runIncident(url: string, narrate: Narrate): Promise<void> 
   try {
     await narrate('info', 'Ato 2: incidente no fechamento do mês', 'Um caixa faz movimentações normais; o gráfico de commits sobe com elas.');
     await pause(4_000);
+    await hold();
 
     await relatorio.query('BEGIN');
     await relatorio.query('UPDATE lab.accounts SET balance = balance WHERE id = 1');
@@ -67,6 +69,7 @@ export async function runIncident(url: string, narrate: Narrate): Promise<void> 
         : 'O lock do relatório foi liberado e o débito do caixa passou.',
     );
     await pause(3_000);
+    await hold();
 
     await narrate('medium', 'Duas transferências cruzadas', 'Uma vai da Ana para o Bruno e a outra do Bruno para a Ana, ao mesmo tempo.');
     const [ab, ba] = [MOVE(1, 2), MOVE(2, 1)];
@@ -85,9 +88,11 @@ export async function runIncident(url: string, narrate: Narrate): Promise<void> 
       await narrate('high', 'Deadlock: o PostgreSQL escolheu uma vítima', `Erro ${sqlstate(reason)}: uma transferência foi desfeita e será repetida.`);
       await transfer(loser, victim === 0 ? ab : ba);
       await narrate('info', 'A transferência derrubada foi repetida', 'Tentou de novo do zero e confirmou: é assim que a aplicação deve tratar o 40P01.');
+      await hold();
     }
     const { rows } = await caixa.query<{ total: string }>('SELECT sum(balance)::text AS total FROM lab.accounts');
     await narrate('info', 'Incidente resolvido', `As duas transferências terminaram e nenhum centavo sumiu: total das contas ${rows[0]!.total}.`);
+    await hold();
   } finally {
     running = false;
     await background.catch(() => undefined);
