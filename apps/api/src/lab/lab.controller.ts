@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { RequirePermission } from '../auth/permissions';
@@ -22,8 +22,16 @@ export class LabController {
   @HttpCode(202)
   @RequirePermission('lab:run')
   @ApiOperation({ summary: 'LAB: o bot da simulação (uns 55 s): um acesso do começo ao fim, o incidente "fechamento do mês" e a verificação da trilha; cada passo aparece no Monitor' })
-  simulate(@Req() req: Request) {
-    return this.lab.simulate(currentUser(req).email);
+  simulate(@Req() req: Request, @Query('modo') modo?: string) {
+    return this.lab.simulate(currentUser(req).email, modo === 'passo');
+  }
+
+  @Post('simulacao/proximo')
+  @HttpCode(200)
+  @RequirePermission('lab:run')
+  @ApiOperation({ summary: 'LAB: no passo a passo (?modo=passo), solta o bot para a próxima ação e responde quando ele parar de novo' })
+  next() {
+    return this.lab.next();
   }
 
   @Post(':scenario/run')

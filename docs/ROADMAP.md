@@ -369,6 +369,10 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 > **Registro de QA (08/11/2026):** pedido do Gabriel: ver o "mouse mexendo" e o sistema sendo usado de verdade. O Playwright dirige um navegador visível pelas telas reais (sem atalho de API, exceto a limpeza inicial do palco), com um cursor e uma legenda desenhados fora do `<body>` do React; o cursor anda em 28 passos até cada alvo e o clique deixa um anel. Execução completa contra a API e o banco locais em 2,6 min (vídeo conferido quadro a quadro: cursor, anel e legenda visíveis; a legenda do ▶ acompanha o evento mais novo do SSE). Contra a VPS, o bot lê as senhas da saída do `db:seed:json` de lá por variável de ambiente (nunca arquivo) e manda o Origin do endereço alvo. Sem mudança em `src`.
 
+### PK-19b · Simulação passo a passo ✅
+
+> **Registro de QA (08/11/2026):** pedido do Gabriel: controlar o ritmo do ▶ durante a fala. `POST /api/lab/simulacao?modo=passo` começa parado depois da primeira narração; `POST /api/lab/simulacao/proximo` solta o bot e responde quando ele parar de novo (`parado`) ou terminar (`terminou`). Cada resposta espera no máximo 20 s porque o repasse do Next para a API corta em 30 s, e a tela pergunta de novo sozinha. Nos atos 1 e 3 cada ação é um passo; no incidente as paradas ficam só onde nenhuma transação está aberta, senão o `idle_in_transaction_session_timeout` mudaria a história enquanto a pessoa fala. **Achado no próprio desenho:** se cada parada esperasse 5 min, uma simulação abandonada seguraria o advisory lock do laboratório por mais de uma hora; agora, depois da primeira espera sem clique, o bot vira automático até o fim (conferido com a espera reduzida a 3 s num teste descartável). T-LAB-08 (parado de verdade entre cliques, 403 sem `lab:run`, 409 sem simulação, termina com as contas em 140.00) e E2E clicando "Próximo passo" até "Simulação concluída". Lint, typecheck, 48/48 da web, 143/143 da API e 79/79 E2E.
+
 ### PK-20a · Consultas que se explicam ✅
 
 > **Registro de QA (08/11/2026):** pedido do Gabriel depois de usar a tela: "coloquei Goiânia, deu erro, qual categoria existe?". O erro era o certo (sem concessão), mas a tela não ensinava o caminho. Migration `20261108000000_catalogo`: descrição em cada consulta, rótulo e valores aceitos nos parâmetros (cidades, categorias, intervalo dos números) e quatro consultas novas (clientes por cidade, resumo do catálogo, pedidos de um cliente e os 10 maiores clientes, e-mail mascarado). A API nega valor fora da lista (z.enum) e número fora do intervalo. Na tela, um bloco por recurso diz se o acesso está vivo e até quando; sem acesso, o link abre o pedido já preenchido. T-PAM-12 novo (catálogo com 8 consultas, descrições e rótulos; "Goiania" sem acento é 400, cliente 501 é 400, maiores clientes com e-mail mascarado) e T-SEC-06 atualizado (a injeção agora para no 400, antes do banco). O teste de consultas deixou de depender de outro usuário já existir no banco (falhava num banco recém-criado). Lint, typecheck, 44/44 da web, 138/138 da API e 70/70 E2E; capturas em 1280 e 375 px sem rolagem horizontal. **Na VPS:** tem migration nova.
@@ -480,6 +484,7 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-15 | ✅ Concluído | 07/11/2026 |
 | PK-18 | ✅ Concluído | 07/11/2026 |
 | PK-19a | ✅ Concluído | 08/11/2026 |
+| PK-19b | ✅ Concluído | 08/11/2026 |
 | PK-20a | ✅ Concluído | 08/11/2026 |
 | PK-20b | ✅ Concluído | 08/11/2026 |
 | PK-20c | ✅ Concluído | 08/11/2026 |

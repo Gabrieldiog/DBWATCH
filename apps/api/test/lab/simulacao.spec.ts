@@ -77,4 +77,35 @@ describe('LAB: o bot da simulação (acesso, incidente e verificação)', () => 
     ]);
     expect(new Set(audit.map((r) => r.sim))).toEqual(new Set([admin.email]));
   }, 120_000);
+
+  it('T-LAB-08 passo a passo: o bot para depois de cada ação e só segue no próximo clique, até o fim', async () => {
+    const admin = await loginAs(app, ['ADMIN']);
+    const requester = await loginAs(app, ['REQUESTER']);
+    const next = (cookie: string) => request(app.getHttpServer()).post('/api/lab/simulacao/proximo').set('Origin', ORIGIN).set('Cookie', cookie);
+    await next(admin.cookie).expect(409); // nada em andamento
+    const since = (await withClient('admin', (db) => db.query<{ id: string }>('SELECT coalesce(max(id), 0)::text AS id FROM monitor.app_events'))).rows[0]!.id;
+    const titles = async () => (await withClient('admin', (db) => db.query<{ t: string }>(
+      "SELECT detail->>'titulo' AS t FROM monitor.app_events WHERE kind = 'LAB' AND id > $1 ORDER BY id", [since]))).rows.map((r) => r.t);
+    // A conexão guardiã da rodada anterior pode estar fechando: tenta de novo por alguns segundos
+    let started = await request(app.getHttpServer()).post('/api/lab/simulacao?modo=passo').set('Origin', ORIGIN).set('Cookie', admin.cookie);
+    for (let i = 0; i < 10 && started.status === 409; i++) {
+      await pause(500);
+      started = await request(app.getHttpServer()).post('/api/lab/simulacao?modo=passo').set('Origin', ORIGIN).set('Cookie', admin.cookie);
+    }
+    expect(started.status).toBe(202);
+    expect(started.body).toMatchObject({ status: 'passo a passo', parado: true, terminou: false });
+    await pause(1_000);
+    expect(await titles()).toEqual(['Simulação iniciada']); // parado de verdade, esperando
+    await next(requester.cookie).expect(403);
+    expect((await next(admin.cookie).expect(200)).body).toEqual({ terminou: false, parado: true });
+    expect(await titles()).toEqual(['Simulação iniciada', 'Ato 1: um acesso do começo ao fim']);
+
+    let last = { terminou: false };
+    for (let i = 0; i < 40 && !last.terminou; i++) last = (await next(admin.cookie).expect(200)).body;
+    expect(last.terminou).toBe(true);
+    const all = await titles();
+    expect(all).toContain('Incidente resolvido');
+    expect(all.at(-1)).toBe('Simulação concluída');
+    await next(admin.cookie).expect(409);
+  }, 180_000);
 });

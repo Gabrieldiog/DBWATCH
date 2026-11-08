@@ -19,6 +19,10 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Adicionado
 
+- **PK-19b · Simulação passo a passo**
+  - Botão "Passo a passo" no Monitor: o bot faz uma ação no banco e espera o "Próximo passo" de quem apresenta.
+  - No incidente ele só para onde nenhum lock fica preso; sem clique por 5 min, termina sozinho.
+
 - **PK-21b · Tela do console SQL**
   - Nova área "Console SQL": escolher o recurso, ver se o acesso de Escrita está vivo (ou pedir, com o nível já marcado), escrever o comando e ver o resultado ou o erro do PostgreSQL.
   - Exemplos prontos por recurso, inclusive tentativas que o banco recusa (outra tabela, DROP, TRUNCATE).
