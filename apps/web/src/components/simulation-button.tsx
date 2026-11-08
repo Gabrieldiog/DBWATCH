@@ -11,17 +11,19 @@ export function SimulationButton() {
     setState({ busy: true });
     const sent = await send('/lab/simulacao');
     if (!sent.ok) return setState({ busy: false, ok: false, message: sent.message });
-    setState({ busy: true, ok: true, message: 'Rodando no banco por uns 35 s. Acompanhe o grafo de bloqueio e os eventos abaixo.' });
-    setTimeout(() => setState({ busy: false }), 35_000);
+    const seconds = (sent.data as { segundos?: number } | null)?.segundos ?? 55;
+    setState({ busy: true, ok: true, message: `Rodando no banco por uns ${seconds} s. Acompanhe os eventos e o grafo de bloqueio abaixo.` });
+    setTimeout(() => setState({ busy: false }), seconds * 1000);
   }
 
   return (
     <section className="panel simulation" aria-labelledby="sim-titulo">
       <span className="badge badge-wait">LAB</span>
-      <h2 id="sim-titulo">Simulação de incidente: fechamento do mês</h2>
+      <h2 id="sim-titulo">Simulação: um dia no DBWATCH</h2>
       <p>
-        Quatro sessões reais no schema <code>lab</code>: um relatório esquece uma transação aberta e trava o caixa, o banco
-        cancela a espera, derruba a transação esquecida e, no fim, resolve um deadlock entre duas transferências.
+        Um bot faz o sistema funcionar sozinho, de verdade. Ato 1: Diego pede acesso, tenta aprovar o próprio pedido
+        (a API e o banco barram), Bruno aprova e Diego consulta. Ato 2: um relatório esquecido trava o caixa no schema{' '}
+        <code>lab</code> e o banco resolve o bloqueio e um deadlock. Ato 3: Eva verifica a trilha de auditoria.
       </p>
       <button type="button" className="button" onClick={start} disabled={state.busy}>
         {state.busy ? 'Simulação em andamento…' : '▶ Iniciar simulação'}

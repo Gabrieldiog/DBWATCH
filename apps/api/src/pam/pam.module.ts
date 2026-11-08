@@ -9,5 +9,7 @@ import { RequestsController } from './requests.controller';
 import { RequestsService } from './requests.service';
 
 @Module({ controllers: [RequestsController, GrantsController, QueriesController, BreakGlassController],
-  providers: [RequestsService, GrantsService, QueriesService, BreakGlassService], })
+  providers: [RequestsService, GrantsService, QueriesService, BreakGlassService],
+  // O bot da simulação (LAB) usa os mesmos serviços, com as mesmas regras
+  exports: [RequestsService, GrantsService, QueriesService] })
 export class PamModule {}

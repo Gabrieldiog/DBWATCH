@@ -7,9 +7,12 @@ import { ENV } from '../database/prisma.service';
 import { LabRecorder } from './lab-recorder';
 import { SCENARIOS } from './scenarios';
 import { runIncident, type Narrate } from './simulation';
+import { StoryService } from './story.service';
 
 // Um experimento por vez no banco inteiro: advisory lock de sessão, solto quando a conexão fecha
 const LAB_LOCK = 4_242_001;
+// Ato 1 (~15 s), incidente (~35 s) e ato 3 (~5 s)
+const SIMULATION_SECONDS = 55;
 const RESET = `INSERT INTO lab.accounts VALUES (1, 'Ana', 100), (2, 'Bruno', 50)
   ON CONFLICT (id) DO UPDATE SET owner = EXCLUDED.owner, balance = EXCLUDED.balance;
   INSERT INTO lab.on_call VALUES (1, 'Ana', true), (2, 'Bruno', true)
@@ -21,11 +24,12 @@ export class LabService {
     @Inject(ENV) private readonly env: Env,
     private readonly audit: AuditService,
     private readonly prisma: PrismaService,
+    private readonly story: StoryService,
   ) {}
 
-  // LAB: o incidente roda em segundo plano (uns 35 s) e conta cada passo no fluxo de eventos do monitor.
+  // LAB: o bot roda em segundo plano (uns 55 s) e conta cada passo no fluxo de eventos do monitor.
   // A conexão guardiã segura o mesmo advisory lock dos experimentos até o fim: um por vez no banco inteiro
-  async simulate() {
+  async simulate(starter: string) {
     const url = this.enabled();
     const guard = new Client({ connectionString: url, application_name: 'dbwatch-lab:simulacao' });
     guard.on('error', () => undefined);
@@ -37,16 +41,27 @@ export class LabService {
     }
     await guard.query(RESET);
     await this.audit.record({ action: 'lab.simulation', outcome: 'SUCCESS', resourceType: 'lab_simulation', metadata: { cenario: 'fechamento-do-mes' } });
-    const narrate: Narrate = async (severity, titulo, texto) => {
+    const narrate: Narrate = async (severity, titulo, texto, correlationId) => {
       await this.prisma.$executeRaw`
-        INSERT INTO monitor.app_events (kind, code, severity, operation, detail)
-        VALUES ('LAB', 'SIM_STEP', ${severity}, 'lab.simulacao', jsonb_build_object('titulo', ${titulo}::text, 'texto', ${texto}::text))`;
+        INSERT INTO monitor.app_events (kind, code, severity, operation, correlation_id, detail)
+        VALUES ('LAB', 'SIM_STEP', ${severity}, 'lab.simulacao', ${correlationId ?? null}::uuid,
+                jsonb_build_object('titulo', ${titulo}::text, 'texto', ${texto}::text))`;
     };
-    void runIncident(url, narrate)
-      .catch((err: unknown) => narrate('high', 'A simulação parou com erro', `SQLSTATE ${(err as { code?: string }).code ?? 'desconhecido'}`))
+    // Três atos: um acesso do começo ao fim, o incidente no banco e a verificação da trilha
+    void (async () => {
+      await narrate('info', 'Simulação iniciada', 'Três atos: um acesso do começo ao fim, um incidente no banco e alguém conferindo a trilha.');
+      await this.story.actOne(narrate, starter);
+      await runIncident(url, narrate);
+      await this.story.actThree(narrate, starter);
+      await narrate('info', 'Simulação concluída', 'Tudo o que apareceu aqui aconteceu no PostgreSQL e está na auditoria, marcado como simulação.');
+    })()
+      .catch((err: unknown) => {
+        const state = (err as { code?: string }).code;
+        return narrate('high', 'A simulação parou com erro', state ? `SQLSTATE ${state}` : (err as Error).message);
+      })
       .catch(() => undefined)
       .finally(() => guard.end().catch(() => undefined));
-    return { status: 'iniciada', segundos: 35 };
+    return { status: 'iniciada', segundos: SIMULATION_SECONDS };
   }
 
   scenarios() {

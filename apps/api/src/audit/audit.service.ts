@@ -42,11 +42,12 @@ export class AuditService {
 
   // Com tx: grava junto com a ação. Sem tx: grava numa transação própria (usada nas falhas)
   async record(entry: AuditEntry, tx?: Tx): Promise<void> {
-    const metadata = entry.metadata ?? {};
+    const context = currentContext();
+    // O que o bot da simulação faz fica marcado: ninguém confunde com uma ação de verdade da pessoa
+    const metadata = context?.simulation ? { ...entry.metadata, simulacao: context.simulation } : (entry.metadata ?? {});
     const leaked = Object.keys(metadata).find((key) => SENSITIVE_KEY.test(key));
     if (leaked) throw new Error(`Metadado proibido na auditoria: ${leaked}`);
 
-    const context = currentContext();
     // Sem ator explícito, usa o usuário da sessão; null explícito marca ação anônima (ex.: login falho)
     const actorId = entry.actorId !== undefined ? entry.actorId : (context?.userId ?? null);
     const db = tx ?? this.prisma;
@@ -83,6 +84,19 @@ export class AuditService {
        LIMIT ${f.limit + 1}`;
     const items = rows.slice(0, f.limit).map((r) => ({ ...r, chainPosition: Number(r.chainPosition) }));
     return { items, nextCursor: rows.length > f.limit ? items.at(-1)!.chainPosition : null };
+  }
+
+  // Quem fiscaliza também deixa rastro: a verificação entra na própria trilha
+  async verifyRecorded() {
+    const report = await this.verify();
+    const intact = report.firstBrokenPosition === null;
+    await this.record({
+      action: 'audit.verify',
+      outcome: 'SUCCESS',
+      reason: intact ? 'cadeia_integra' : 'cadeia_adulterada',
+      metadata: { checked: report.checked, firstBrokenPosition: report.firstBrokenPosition },
+    });
+    return { intact, ...report };
   }
 
   async verify(): Promise<ChainReport> {

@@ -11,6 +11,8 @@ export interface RequestContext {
   ip?: string;
   userId?: string;
   permissions?: string[];
+  // LAB: ação feita pelo bot da simulação; guarda quem apertou o play e vai para a auditoria
+  simulation?: string;
 }
 
 // Leva o contexto da requisição até a auditoria sem passar parâmetro por todas as camadas

@@ -2,7 +2,8 @@ import { Client } from 'pg';
 
 // LAB: incidente de "fechamento do mês", acontecendo de verdade no schema lab com quatro conexões reais.
 // Nada é inventado: cada passo é um comando no PostgreSQL, e cada erro é o SQLSTATE que o banco devolveu
-export type Narrate = (severity: 'info' | 'medium' | 'high', titulo: string, texto: string) => Promise<void>;
+// correlationId liga o evento ao registro da auditoria daquela ação (o Monitor mostra o link)
+export type Narrate = (severity: 'info' | 'medium' | 'high', titulo: string, texto: string, correlationId?: string) => Promise<void>;
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const sqlstate = (err: unknown) => (err as { code?: string }).code ?? 'XX000';
@@ -35,7 +36,7 @@ export async function runIncident(url: string, narrate: Narrate): Promise<void> 
     while (running) await carga.query('SELECT count(*) FROM lab.accounts').then(() => pause(250));
   })();
   try {
-    await narrate('info', 'Simulação iniciada: fechamento do mês', 'Um caixa faz movimentações normais; o gráfico de commits sobe com elas.');
+    await narrate('info', 'Ato 2: incidente no fechamento do mês', 'Um caixa faz movimentações normais; o gráfico de commits sobe com elas.');
     await pause(4_000);
 
     await relatorio.query('BEGIN');
@@ -83,7 +84,7 @@ export async function runIncident(url: string, narrate: Narrate): Promise<void> 
       await narrate('info', 'A transferência derrubada foi repetida', 'Tentou de novo do zero e confirmou: é assim que a aplicação deve tratar o 40P01.');
     }
     const { rows } = await caixa.query<{ total: string }>('SELECT sum(balance)::text AS total FROM lab.accounts');
-    await narrate('info', 'Simulação concluída', `As duas transferências terminaram e nenhum centavo sumiu: total das contas ${rows[0]!.total}.`);
+    await narrate('info', 'Incidente resolvido', `As duas transferências terminaram e nenhum centavo sumiu: total das contas ${rows[0]!.total}.`);
   } finally {
     running = false;
     await background.catch(() => undefined);
