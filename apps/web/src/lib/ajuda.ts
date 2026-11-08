@@ -30,6 +30,10 @@ export const GUIA: Record<string, { oque: string; serve: string }> = {
     oque: 'As consultas prontas sobre os dados da loja fictícia, só leitura e com tempo-limite.',
     serve: 'Usar o acesso aprovado sem SQL livre: quem aprova sabe exatamente o que pode ser feito.',
   },
+  '/console': {
+    oque: 'Um campo para escrever SQL de verdade no banco da loja, com um acesso de Escrita aprovado.',
+    serve: 'Corrigir um dado sem dar a ninguém acesso fixo ao banco: o papel do banco limita a tabela, e o comando inteiro vai para a auditoria.',
+  },
   '/auditoria': {
     oque: 'A trilha de tudo o que aconteceu: quem, o quê, quando e o resultado.',
     serve: 'Responder "quem viu o dado X e com a aprovação de quem". Ninguém apaga nem altera, e a cadeia de hash prova isso.',

@@ -10,7 +10,7 @@ describe('navFor (unitário)', () => {
 
   it('solicitante não vê aprovações, auditoria nem usuários', () => {
     const seen = labels(['request:create', 'request:read:own', 'grant:read:own', 'query:execute']);
-    expect(seen).toEqual(['Visão geral', 'Minhas sessões', 'Pedir acesso', 'Meus acessos', 'Consultas']);
+    expect(seen).toEqual(['Visão geral', 'Minhas sessões', 'Pedir acesso', 'Meus acessos', 'Consultas', 'Console SQL']);
   });
 
   it('auditora vê auditoria e monitor, e grupo vazio some', () => {

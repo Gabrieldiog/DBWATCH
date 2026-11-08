@@ -90,6 +90,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoSeriousViolations(page);
     });
 
+    test('console SQL', async ({ page }) => {
+      await login(page, 'REQUESTER', '/console');
+      await expectNoSeriousViolations(page);
+    });
+
     test('minhas sessões', async ({ page }) => {
       await login(page, 'REQUESTER', '/sessoes');
       await expectNoSeriousViolations(page);

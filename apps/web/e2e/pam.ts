@@ -11,14 +11,14 @@ export async function cancelPending(api: APIRequestContext, resource: string): P
     await api.post(`/api/requests/${r.id}/cancel`, { headers: origin });
 }
 
-export async function pendingRequest(api: APIRequestContext, resource: string): Promise<string> {
+export async function pendingRequest(api: APIRequestContext, resource: string, level: 'READ' | 'WRITE' = 'READ'): Promise<string> {
   await cancelPending(api, resource);
   const resources = (await (await api.get('/api/resources')).json()) as { id: string; name: string }[];
   const res = await api.post('/api/requests', {
     headers: origin,
     data: {
       resourceId: resources.find((r) => r.name === resource)!.id,
-      accessLevel: 'READ',
+      accessLevel: level,
       requestedMinutes: 15,
       justification: 'Conferir os dados antes da vitrine de sexta',
     },
@@ -39,8 +39,8 @@ export async function revokeGrants(approver: APIRequestContext, email: string): 
 }
 
 // Pedido aprovado pela API: devolve a concessão criada na mesma transação da aprovação
-export async function approvedGrant(requester: APIRequestContext, approver: APIRequestContext, resource: string): Promise<string> {
-  const id = await pendingRequest(requester, resource);
+export async function approvedGrant(requester: APIRequestContext, approver: APIRequestContext, resource: string, level: 'READ' | 'WRITE' = 'READ'): Promise<string> {
+  const id = await pendingRequest(requester, resource, level);
   const res = await approver.post(`/api/requests/${id}/approve`, { headers: origin, data: {} });
   expect(res.status()).toBe(200);
   return ((await res.json()) as { grant: { id: string } }).grant.id;

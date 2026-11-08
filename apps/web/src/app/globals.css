@@ -1137,3 +1137,9 @@ section > .access {
 .explica > div {
   padding: 0 14px 4px;
 }
+
+/* Console SQL: o texto do comando em fonte de código */
+.console-sql textarea {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.95em;
+}

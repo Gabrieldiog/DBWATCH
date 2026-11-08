@@ -5,7 +5,7 @@ import { login } from './demo';
 test('a visão geral explica cada área do papel e traduz as permissões', async ({ page }) => {
   await login(page, 'REQUESTER');
   const guia = page.locator('.guia');
-  await expect(guia.getByRole('link')).toHaveText(['Minhas sessões', 'Pedir acesso', 'Meus acessos', 'Consultas']);
+  await expect(guia.getByRole('link')).toHaveText(['Minhas sessões', 'Pedir acesso', 'Meus acessos', 'Consultas', 'Console SQL']);
   await expect(guia).not.toContainText('Usuários');
   await expect(page.getByText('Pedir acesso a um recurso')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Os papéis' })).toBeVisible();
