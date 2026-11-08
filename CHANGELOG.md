@@ -19,6 +19,10 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Adicionado
 
+- **PK-20c · O Monitor mostra tudo**
+  - Cada registro de auditoria (consulta, login, pedido, aprovação, papel, regra) vira um evento ao vivo no Monitor, com a ação em português, o resultado e o motivo; quem fez fica só na Auditoria.
+  - O evento nasce por trigger na mesma transação do registro: ação desfeita não aparece.
+
 - **PK-20b · Cada tela se explica**
   - A Visão geral virou o guia do sistema: cada área que a pessoa enxerga (o que é e para quê), os quatro papéis e as permissões em português.
   - "O que é esta tela?" em Monitor (cada número explicado, inclusive de onde vêm os commits), Laboratório, Pedir acesso, Aprovações, Meus acessos, Auditoria, Usuários (papéis e regras de login) e Sessões.

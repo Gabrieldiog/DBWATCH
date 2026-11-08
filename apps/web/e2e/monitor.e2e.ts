@@ -31,8 +31,10 @@ test('o rollback provocado na API aparece no gráfico do monitor sozinho', async
     .poll(async () => (await rows()).some(([at, n]) => at! > before && Number(n) >= 1), { timeout: 20_000 })
     .toBe(true);
   // Este mesmo rollback (pelo código da execução, não um de outra rodada) chega pelo SSE, ligado à trilha de auditoria
-  await expect(page.locator(`a[href="/auditoria?correlationId=${correlationId}"]`)).toBeVisible();
-  await expect(page.getByRole('listitem').filter({ has: page.locator(`a[href="/auditoria?correlationId=${correlationId}"]`) })).toContainText(
+  // A mesma requisição gera dois eventos: o rollback e a atividade auditada da falha
+  const rollback = page.getByRole('listitem').filter({ hasText: 'Rollback na API' }).filter({ has: page.locator(`a[href="/auditoria?correlationId=${correlationId}"]`) });
+  await expect(rollback).toBeVisible();
+  await expect(rollback).toContainText(
     'Fonte: Aplicação',
   );
 });
@@ -67,4 +69,21 @@ test('lock segurado de verdade aparece no grafo e o alerta de espera longa chega
 test('quem não tem monitor:read recebe 404', async ({ page }) => {
   await login(page, 'REQUESTER');
   expect((await page.goto('/monitor'))?.status()).toBe(404);
+});
+
+// A reclamação que originou o PK-20c: "fiz uma consulta e não apareceu nos eventos ao vivo"
+test('uma consulta feita em outro navegador aparece ao vivo no monitor, com o link para a auditoria', async ({ page, browser }) => {
+  await login(page, 'AUDITOR', '/monitor');
+  const diego = await (await browser.newContext()).newPage();
+  await login(diego, 'REQUESTER', '/consultas');
+  // Nenhum teste dá ao Diego acesso ao Financeiro (sensibilidade alta): a consulta é negada e mesmo assim auditada
+  const res = await diego.request.post('/api/queries/faturamento_mensal/execute', { headers: origin, data: {} });
+  expect(res.status()).toBe(403);
+  const cid = res.headers()['x-request-id']!;
+  const event = page.locator('.events li.event-new').filter({ hasText: 'Consulta executada' }).filter({ has: page.locator(`a[href$="${cid}"]`) });
+  // O motivo depende do histórico do Diego no banco (nunca teve acesso, ou teve e foi revogado)
+  await expect(event).toContainText(/pam\.query_execute: negado \((sem_concessao|grant_revoked|grant_expired)\)/);
+  await expect(event).toContainText('Fonte: Aplicação');
+  await event.getByRole('link', { name: 'ver na auditoria' }).click();
+  await expect(page.getByRole('row').filter({ hasText: 'pam.query_execute' })).toContainText(demoUser('REQUESTER').email);
 });

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { describeEvent, fromStream, layout, linePath, niceMax, pick, sourceOf, staleFor, summary, total } from '../src/lib/monitor';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { ACTION_LABEL, describeEvent, fromStream, layout, linePath, niceMax, pick, sourceOf, staleFor, summary, total } from '../src/lib/monitor';
 
 describe('monitor (unitário)', () => {
   it('converte o texto do pg em número e mantém o null do contador reiniciado', () => {
@@ -53,5 +55,26 @@ describe('monitor (unitário)', () => {
     expect(sourceOf({ kind: 'LAB', code: 'SIM_STEP' })[0]).toBe('LAB');
     const lab = { id: 9, occurredAt: 't', kind: 'LAB', code: 'SIM_STEP', severity: 'high', operation: null, sqlstate: null, correlationId: null };
     expect(describeEvent({ ...lab, detail: { titulo: 'Deadlock', texto: 'Erro 40P01' } })).toEqual(['Deadlock', 'Erro 40P01']);
+  });
+});
+
+describe('atividade da auditoria no monitor (unitário)', () => {
+  const base = { id: 1, occurredAt: '2026-11-08T12:00:00Z', kind: 'ACTIVITY', code: 'AUDIT', severity: 'medium', sqlstate: null, correlationId: 'c' };
+  it('traduz a ação, diz o resultado e o motivo, e a fonte é a aplicação', () => {
+    expect(describeEvent({ ...base, operation: 'pam.query_execute', detail: { resultado: 'DENIED', motivo: 'sem_concessao' } })).toEqual([
+      'Consulta executada',
+      'pam.query_execute: negado (sem_concessao)',
+    ]);
+    expect(describeEvent({ ...base, operation: 'auth.login', detail: { resultado: 'SUCCESS' } })).toEqual(['Login', 'auth.login: deu certo']);
+    expect(sourceOf({ kind: 'ACTIVITY', code: 'AUDIT' })[0]).toBe('Aplicação');
+  });
+
+  // Lê o código da API: uma ação auditada nova sem tradução quebra este teste
+  it('toda ação que a API audita tem tradução', () => {
+    const files = (dir: string): string[] => readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? files(join(dir, f)) : [join(dir, f)]));
+    const src = files(join(__dirname, '../../api/src')).filter((f) => f.endsWith('.ts')).map((f) => readFileSync(f, 'utf8')).join('\n');
+    const actions = new Set([...src.matchAll(/(?:action: |decide\()'([a-z]+\.[a-z_]+)'/g)].map((m) => m[1]!));
+    expect(actions.size).toBeGreaterThan(20);
+    expect([...actions].filter((a) => !ACTION_LABEL[a])).toEqual([]);
   });
 });

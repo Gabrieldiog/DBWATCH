@@ -19,7 +19,7 @@ export default async function Monitor() {
     apiGet<Overview>('/monitor/overview'),
     apiGet<RawPoint[]>('/monitor/series?minutes=30'),
     apiGet<Lock[]>('/monitor/locks'),
-    apiGet<MonitorEvent[]>('/monitor/events?limit=8'),
+    apiGet<MonitorEvent[]>('/monitor/events?limit=12'),
   ]);
   const stale = staleFor(o.sampledAt, Date.now(), EVERY);
   const cache = pick(rows, 'cacheHitPct').findLast((p) => p.v !== null)?.v;
@@ -50,7 +50,7 @@ export default async function Monitor() {
           <li><strong>Esperando lock e pares bloqueados:</strong> quem está parado esperando outra sessão soltar uma linha, e quem bloqueia quem (o grafo).</li>
           <li><strong>Cache hit:</strong> quanto das leituras veio da memória, sem ir ao disco.</li>
           <li><strong>Deadlocks:</strong> quantas vezes o banco achou duas transações travando uma à outra e derrubou uma.</li>
-          <li><strong>Commits e rollbacks a cada 5 s:</strong> transações confirmadas e desfeitas no banco da aplicação em cada intervalo. Os commits vêm do próprio coletor (um por amostra), de cada clique (a sessão guarda o último uso) e de cada ação. O PostgreSQL só conta, não diz quais: as ações estão na Auditoria e os rollbacks da API aparecem nos eventos abaixo.</li>
+          <li><strong>Commits e rollbacks a cada 5 s:</strong> transações confirmadas e desfeitas no banco da aplicação em cada intervalo. Os commits vêm do próprio coletor (um por amostra), de cada clique (a sessão guarda o último uso) e de cada ação. O PostgreSQL só conta, não diz quais; por isso cada ação registrada (consulta, login, pedido, aprovação) aparece nos eventos abaixo na hora, e os rollbacks da API também.</li>
         </ul>
       </Explica>
       <AutoRefresh seconds={EVERY} />
@@ -80,7 +80,10 @@ export default async function Monitor() {
       <p className="note">Fonte: PostgreSQL observado (pg_locks e pg_blocking_pids).</p>
       <LockGraph locks={locks} />
       <h2>Eventos ao vivo</h2>
-      <p className="note">Cada evento diz a fonte: o PostgreSQL (alertas do coletor), a aplicação (rollbacks e break-glass) ou o LAB.</p>
+      <p className="note">
+        Cada evento diz a fonte: o PostgreSQL (alertas do coletor), a aplicação (cada ação registrada, rollbacks e break-glass)
+        ou o LAB. Quem fez cada ação fica na Auditoria, para quem pode ler a trilha.
+      </p>
       <EventFeed initial={events} canAudit={me.permissions.includes('audit:read')} />
       <h2>Últimos 30 minutos no banco da aplicação</h2>
       <p className="note">

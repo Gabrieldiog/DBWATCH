@@ -82,9 +82,27 @@ export const fromStream = (r: Raw): MonitorEvent =>
   ({ ...r, occurredAt: r.occurredAt ?? r.occurred_at, correlationId: r.correlationId ?? r.correlation_id ?? null, fresh: true }) as MonitorEvent;
 
 const secs = (ms: unknown) => `${Math.round(Number(ms) / 1000)} s`;
+
+// O que cada ação da auditoria quer dizer, para o evento de atividade do Monitor
+export const ACTION_LABEL: Record<string, string> = {
+  'auth.login': 'Login', 'auth.logout': 'Saída do sistema', 'auth.account_locked': 'Conta bloqueada por tentativas',
+  'auth.session_revoke': 'Sessão encerrada', 'authz.denied': 'Acesso a uma rota negado',
+  'iam.user_create': 'Pessoa criada', 'iam.user_status': 'Pessoa ativada ou desativada', 'iam.role_assign': 'Papel atribuído',
+  'iam.role_remove': 'Papel removido', 'iam.sessions_revoke': 'Sessões de uma pessoa encerradas', 'iam.seed_demo': 'Usuários de demonstração recriados',
+  'iam.acl_create': 'Regra de login criada', 'iam.acl_delete': 'Regra de login removida',
+  'pam.request_create': 'Pedido de acesso', 'pam.request_approve': 'Decisão de aprovação', 'pam.request_reject': 'Pedido rejeitado',
+  'pam.request_cancel': 'Pedido cancelado', 'pam.grant_revoke': 'Acesso revogado', 'pam.grant_expired': 'Acesso venceu sozinho',
+  'pam.query_execute': 'Consulta executada', 'pam.break_glass': 'Acesso de emergência', 'pam.break_glass_review': 'Emergência revisada',
+  'audit.verify': 'Cadeia de auditoria verificada', 'lab.run': 'Experimento do laboratório', 'lab.simulation': 'Simulação iniciada',
+};
+const OUTCOME: Record<string, string> = { SUCCESS: 'deu certo', DENIED: 'negado', FAILURE: 'falhou' };
 export function describeEvent(e: MonitorEvent): [string, string] {
   const d = e.detail;
   if (e.kind === 'LAB') return [String(d.titulo ?? 'LAB'), String(d.texto ?? '')];
+  if (e.kind === 'ACTIVITY') {
+    const why = d.motivo ? ` (${String(d.motivo)})` : '';
+    return [ACTION_LABEL[e.operation ?? ''] ?? String(e.operation), `${e.operation}: ${OUTCOME[String(d.resultado)] ?? d.resultado}${why}`];
+  }
   switch (e.code) {
     case 'TX_ROLLBACK':
       return ['Rollback na API', `${e.operation} ${e.sqlstate ? `voltou com SQLSTATE ${e.sqlstate}` : 'voltou por uma regra da API'}`];
@@ -109,6 +127,6 @@ export const total = (points: Point[]) => points.reduce((sum, p) => sum + (p.v ?
 // De onde veio cada evento: o PRD exige que nenhum dado apareça sem fonte
 export function sourceOf(e: Pick<MonitorEvent, 'kind' | 'code'>): ['PostgreSQL' | 'Aplicação' | 'LAB', 'db' | 'app' | 'lab'] {
   if (e.kind === 'LAB') return ['LAB', 'lab'];
-  if (e.kind === 'TX_ROLLBACK' || e.code === 'BREAK_GLASS') return ['Aplicação', 'app'];
+  if (e.kind === 'TX_ROLLBACK' || e.kind === 'ACTIVITY' || e.code === 'BREAK_GLASS') return ['Aplicação', 'app'];
   return ['PostgreSQL', 'db'];
 }

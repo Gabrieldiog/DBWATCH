@@ -33,8 +33,23 @@ describe('eventos, alertas e fluxo ao vivo do monitor', () => {
     const create = () => request(app.getHttpServer()).post('/api/users').set('Origin', ORIGIN).set('Cookie', admin.cookie).send(body);
     await create().expect(201);
     const res = await create().expect(409);
-    const [event] = await sql('SELECT kind, operation, sqlstate FROM monitor.app_events WHERE correlation_id = $1', [res.body.correlationId]);
+    const [event] = await sql("SELECT kind, operation, sqlstate FROM monitor.app_events WHERE correlation_id = $1 AND kind = 'TX_ROLLBACK'", [res.body.correlationId]);
     expect(event).toEqual({ kind: 'TX_ROLLBACK', operation: 'iam.user_create', sqlstate: '23505' });
+  });
+
+  it('T-MON-06 cada registro de auditoria vira atividade no monitor, sem o autor, e morre junto com a transação desfeita', async () => {
+    const admin = await loginAs(app, ['ADMIN']);
+    const body = { email: `ativ-${Date.now()}@dbwatch.test`, displayName: 'Atividade' };
+    const create = () => request(app.getHttpServer()).post('/api/users').set('Origin', ORIGIN).set('Cookie', admin.cookie).send(body);
+    const ok = await create().expect(201);
+    const dup = await create().expect(409);
+    const activity = async (cid: string) =>
+      sql("SELECT severity, operation, detail FROM monitor.app_events WHERE kind = 'ACTIVITY' AND correlation_id = $1", [cid]);
+    expect(await activity(ok.headers['x-request-id'])).toEqual([{ severity: 'info', operation: 'iam.user_create', detail: { resultado: 'SUCCESS' } }]);
+    // O registro de sucesso da segunda tentativa foi desfeito com a transação: sobra só a falha, gravada fora dela
+    const failed = await activity(dup.body.correlationId);
+    expect(failed).toEqual([{ severity: 'high', operation: 'iam.user_create', detail: { resultado: 'FAILURE', motivo: expect.stringMatching(/^sqlstate:23505/) } }]);
+    expect(JSON.stringify(failed)).not.toMatch(new RegExp(`${admin.id}|${body.email}|initialPassword`));
   });
 
   it('alertas de lock longo e de transação parada, sem repetir na amostra seguinte', async () => {
