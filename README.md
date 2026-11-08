@@ -32,7 +32,7 @@
 ---
 
 > [!IMPORTANT]
-> **Versão 1.1.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 143 testes de API e banco, 48 testes unitários do front e 79 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
+> **Versão 1.1.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 144 testes de API e banco, 48 testes unitários do front e 80 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
 
 ## 💡 O que é o DBWATCH?
 
@@ -101,7 +101,7 @@ Controla **quem pode acessar o quê, por quanto tempo e com aprovação de quem*
 - **Quem pede não aprova.** A separação de funções é garantida por uma `CHECK constraint` no banco, não só por um `if` no código.
 - **Concessões não se sobrepõem.** Uma `EXCLUDE constraint` com intervalos de tempo (`tstzrange`) impede duas concessões ativas do mesmo usuário para o mesmo recurso.
 - **Leitura pelo catálogo.** Com uma concessão de Leitura, o usuário executa apenas **consultas parametrizadas de um catálogo aprovado**, em transação somente leitura, com tempo-limite e limite de linhas.
-- **Escrita limitada pelo banco.** Com uma concessão de Escrita, o **Console SQL** aceita um comando por vez, mas quem decide o que ele alcança é um papel do PostgreSQL por recurso: só a tabela daquele recurso, sem DDL. Outra tabela ou um `DROP` voltam com o erro do próprio banco, e o comando inteiro vai para a auditoria.
+- **Console SQL, também na Leitura.** Quem prefere digitar usa o **Console SQL**, com SQL pronto por recurso para ganhar tempo. Quem decide o que o comando alcança é um papel do PostgreSQL por recurso: só a tabela daquele recurso, sem DDL. Com acesso de Leitura a transação é `READ ONLY` e um `UPDATE` volta com o erro `25006` do banco; com Escrita, o comando altera de verdade. Outra tabela ou um `DROP` voltam com `42501`, e o comando inteiro vai para a auditoria.
 - **Tudo vai para a auditoria:** pedidos, aprovações, negações, revogações, expirações e tentativas negadas.
 
 ### Pilar B: Database Monitor
@@ -334,7 +334,7 @@ O DBWATCH é testado de baixo para cima, sempre contra um **PostgreSQL real**, p
   ╱              Unidade (regras de negócio)           ╲ máquina de estados, expiração, validação
 ```
 
-**Números da versão 1.1.0** (todos rodam no CI a cada PR): 143 testes de API e banco em 27 arquivos, 48 testes unitários do front e 79 testes E2E no Chromium, com axe nos dois temas. Os números de cada pack, com os erros que os testes pegaram antes da entrega, estão no [ROADMAP](docs/ROADMAP.md).
+**Números atuais** (todos rodam no CI a cada PR): 144 testes de API e banco em 27 arquivos, 48 testes unitários do front e 80 testes E2E no Chromium, com axe nos dois temas. Os números de cada pack, com os erros que os testes pegaram antes da entrega, estão no [ROADMAP](docs/ROADMAP.md).
 
 Exemplos de testes da suíte:
 
@@ -426,7 +426,7 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | **P1 · Segurança e persistência** | PK-03 a PK-07 | Auditoria protegida, autenticação, RBAC, solicitações e aprovações, concessões temporárias e consultas controladas |
 | **P2 · Monitoramento** | PK-08 a PK-12 | Coletor, laboratório, interface completa e dashboard com motion |
 | **P3 · Refinamento** | PK-13 a PK-15 | QA final, deploy na VPS, release v1.0 e ensaio da apresentação |
-| **P4 · Depois do primeiro uso** | PK-16 a PK-22 | Entrada com login, bot da simulação (automático, passo a passo e com mouse), telas que se explicam, Monitor com toda ação, console SQL com escrita e release v1.1 |
+| **P4 · Depois do primeiro uso** | PK-16 a PK-23 | Entrada com login, bot da simulação (automático, passo a passo e com mouse), telas que se explicam, Monitor com toda ação, console SQL com escrita, release v1.1 e console também na leitura |
 
 ## 📊 Status de implementação
 
@@ -443,6 +443,7 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Consultas que se explicam, ajuda em cada tela e Monitor com toda ação (PK-20a a PK-20c) | ✅ Concluído |
 | Console SQL com escrita limitada pelo banco (PK-21a, PK-21b) | ✅ Concluído |
 | Release v1.1.0 (PK-22) | ✅ Concluído |
+| Console SQL também com acesso de Leitura e SQL pronto (PK-23) | ✅ Concluído |
 
 ## 📚 Documentação
 

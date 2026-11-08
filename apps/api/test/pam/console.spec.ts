@@ -20,7 +20,7 @@ async function grant(userId: string, approverId: string, resource: string, level
   return req.resource_id as string;
 }
 
-describe('console SQL com escrita (PK-21)', () => {
+describe('console SQL com leitura e escrita (PK-21, PK-23)', () => {
   let app: NestExpressApplication;
   let approver: { id: string };
   const run = (cookie: string, resourceId: string, text: string) =>
@@ -65,10 +65,30 @@ describe('console SQL com escrita (PK-21)', () => {
     expect(await target("SELECT to_regclass('loja.clientes') IS NOT NULL AS existe")).toEqual([{ existe: true }]);
   });
 
-  it('T-CON-03 sem acesso de Escrita (só Leitura ou nenhum) é 403 auditado; sem query:execute nem chega ao serviço', async () => {
+  it('T-CON-03 com Leitura: SELECT funciona, mas a transação é READ ONLY e o banco recusa qualquer escrita', async () => {
     const user = await loginAs(app, ['REQUESTER']);
-    const catalogo = await grant(user.id, approver.id, 'Catálogo de produtos', 'READ');
-    expect((await run(user.cookie, catalogo, 'SELECT 1').expect(403)).body.message).toMatch(/escrita/);
+    const clientes = await grant(user.id, approver.id, 'Clientes', 'READ');
+    const res = await run(user.cookie, clientes, "SELECT id, cidade FROM loja.clientes WHERE cidade = 'Goiânia' ORDER BY id LIMIT 3").expect(200);
+    expect(res.body).toMatchObject({ level: 'READ', command: 'SELECT', rowCount: 3, columns: ['id', 'cidade'] });
+    const [{ nome }] = await target('SELECT nome FROM loja.clientes WHERE id = 7');
+    const refused = async (text: string, sqlstate: string, why: string) =>
+      expect((await run(user.cookie, clientes, text).expect(400)).body.message).toMatch(new RegExp(`SQLSTATE ${sqlstate}\\): .*${why}`));
+    await refused("UPDATE loja.clientes SET nome = 'x' WHERE id = 7", '25006', 'read-only transaction');
+    await refused("WITH x AS (UPDATE loja.clientes SET nome = 'x' WHERE id = 7 RETURNING 1) SELECT * FROM x", '25006', 'read-only transaction');
+    // Desligar o somente leitura não dá: a transação já fez consultas antes do comando da pessoa
+    await refused('SET TRANSACTION READ WRITE', '25001', 'must be set before any query');
+    await refused("SELECT set_config('transaction_read_only', 'off', true)", '25001', 'must be set before any query');
+    await refused('SELECT count(*) FROM loja.pedidos', '42501', 'permission denied for table pedidos'); // só a tabela do recurso
+    expect((await target('SELECT nome FROM loja.clientes WHERE id = 7'))[0].nome).toBe(nome);
+    const [audit] = await sql(
+      "SELECT outcome::text, metadata->>'nivel' AS nivel FROM audit.audit_log WHERE actor_id = $1 AND action = 'pam.console_execute' ORDER BY chain_position DESC LIMIT 1", [user.id]);
+    expect(audit).toEqual({ outcome: 'FAILURE', nivel: 'READ' });
+  });
+
+  it('T-CON-04 sem nenhum acesso é 403 auditado; sem query:execute nem chega ao serviço', async () => {
+    const user = await loginAs(app, ['REQUESTER']);
+    const [{ id: catalogo }] = await sql("SELECT id FROM pam.resources WHERE name = 'Catálogo de produtos'");
+    expect((await run(user.cookie, catalogo, 'SELECT 1').expect(403)).body.message).toMatch(/Leitura ou Escrita/);
     const [audit] = await sql(
       "SELECT outcome::text, reason FROM audit.audit_log WHERE actor_id = $1 AND action = 'pam.console_execute' ORDER BY chain_position DESC LIMIT 1", [user.id]);
     expect(audit).toEqual({ outcome: 'DENIED', reason: 'sem_concessao' });

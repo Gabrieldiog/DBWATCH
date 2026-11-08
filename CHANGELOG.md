@@ -5,6 +5,13 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ## [Não lançado]
 
+### Adicionado
+
+- **PK-23 · Console SQL também na Leitura**
+  - Com acesso de Leitura, o Console SQL aceita SQL digitado numa transação `READ ONLY`: consultar funciona e qualquer alteração volta com o erro `25006` do PostgreSQL. As Consultas do catálogo continuam para quem prefere não digitar.
+  - SQL pronto por recurso, em três grupos: ler, alterar (precisa de Escrita) e o que o banco recusa.
+  - A auditoria do console guarda o nível do acesso usado.
+
 ## [1.1.0] - 2026-11-08
 
 Tudo o que mudou depois do primeiro uso de verdade: o sistema passou a se demonstrar sozinho, cada tela explica o que é, e o nível Escrita ganhou uso, sempre com o banco decidindo o limite.
