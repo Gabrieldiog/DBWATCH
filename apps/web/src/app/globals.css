@@ -1085,3 +1085,55 @@ dialog::backdrop {
 section > .access {
   margin-bottom: 12px;
 }
+
+/* Ajuda das telas: o guia da visão geral e o "O que é esta tela?" */
+.guia {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guia h3 {
+  margin: 0 0 6px;
+}
+
+.papeis {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.papeis dt {
+  font-weight: 600;
+}
+
+.papeis dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.permissoes code {
+  margin-left: 6px;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+.explica {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--scan);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.explica summary {
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.explica > div {
+  padding: 0 14px 4px;
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
 import { AutoRefresh } from '../../../components/auto-refresh';
 import { EventFeed } from '../../../components/event-feed';
 import { LineChart } from '../../../components/line-chart';
@@ -40,6 +41,18 @@ export default async function Monitor() {
         Amostras reais de <code>pg_stat_activity</code>, <code>pg_locks</code> e <code>pg_stat_database</code>,
         coletadas a cada {EVERY} s pelo papel <code>dbwatch_monitor</code>. A tela relê a última amostra sozinha.
       </p>
+      <Explica>
+        <p>Tudo aqui vem das views internas do PostgreSQL, lidas pelo papel <code>dbwatch_monitor</code> a cada 5 s. Nada é desenhado à mão.</p>
+        <ul>
+          <li><strong>Ativas:</strong> conexões executando um comando agora.</li>
+          <li><strong>Ociosas:</strong> conexões abertas esperando trabalho (as da API, do coletor e das consultas). Várias é normal.</li>
+          <li><strong>Ociosas em transação:</strong> abriram uma transação e pararam sem confirmar. Seguram locks e travam os outros; o incidente simulado mostra isso.</li>
+          <li><strong>Esperando lock e pares bloqueados:</strong> quem está parado esperando outra sessão soltar uma linha, e quem bloqueia quem (o grafo).</li>
+          <li><strong>Cache hit:</strong> quanto das leituras veio da memória, sem ir ao disco.</li>
+          <li><strong>Deadlocks:</strong> quantas vezes o banco achou duas transações travando uma à outra e derrubou uma.</li>
+          <li><strong>Commits e rollbacks a cada 5 s:</strong> transações confirmadas e desfeitas no banco da aplicação em cada intervalo. Os commits vêm do próprio coletor (um por amostra), de cada clique (a sessão guarda o último uso) e de cada ação. O PostgreSQL só conta, não diz quais: as ações estão na Auditoria e os rollbacks da API aparecem nos eventos abaixo.</li>
+        </ul>
+      </Explica>
       <AutoRefresh seconds={EVERY} />
       {!o.sampledAt ? (
         <p className="notice" role="status">

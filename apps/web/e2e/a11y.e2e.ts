@@ -82,6 +82,14 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoSeriousViolations(page);
     });
 
+    test('visão geral e o monitor com a ajuda aberta', async ({ page }) => {
+      await login(page, 'AUDITOR');
+      await expectNoSeriousViolations(page);
+      await page.goto('/monitor');
+      await page.locator('details.explica summary').click();
+      await expectNoSeriousViolations(page);
+    });
+
     test('minhas sessões', async ({ page }) => {
       await login(page, 'REQUESTER', '/sessoes');
       await expectNoSeriousViolations(page);

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
 import { ActionButton } from '../../../components/action-button';
 import { Badge } from '../../../components/badge';
 import { Countdown } from '../../../components/countdown';
@@ -66,6 +67,9 @@ export default async function Acessos() {
     <main className="console-page">
       <h1>Meus acessos</h1>
       <p>O prazo é contado pelo relógio do banco: se o sistema parar, o acesso vence do mesmo jeito.</p>
+      <Explica>
+        <p>Cada acesso tem início e fim. O prazo é contado pelo relógio do banco, então vence na hora mesmo se o sistema parar. Quem aprova pode revogar antes. O banco também impede dois acessos da mesma pessoa ao mesmo recurso no mesmo período (EXCLUDE).</p>
+      </Explica>
       <GrantTable grants={mine} />
       {canRevoke && (
         <>

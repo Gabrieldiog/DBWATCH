@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
 import { Badge } from '../../../components/badge';
 import { LabRunner } from '../../../components/lab-runner';
 import { OUTCOME, type RunRow, type Scenario } from '../../../lib/lab';
@@ -30,6 +31,10 @@ export default async function Laboratorio() {
         que só enxerga o schema <code>lab</code>. Os dados são fictícios e voltam ao ponto inicial antes de cada execução.
         Um experimento por vez no banco inteiro.
       </p>
+      <Explica>
+        <p>Cada experimento abre duas conexões reais (sessões A e B) num schema separado, <code>lab</code>, e faz as duas disputarem as mesmas linhas. A linha do tempo mostra cada comando com o tempo e o erro que o banco devolveu.</p>
+        <p>Serve para provar ao vivo o que a disciplina ensina: atomicidade (rollback), espera de lock, deadlock (<code>40P01</code>), níveis de isolamento e índices. Tudo rotulado LAB, porque é provocado de propósito.</p>
+      </Explica>
       <ul className="cards">
         {scenarios.map((s) => (
           <LabRunner key={s.name} scenario={s} />

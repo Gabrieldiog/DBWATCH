@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
 import { ActionButton } from '../../../components/action-button';
 import { device } from '../../../lib/console';
 import { when } from '../../../lib/pam';
@@ -18,6 +19,9 @@ export default async function Sessoes() {
         Onde sua conta está aberta agora. Esqueceu um computador logado? Encerre aqui: a sessão é revogada no banco e
         o próximo clique naquele aparelho volta para o login.
       </p>
+      <Explica>
+        <p>A sessão fica guardada no banco, não só no navegador. Por isso dá para encerrar um aparelho à distância: a linha recebe a data de revogação e o próximo clique naquele aparelho volta para o login.</p>
+      </Explica>
       <div className="table-wrap">
         <table className="table">
           <thead>

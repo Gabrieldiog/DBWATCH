@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
 import { ActionButton } from '../../../components/action-button';
 import { BreakGlassForm } from '../../../components/break-glass-form';
 import { Badge } from '../../../components/badge';
@@ -23,6 +24,15 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
         O acesso é temporário e passa por aprovação. Recurso de sensibilidade alta precisa de duas pessoas
         diferentes.
       </p>
+      <Explica>
+        <ul>
+          <li><strong>Recurso:</strong> uma parte dos dados da loja fictícia (Catálogo, Clientes ou Financeiro).</li>
+          <li><strong>Sensibilidade:</strong> baixa e média precisam de uma aprovação; alta precisa de duas pessoas diferentes.</li>
+          <li><strong>Duração máxima:</strong> quanto mais sensível o dado, menor o tempo (Catálogo 2 h, Clientes 1 h, Financeiro 30 min). O acesso some sozinho no fim.</li>
+          <li><strong>Leitura ou escrita:</strong> as consultas do catálogo são só de leitura; o nível escrita fica registrado no pedido.</li>
+          <li>Um pedido pendente por recurso: o banco recusa o segundo.</li>
+        </ul>
+      </Explica>
       <RequestForm resources={resources} initial={recurso} />
       {me.permissions.includes('breakglass:use') && (
         <section aria-labelledby="emergencia">

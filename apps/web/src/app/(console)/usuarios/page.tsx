@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
+import { PAPEIS } from '../../../lib/ajuda';
 import { AclForm } from '../../../components/acl-form';
 import { ActionButton } from '../../../components/action-button';
 import { Badge } from '../../../components/badge';
@@ -24,6 +26,16 @@ export default async function Usuarios() {
         As regras ficam no banco: ninguém dá papel a si mesmo e o último ADMIN ativo não pode sair. Desativar alguém
         encerra todas as sessões dessa pessoa na mesma transação.
       </p>
+      <Explica>
+        <ul>
+          {PAPEIS.map(([papel, texto]) => (
+            <li key={papel}>
+              <strong>{papel}:</strong> {texto}
+            </li>
+          ))}
+        </ul>
+        <p>Ninguém dá papel a si mesmo (a Ana não consegue se dar Auditoria; outra pessoa com administração conseguiria). O último ADMIN ativo não pode sair. As duas regras estão no banco.</p>
+      </Explica>
       <UserForm />
       <div className="table-wrap">
         <table className="table">
@@ -89,6 +101,15 @@ export default async function Usuarios() {
         <code>iam.login_acl_decision</code>). Sem regra que case, vale só a senha. Uma regra que negue todo mundo,
         sempre, é recusada por uma CHECK.
       </p>
+      <Explica titulo="Como funcionam as regras de login?">
+        <ul>
+          <li><strong>Ação:</strong> negar ou permitir o login de quem casar com a regra.</li>
+          <li><strong>Prioridade:</strong> o banco testa as regras da menor para a maior; a primeira que casar decide. Sem nenhuma, vale só a senha.</li>
+          <li><strong>Faixa de IP:</strong> de onde a pessoa entra, no formato 10.0.0.0/8 (vazio = qualquer lugar).</li>
+          <li><strong>Dias e horário:</strong> nenhum dia marcado vale todos os dias; o horário é o de Brasília.</li>
+          <li>Exemplo: prioridade 10, negar, faixa 0.0.0.0/0, sábado e domingo: ninguém entra no fim de semana. Uma regra que negue todo mundo, sempre, o banco recusa.</li>
+        </ul>
+      </Explica>
       <AclForm />
       {rules.length === 0 ? (
         <p className="panel">Nenhuma regra: qualquer IP entra a qualquer hora, desde que acerte a senha.</p>
