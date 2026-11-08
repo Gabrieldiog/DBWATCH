@@ -19,6 +19,10 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Adicionado
 
+- **PK-21b · Tela do console SQL**
+  - Nova área "Console SQL": escolher o recurso, ver se o acesso de Escrita está vivo (ou pedir, com o nível já marcado), escrever o comando e ver o resultado ou o erro do PostgreSQL.
+  - Exemplos prontos por recurso, inclusive tentativas que o banco recusa (outra tabela, DROP, TRUNCATE).
+
 - **PK-21a · Console SQL com escrita (API e banco)**
   - `POST /api/console/execute`: com um acesso de Escrita aprovado e vivo, um comando SQL roda de verdade no banco da loja, um por vez, com tempo-limite, e o comando inteiro vai para a auditoria.
   - Um papel de escrita por recurso (`dbwatch_rw_*`, sem login): só a tabela daquele recurso, sem DDL nem TRUNCATE. O banco-alvo não tem `plpgsql` para quem não é dono, e a conexão é descartada depois de cada comando.

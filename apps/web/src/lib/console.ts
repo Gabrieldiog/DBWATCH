@@ -11,6 +11,7 @@ export const NAV: NavItem[] = [
   { href: '/aprovacoes', label: 'Aprovações', group: 'Acesso', anyOf: ['request:review'], icon: 'M5 12l5 5 9-10' },
   { href: '/acessos', label: 'Meus acessos', group: 'Acesso', anyOf: ['grant:read:own', 'grant:revoke'], icon: 'M4 15a4 4 0 1 0 8 0a4 4 0 1 0-8 0M11 12l9-9M17 6l3 3' },
   { href: '/consultas', label: 'Consultas', group: 'Acesso', anyOf: ['query:execute'], icon: 'M4 6h16M4 12h16M4 18h10' },
+  { href: '/console', label: 'Console SQL', group: 'Acesso', anyOf: ['query:execute'], icon: 'M4 17l6-6-6-6M12 19h8' },
   { href: '/auditoria', label: 'Auditoria', group: 'Governança', anyOf: ['audit:read'], icon: 'M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z' },
   { href: '/usuarios', label: 'Usuários', group: 'Governança', anyOf: ['user:manage', 'role:assign'], icon: 'M5 8a4 4 0 1 0 8 0a4 4 0 1 0-8 0M2 21c0-4 3-6 7-6s7 2 7 6M17 11l2 2 4-4' },
 ];

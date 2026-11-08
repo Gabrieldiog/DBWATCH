@@ -5,7 +5,7 @@ import { useState, type FormEvent } from 'react';
 import { minutes, SENSITIVITY, type Resource } from '../lib/pam';
 import { send } from '../lib/send';
 
-export function RequestForm({ resources, initial }: { resources: Resource[]; initial?: string }) {
+export function RequestForm({ resources, initial, level }: { resources: Resource[]; initial?: string; level?: string }) {
   const router = useRouter();
   const [resourceId, setResourceId] = useState(resources.find((r) => r.id === initial)?.id ?? resources[0]?.id ?? '');
   const [text, setText] = useState('');
@@ -50,10 +50,10 @@ export function RequestForm({ resources, initial }: { resources: Resource[]; ini
       <fieldset className="field">
         <legend>Nível</legend>
         <label>
-          <input type="radio" name="accessLevel" value="READ" defaultChecked /> Leitura
+          <input type="radio" name="accessLevel" value="READ" defaultChecked={level !== 'WRITE'} /> Leitura
         </label>
         <label>
-          <input type="radio" name="accessLevel" value="WRITE" /> Escrita
+          <input type="radio" name="accessLevel" value="WRITE" defaultChecked={level === 'WRITE'} /> Escrita
         </label>
       </fieldset>
       <label className="field">

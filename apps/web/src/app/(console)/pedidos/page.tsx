@@ -9,9 +9,9 @@ import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Pedir acesso' };
 
-// ?recurso= vem do botão "Pedir acesso" das Consultas: o formulário já abre no recurso certo
-export default async function Pedidos({ searchParams }: { searchParams: Promise<{ recurso?: string }> }) {
-  const { recurso } = await searchParams;
+// ?recurso= (e ?nivel=WRITE, do console) vêm dos links "Pedir acesso": o formulário já abre no recurso e no nível certos
+export default async function Pedidos({ searchParams }: { searchParams: Promise<{ recurso?: string; nivel?: string }> }) {
+  const { recurso, nivel } = await searchParams;
   const me = await requirePermission('request:create');
   const [resources, mine] = await Promise.all([
     apiGet<Resource[]>('/resources'),
@@ -33,7 +33,7 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
           <li>Um pedido pendente por recurso: o banco recusa o segundo.</li>
         </ul>
       </Explica>
-      <RequestForm resources={resources} initial={recurso} />
+      <RequestForm resources={resources} initial={recurso} level={nivel} />
       {me.permissions.includes('breakglass:use') && (
         <section aria-labelledby="emergencia">
           <h2 id="emergencia">Emergência (break-glass)</h2>

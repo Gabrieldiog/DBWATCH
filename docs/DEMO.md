@@ -40,6 +40,10 @@ Tudo o que for mostrado é **real** e reproduzível. Quando algo for um experime
 | 11:15 | **Qualidade** | Mostrar o CI verde e a contagem de testes de banco e de segurança | Cada regra tem um teste que tenta violá-la |
 | 11:45 | **Fechamento** | Logo + limites honestos (superusuário, amostragem) + próximos passos | Engenharia responsável: sabemos o que garantimos e o que não |
 
+### Console SQL com escrita (~1 min)
+
+Diego pede **Escrita** em Clientes (o link do Console já abre o pedido marcado), Bruno aprova, e Diego, no **Console SQL**, aperta "Mudar a cidade de um cliente": o UPDATE roda de verdade e a linha volta na tela. Depois "Apagar pedidos (outra tabela)" e "Apagar a tabela": o PostgreSQL recusa com `42501` e a mensagem dele. O que dizer: "a aplicação não tenta adivinhar se o SQL é perigoso; quem limita é o papel do banco daquele recurso". No Monitor, cada comando aparece como "Comando no console SQL".
+
 ### O bot da simulação (LAB, ~55 s)
 
 No Monitor, a Ana aperta **▶ Iniciar simulação** e o sistema se demonstra sozinho, em três atos, tudo de verdade. Dica: deixe a janela da Eva também no Monitor; para ela, cada passo do bot tem o link "ver na auditoria".
