@@ -19,6 +19,10 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Adicionado
 
+- **PK-21a · Console SQL com escrita (API e banco)**
+  - `POST /api/console/execute`: com um acesso de Escrita aprovado e vivo, um comando SQL roda de verdade no banco da loja, um por vez, com tempo-limite, e o comando inteiro vai para a auditoria.
+  - Um papel de escrita por recurso (`dbwatch_rw_*`, sem login): só a tabela daquele recurso, sem DDL nem TRUNCATE. O banco-alvo não tem `plpgsql` para quem não é dono, e a conexão é descartada depois de cada comando.
+
 - **PK-20c · O Monitor mostra tudo**
   - Cada registro de auditoria (consulta, login, pedido, aprovação, papel, regra) vira um evento ao vivo no Monitor, com a ação em português, o resultado e o motivo; quem fez fica só na Auditoria.
   - O evento nasce por trigger na mesma transação do registro: ação desfeita não aparece.
