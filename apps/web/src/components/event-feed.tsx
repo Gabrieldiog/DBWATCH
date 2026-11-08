@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { describeEvent, fromStream, SEVERITY, sourceOf, time, type MonitorEvent } from '../lib/monitor';
+import { describeEvent, explainEvent, fromStream, SEVERITY, sourceOf, time, type MonitorEvent } from '../lib/monitor';
 import { Badge } from './badge';
 
 const STATE = { connecting: 'Conectando ao fluxo ao vivo…', on: 'Ao vivo: eventos novos entram no topo na hora.', off: 'Conexão perdida. O navegador tenta de novo sozinho.' };
@@ -40,6 +40,10 @@ export function EventFeed({ initial, canAudit }: { initial: MonitorEvent[]; canA
                 <Badge entry={SEVERITY[e.severity]} fallback={e.severity} />
                 <strong>{title}</strong>
                 <span>{detail}</span>
+                <details className="event-detalhe">
+                  <summary>Detalhar</summary>
+                  <p>{explainEvent(e)}</p>
+                </details>
                 <span className="note">
                   Fonte: {source} · {time(e.occurredAt)}
                   {canAudit && e.correlationId && (

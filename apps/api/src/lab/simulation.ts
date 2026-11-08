@@ -3,7 +3,8 @@ import { Client } from 'pg';
 // LAB: incidente de "fechamento do mês", acontecendo de verdade no schema lab com quatro conexões reais.
 // Nada é inventado: cada passo é um comando no PostgreSQL, e cada erro é o SQLSTATE que o banco devolveu
 // correlationId liga o evento ao registro da auditoria daquela ação (o Monitor mostra o link)
-export type Narrate = (severity: 'info' | 'medium' | 'high', titulo: string, texto: string, correlationId?: string) => Promise<void>;
+// detalhe: o "o que aconteceu" que abre ao clicar no evento do Monitor (PK-25)
+export type Narrate = (severity: 'info' | 'medium' | 'high', titulo: string, texto: string, correlationId?: string, detalhe?: string) => Promise<void>;
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const sqlstate = (err: unknown) => (err as { code?: string }).code ?? 'XX000';
@@ -38,7 +39,7 @@ export async function runIncident(url: string, narrate: Narrate, hold: () => Pro
   })();
   try {
     await narrate('info', 'Ato 2: incidente no fechamento do mês', 'Um caixa faz movimentações normais; o gráfico de commits sobe com elas.');
-    await pause(4_000);
+    await pause(6_000);
     await hold();
 
     await relatorio.query('BEGIN');
@@ -54,7 +55,8 @@ export async function runIncident(url: string, narrate: Narrate, hold: () => Pro
         await caixa.query(DEBIT);
         break;
       } catch (err) {
-        await narrate('high', `O caixa desistiu (tentativa ${attempt})`, `Esperou 8 s e o banco cancelou com ${sqlstate(err)} (lock_timeout). Vai tentar de novo.`);
+        await narrate('high', `O caixa desistiu (tentativa ${attempt})`, `Esperou 8 s e o banco cancelou com ${sqlstate(err)} (lock_timeout). Vai tentar de novo.`, undefined,
+          'O caixa pediu o lock da linha da conta da Ana, que o relatório segura. Com lock_timeout de 8 s, o PostgreSQL cancelou só o comando do caixa; a transação esquecida do relatório continuou aberta, segurando a linha.');
         await pause(1_000);
       }
     }
@@ -67,8 +69,10 @@ export async function runIncident(url: string, narrate: Narrate, hold: () => Pro
       killed
         ? 'O PostgreSQL encerrou a transação esquecida do relatório depois de 20 s parada (idle_in_transaction_session_timeout) e o débito do caixa passou.'
         : 'O lock do relatório foi liberado e o débito do caixa passou.',
+      undefined,
+      'A conexão do relatório ficou "idle in transaction": abriu a transação, alterou a linha e parou. Depois de 20 s assim, o idle_in_transaction_session_timeout encerrou a sessão inteira e desfez a alteração dela. O lock caiu junto, e o caixa conseguiu debitar.',
     );
-    await pause(3_000);
+    await pause(5_000);
     await hold();
 
     await narrate('medium', 'Duas transferências cruzadas', 'Uma vai da Ana para o Bruno e a outra do Bruno para a Ana, ao mesmo tempo.');
@@ -85,7 +89,9 @@ export async function runIncident(url: string, narrate: Narrate, hold: () => Pro
     await loser.query('ROLLBACK');
     if (victim >= 0) {
       const reason = (results[victim] as PromiseRejectedResult).reason;
-      await narrate('high', 'Deadlock: o PostgreSQL escolheu uma vítima', `Erro ${sqlstate(reason)}: uma transferência foi desfeita e será repetida.`);
+      const [perdeu, ganhou] = victim === 0 ? ['Ana → Bruno', 'Bruno → Ana'] : ['Bruno → Ana', 'Ana → Bruno'];
+      await narrate('high', 'Deadlock: o PostgreSQL escolheu uma vítima', `Erro ${sqlstate(reason)}: a transferência ${perdeu} (R$ 5) foi desfeita e será repetida.`, undefined,
+        `A transferência Ana → Bruno travou a conta da Ana e pediu a do Bruno; a Bruno → Ana travou a do Bruno e pediu a da Ana. Uma esperava a outra para sempre. Depois do deadlock_timeout, o PostgreSQL escolheu a ${perdeu} como vítima: cancelou, desfez o débito que ela já tinha feito (ROLLBACK) e soltou a conta; a ${ganhou} confirmou. É este deadlock que o contador do banco mostra logo depois como "Deadlock detectado".`);
       await transfer(loser, victim === 0 ? ab : ba);
       await narrate('info', 'A transferência derrubada foi repetida', 'Tentou de novo do zero e confirmou: é assim que a aplicação deve tratar o 40P01.');
       await hold();

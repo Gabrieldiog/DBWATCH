@@ -82,8 +82,11 @@ test('uma consulta feita em outro navegador aparece ao vivo no monitor, com o li
   const cid = res.headers()['x-request-id']!;
   const event = page.locator('.events li.event-new').filter({ hasText: 'Consulta executada' }).filter({ has: page.locator(`a[href$="${cid}"]`) });
   // O motivo depende do histórico do Diego no banco (nunca teve acesso, ou teve e foi revogado)
-  await expect(event).toContainText(/pam\.query_execute: negado \((sem_concessao|grant_revoked|grant_expired)\)/);
+  // PK-25: diz quem fez e o recurso; "Detalhar" abre a explicação logo embaixo
+  await expect(event).toContainText(/Diego Solicitante tentou consultar Financeiro, mas foi negado: (não tinha acesso|o acesso tinha)/);
   await expect(event).toContainText('Fonte: Aplicação');
+  await event.getByText('Detalhar').click();
+  await expect(event.getByText(/nasceu na mesma transação do registro/)).toBeVisible();
   await event.getByRole('link', { name: 'ver na auditoria' }).click();
   await expect(page.getByRole('row').filter({ hasText: 'pam.query_execute' })).toContainText(demoUser('REQUESTER').email);
 });

@@ -17,6 +17,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
   - Recursos em cartões com o acesso de cada um, exemplos coloridos por intenção (ler, alterar, o banco recusa) e o comando num terminal; Ctrl + Enter executa.
   - Resultado em português ("1 linha alterada") e listas de escolha com a mesma seta nos dois temas.
 
+- **PK-25 · Monitor diz quem fez e explica cada evento**
+  - Todo evento da auditoria mostra quem fez e o recurso, numa frase ("Diego Solicitante tentou consultar Financeiro, mas foi negado: não tinha acesso a esse recurso"). Vai só o nome de exibição; e-mail, IP e metadados continuam só na auditoria.
+  - "Detalhar" em cada evento abre a explicação: o deadlock da simulação diz qual transferência caiu e por quê; o "Deadlock detectado" do contador diz o que o DBWATCH vê e o que não vê.
+  - Simulação automática mais lenta (5 s entre as ações do Ato 1 e do Ato 3) e o passo "Teste: o banco também barra" explicado.
+
 ## [1.1.0] - 2026-11-08
 
 Tudo o que mudou depois do primeiro uso de verdade: o sistema passou a se demonstrar sozinho, cada tela explica o que é, e o nível Escrita ganhou uso, sempre com o banco decidindo o limite.

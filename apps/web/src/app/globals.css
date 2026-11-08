@@ -737,6 +737,28 @@ dialog::backdrop {
   border-left: 4px solid var(--scan);
 }
 
+/* PK-25: "Detalhar" fica na última linha do evento e abre a explicação logo embaixo */
+.event-detalhe {
+  flex-basis: 100%;
+  order: 1;
+  font-size: 14px;
+}
+
+.event-detalhe summary {
+  width: fit-content;
+  color: var(--scan);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.event-detalhe p {
+  max-width: 80ch;
+  margin: 6px 0 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--bg);
+}
+
 .event-app {
   border-left-color: var(--coral);
 }
