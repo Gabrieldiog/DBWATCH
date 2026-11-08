@@ -27,6 +27,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
   - No banco: `approver_id` com FK e três CHECK (ninguém escolhe a si mesmo; decisão só da escolhida; primeira aprovação de outra pessoa). Pedidos antigos e break-glass ficam sem escolha e seguem a regra de antes.
   - Aprovações e Meus pedidos mostram para quem o pedido foi.
 
+- **PK-27 · Commits e rollbacks com o porquê**
+  - "Ver como tabela" ganhou a coluna "O que aconteceu": os eventos que o DBWATCH registrou em cada intervalo de 5 s (quem fez o quê, passos da simulação, a coleta do monitor).
+  - O rollback é ligado ao evento que voltou mesmo quando o contador do PostgreSQL chega na amostra seguinte; sem evento, a linha diz que o banco só informa o número.
+
 ## [1.1.0] - 2026-11-08
 
 Tudo o que mudou depois do primeiro uso de verdade: o sistema passou a se demonstrar sozinho, cada tela explica o que é, e o nível Escrita ganhou uso, sempre com o banco decidindo o limite.

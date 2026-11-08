@@ -194,3 +194,32 @@ export function explainEvent(e: MonitorEvent): string {
       return 'Evento registrado pela aplicação.';
   }
 }
+
+// PK-27: o que aconteceu em cada intervalo de 5 s da tabela. O PostgreSQL só conta commits e rollbacks; a explicação
+// vem dos eventos que o DBWATCH registrou no mesmo intervalo. Sem evento, a linha diz isso em vez de inventar
+const voltou = (e: MonitorEvent) =>
+  e.code === 'TX_ROLLBACK' || (e.kind === 'ACTIVITY' && e.detail.resultado === 'FAILURE') || (e.kind === 'LAB' && e.severity === 'high');
+// O PostgreSQL 15+ manda os contadores de cada conexão para o pg_stat_database com atraso de até alguns segundos: o
+// rollback pode cair na amostra seguinte ao evento. Por isso o evento que voltou espera até 2 intervalos pela amostra
+// em que o contador sobe
+export function intervalStory(points: Point[], events: MonitorEvent[], kind: 'commits' | 'rollbacks', rows = 12): { t: string; v: number | null; what: string[] }[] {
+  const say = (e: MonitorEvent) => {
+    const [title, detail] = describeEvent(e);
+    return e.kind === 'ACTIVITY' ? detail : title;
+  };
+  let waiting: { e: MonitorEvent; age: number }[] = [];
+  return points.slice(-rows).map((p, i, list) => {
+    const before = i > 0 ? Date.parse(list[i - 1]!.t) : Date.parse(p.t) - 5_000;
+    const inside = events.filter((e) => Date.parse(e.occurredAt) > before && Date.parse(e.occurredAt) <= Date.parse(p.t)).reverse();
+    if (kind === 'commits') {
+      const what = inside.filter((e) => e.kind !== 'ALERT').map(say);
+      if (p.v) what.push('Coleta do monitor (1 commit a cada amostra)');
+      return { t: p.t, v: p.v, what };
+    }
+    waiting = [...waiting.map((w) => ({ ...w, age: w.age + 1 })).filter((w) => w.age <= 2), ...inside.filter(voltou).map((e) => ({ e, age: 0 }))];
+    if (!p.v) return { t: p.t, v: p.v, what: [] };
+    const what = waiting.map((w) => say(w.e));
+    waiting = [];
+    return { t: p.t, v: p.v, what: what.length ? what : ['Rollback de uma conexão sem evento no DBWATCH: o PostgreSQL só informa o número'] };
+  }).reverse();
+}
