@@ -66,6 +66,14 @@ No servidor:
 5. `docker compose -f docker-compose.prod.yml up -d --no-build --wait`.
 6. Repita a conferência.
 
+**Uma vez só, na atualização que traz o console SQL (PK-21):** os papéis de escrita do banco-alvo são criados pelo superusuário, antes do `db:target` (que dá a eles as permissões nas tabelas da loja). O script é idempotente:
+
+```bash
+git archive HEAD infra/postgres/init infra/target | ssh root@IP-DA-VPS 'tar -x -C /opt/dbwatch'   # do seu computador
+docker compose -f docker-compose.prod.yml exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d dbwatch < infra/postgres/init/02-papeis-escrita.sql
+docker compose -f docker-compose.prod.yml run --rm tools pnpm db:target
+```
+
 Não rode o seed numa atualização: ele gera senhas novas e revoga as sessões dos usuários demo.
 
 ## 3. Rollback

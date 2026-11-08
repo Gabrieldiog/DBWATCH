@@ -38,8 +38,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Dependências sem falha alta conhecida
         run: pnpm audit --prod --audit-level high
-      - name: Cria os papéis do banco (mesmo script do Compose)
-        run: sh infra/postgres/init/01-roles.sh
+      - name: Cria os papéis do banco (mesmos scripts do Compose)
+        run: |
+          sh infra/postgres/init/01-roles.sh
+          psql -v ON_ERROR_STOP=1 --username postgres --dbname "$POSTGRES_DB" -f infra/postgres/init/02-papeis-escrita.sql
         env:
           PGHOST: 127.0.0.1
           PGPORT: 5433

@@ -45,7 +45,7 @@ describe('eventos, alertas e fluxo ao vivo do monitor', () => {
     const dup = await create().expect(409);
     const activity = async (cid: string) =>
       sql("SELECT severity, operation, detail FROM monitor.app_events WHERE kind = 'ACTIVITY' AND correlation_id = $1", [cid]);
-    expect(await activity(ok.headers['x-request-id'])).toEqual([{ severity: 'info', operation: 'iam.user_create', detail: { resultado: 'SUCCESS' } }]);
+    expect(await activity(String(ok.headers['x-request-id']))).toEqual([{ severity: 'info', operation: 'iam.user_create', detail: { resultado: 'SUCCESS' } }]);
     // O registro de sucesso da segunda tentativa foi desfeito com a transação: sobra só a falha, gravada fora dela
     const failed = await activity(dup.body.correlationId);
     expect(failed).toEqual([{ severity: 'high', operation: 'iam.user_create', detail: { resultado: 'FAILURE', motivo: expect.stringMatching(/^sqlstate:23505/) } }]);

@@ -92,7 +92,7 @@ export const ACTION_LABEL: Record<string, string> = {
   'iam.acl_create': 'Regra de login criada', 'iam.acl_delete': 'Regra de login removida',
   'pam.request_create': 'Pedido de acesso', 'pam.request_approve': 'Decisão de aprovação', 'pam.request_reject': 'Pedido rejeitado',
   'pam.request_cancel': 'Pedido cancelado', 'pam.grant_revoke': 'Acesso revogado', 'pam.grant_expired': 'Acesso venceu sozinho',
-  'pam.query_execute': 'Consulta executada', 'pam.break_glass': 'Acesso de emergência', 'pam.break_glass_review': 'Emergência revisada',
+  'pam.query_execute': 'Consulta executada', 'pam.console_execute': 'Comando no console SQL', 'pam.break_glass': 'Acesso de emergência', 'pam.break_glass_review': 'Emergência revisada',
   'audit.verify': 'Cadeia de auditoria verificada', 'lab.run': 'Experimento do laboratório', 'lab.simulation': 'Simulação iniciada',
 };
 const OUTCOME: Record<string, string> = { SUCCESS: 'deu certo', DENIED: 'negado', FAILURE: 'falhou' };

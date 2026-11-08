@@ -171,6 +171,7 @@ model Resource {
   databaseName    String          @map("database_name")
   sensitivity     Sensitivity
   maxGrantMinutes Int             @map("max_grant_minutes")
+  writeRole       String?         @map("write_role")
   active          Boolean         @default(true)
   createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   requests        AccessRequest[]
