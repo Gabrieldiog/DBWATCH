@@ -17,6 +17,8 @@ type Done<T> = { cid: string; value?: T; error?: unknown };
 // Só os personagens do seed (@dbwatch.test): o bot nunca age como uma pessoa real cadastrada
 const demo = (role: string) => DEMO_USERS.find((u) => u.role === role)!.email;
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Tempo entre as ações do Ato 1 e do Ato 3 no modo automático: dá para ler cada evento antes do próximo (PK-25)
+const PASSO = 5_000;
 const TIME = new Intl.DateTimeFormat('pt-BR', { timeStyle: 'short', timeZone: 'America/Sao_Paulo' });
 
 // LAB: os atos 1 e 3 da simulação. Cada ação passa pelo mesmo serviço da rota HTTP, com RLS, CHECKs e auditoria;
@@ -66,18 +68,19 @@ export class StoryService {
     }
     await narrate('info', 'Ato 1: um acesso do começo ao fim', `${diego.name} precisa ver o cadastro de clientes. Cada ação passa pelas regras da API e do banco, e a auditoria marca como simulação.`);
     await this.reset(diego, bruno, resource.id, starter);
-    await pause(2_000);
+    await pause(PASSO);
 
     const created = await this.as(diego, starter, () =>
       this.requests.create({ resourceId: resource.id, accessLevel: 'READ', requestedMinutes: 15, justification: 'Conferir o cadastro de clientes antes da campanha de novembro' }, diego.id),
     );
     const id = this.must(created).id;
     await narrate('info', `${diego.name} pediu acesso`, 'Leitura em Clientes por 15 min, com justificativa. O pedido nasce Pendente.', created.cid);
-    await pause(2_500);
+    await pause(PASSO);
 
     const self = await this.as(diego, starter, () => this.requests.approve(id, diego.id));
-    await narrate('high', `${diego.name} tentou aprovar o próprio pedido`, `A API recusou: ${(self.error as Error | undefined)?.message ?? 'passou (não deveria)'}.`, self.cid);
-    await pause(2_500);
+    await narrate('high', `${diego.name} tentou aprovar o próprio pedido`, `A API recusou: ${(self.error as Error | undefined)?.message ?? 'passou (não deveria)'}.`, self.cid,
+      'A API confere se quem aprova é a mesma pessoa que pediu e responde 403 antes de tocar no banco. Quem pede não aprova: é a separação de funções.');
+    await pause(PASSO);
 
     // Como se a checagem da API tivesse um bug: o UPDATE vai direto ao banco, e a CHECK de separação de funções decide
     const bypass = await this.as(diego, starter, () =>
@@ -87,18 +90,19 @@ export class StoryService {
     );
     const rule = bypass.error ? describeFailure(bypass.error).reason.split(' ')[1] : undefined;
     const why = bypass.error ? `o PostgreSQL recusou com ${sqlStateOf(bypass.error)}${rule ? `, regra ${rule}` : ''}` : 'o banco aceitou (não deveria)';
-    await narrate('high', 'E se a API tivesse um bug?', `O mesmo UPDATE direto no banco, pulando a API: ${why}. O pedido continua Pendente.`, bypass.cid);
-    await pause(2_500);
+    await narrate('high', 'Teste: o banco também barra', `O bot pulou a API e mandou a mesma aprovação direto no banco: ${why}. O pedido continua Pendente.`, bypass.cid,
+      `Para provar que a regra não depende só do código, o bot finge que a API tem um bug e grava a aprovação direto no PostgreSQL, com ${diego.name} aprovando o próprio pedido. A CHECK constraint da tabela de pedidos (quem decide precisa ser diferente de quem pediu) recusou, nada foi gravado, e por isso aparece um rollback logo depois.`);
+    await pause(PASSO);
 
     const approved = await this.as(bruno, starter, () => this.requests.approve(id, bruno.id, 'Justificativa conferida'));
     const until = this.must(approved).grant?.expiresAt;
     await narrate('info', `${bruno.name} aprovou`, `Outra pessoa decidiu, e a concessão nasceu na mesma transação, valendo até ${until ? TIME.format(until) : '?'} pelo relógio do banco.`, approved.cid);
-    await pause(2_500);
+    await pause(PASSO);
 
     const query = await this.as(diego, starter, () => this.queries.execute('clientes_por_cidade', diego.id, { cidade: 'Goiânia' }));
     const { rowCount, durationMs } = this.must(query);
     await narrate('info', `${diego.name} consultou os clientes`, `${rowCount} linha(s) em ${durationMs} ms, só leitura e com e-mail mascarado. A execução ficou na auditoria.`, query.cid);
-    await pause(3_000);
+    await pause(PASSO);
   }
 
   // Pedido pendente ou acesso vivo de uma rodada anterior bateria na UNIQUE parcial ou na EXCLUDE: limpa pelo caminho normal
@@ -119,7 +123,7 @@ export class StoryService {
     const eva = await this.actor(demo('AUDITOR'));
     if (!eva) return narrate('medium', 'Ato 3 pulado', 'Falta a usuária de auditoria do seed (rode pnpm db:seed).');
     await narrate('info', 'Ato 3: alguém confere tudo', `${eva.name}, da auditoria, recalcula a cadeia de hash da trilha inteira dentro do banco.`);
-    await pause(2_000);
+    await pause(PASSO);
     const verified = await this.as(eva, starter, () => this.audit.verifyRecorded());
     const r = this.must(verified);
     await narrate(

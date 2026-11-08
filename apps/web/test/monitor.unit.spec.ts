@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { ACTION_LABEL, describeEvent, fromStream, layout, linePath, niceMax, pick, sourceOf, staleFor, summary, total } from '../src/lib/monitor';
+import { ACTION_LABEL, describeEvent, explainEvent, fromStream, layout, linePath, niceMax, pick, sourceOf, staleFor, summary, total } from '../src/lib/monitor';
 
 describe('monitor (unitário)', () => {
   it('converte o texto do pg em número e mantém o null do contador reiniciado', () => {
@@ -67,6 +67,23 @@ describe('atividade da auditoria no monitor (unitário)', () => {
     ]);
     expect(describeEvent({ ...base, operation: 'auth.login', detail: { resultado: 'SUCCESS' } })).toEqual(['Login', 'auth.login: deu certo']);
     expect(sourceOf({ kind: 'ACTIVITY', code: 'AUDIT' })[0]).toBe('Aplicação');
+  });
+
+  it('PK-25: com quem fez, a frase diz a pessoa, o recurso e o motivo em português', () => {
+    const at = (operation: string, detail: Record<string, unknown>) => describeEvent({ ...base, operation, detail })[1];
+    expect(at('pam.query_execute', { resultado: 'SUCCESS', quem: 'Diego Solicitante', alvo: 'Clientes' })).toBe('Diego Solicitante consultou Clientes.');
+    expect(at('pam.query_execute', { resultado: 'DENIED', motivo: 'grant_expired', quem: 'Diego Solicitante', alvo: 'Clientes' })).toBe(
+      'Diego Solicitante tentou consultar Clientes, mas foi negado: o acesso tinha expirado.');
+    expect(at('pam.break_glass', { resultado: 'SUCCESS', quem: 'Ana Admin', alvo: 'Catálogo de produtos' })).toBe('Ana Admin abriu um acesso de emergência a Catálogo de produtos.');
+    expect(at('iam.user_create', { resultado: 'FAILURE', motivo: 'sqlstate:23505 users_email_key', quem: 'Ana Admin', tipoAlvo: 'user' })).toBe(
+      'Ana Admin tentou criar uma pessoa, mas falhou: o banco recusou (SQLSTATE 23505).');
+    expect(at('pam.grant_expired', { resultado: 'SUCCESS', alvo: 'Clientes', tipoAlvo: 'access_grant' })).toBe('O sistema encerrou o acesso vencido a Clientes.');
+  });
+
+  it('PK-25: detalhar explica o evento; deadlock do contador admite o que o DBWATCH não vê', () => {
+    expect(explainEvent({ ...base, operation: null, kind: 'ALERT', code: 'DEADLOCK', detail: { novos: 1, database: 'dbwatch' } })).toMatch(/40P01.*log do servidor, que o DBWATCH não lê/);
+    expect(explainEvent({ ...base, operation: null, kind: 'LAB', code: 'SIM_STEP', detail: { titulo: 'x', texto: 'y', detalhe: 'A Ana → Bruno caiu' } })).toBe('A Ana → Bruno caiu');
+    expect(explainEvent({ ...base, operation: 'pam.query_execute', detail: { resultado: 'DENIED', motivo: 'sem_concessao' } })).toMatch(/mesma transação.*sem_concessao/);
   });
 
   // Lê o código da API: uma ação auditada nova sem tradução quebra este teste

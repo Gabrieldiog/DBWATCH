@@ -37,7 +37,7 @@ describe('eventos, alertas e fluxo ao vivo do monitor', () => {
     expect(event).toEqual({ kind: 'TX_ROLLBACK', operation: 'iam.user_create', sqlstate: '23505' });
   });
 
-  it('T-MON-06 cada registro de auditoria vira atividade no monitor, sem o autor, e morre junto com a transação desfeita', async () => {
+  it('T-MON-06 cada registro de auditoria vira atividade no monitor, com o nome de quem fez (sem id nem e-mail), e morre junto com a transação desfeita', async () => {
     const admin = await loginAs(app, ['ADMIN']);
     const body = { email: `ativ-${Date.now()}@dbwatch.test`, displayName: 'Atividade' };
     const create = () => request(app.getHttpServer()).post('/api/users').set('Origin', ORIGIN).set('Cookie', admin.cookie).send(body);
@@ -45,11 +45,28 @@ describe('eventos, alertas e fluxo ao vivo do monitor', () => {
     const dup = await create().expect(409);
     const activity = async (cid: string) =>
       sql("SELECT severity, operation, detail FROM monitor.app_events WHERE kind = 'ACTIVITY' AND correlation_id = $1", [cid]);
-    expect(await activity(String(ok.headers['x-request-id']))).toEqual([{ severity: 'info', operation: 'iam.user_create', detail: { resultado: 'SUCCESS' } }]);
+    const [{ quem }] = await sql('SELECT display_name AS quem FROM iam.users WHERE id = $1', [admin.id]);
+    expect(await activity(String(ok.headers['x-request-id']))).toEqual([
+      { severity: 'info', operation: 'iam.user_create', detail: { resultado: 'SUCCESS', quem, tipoAlvo: 'user' } }, // o resource_id da criação é o e-mail: não vira alvo
+    ]);
     // O registro de sucesso da segunda tentativa foi desfeito com a transação: sobra só a falha, gravada fora dela
     const failed = await activity(dup.body.correlationId);
-    expect(failed).toEqual([{ severity: 'high', operation: 'iam.user_create', detail: { resultado: 'FAILURE', motivo: expect.stringMatching(/^sqlstate:23505/) } }]);
+    expect(failed).toEqual([{ severity: 'high', operation: 'iam.user_create', detail: { resultado: 'FAILURE', motivo: expect.stringMatching(/^sqlstate:23505/), quem, tipoAlvo: 'user' } }]);
     expect(JSON.stringify(failed)).not.toMatch(new RegExp(`${admin.id}|${body.email}|initialPassword`));
+  });
+
+  it('T-MON-07 o evento diz o recurso da consulta; um resource_id fora do formato não derruba a ação auditada', async () => {
+    const [{ code, name }] = await sql('SELECT t.code, r.name FROM pam.query_templates t JOIN pam.resources r ON r.id = t.resource_id LIMIT 1');
+    const cid = crypto.randomUUID();
+    await sql(`INSERT INTO audit.audit_log (action, resource_type, resource_id, outcome, reason, correlation_id)
+               VALUES ('pam.query_execute', 'query_template', $1, 'DENIED', 'sem_concessao', $2)`, [code, cid]);
+    await sql(`INSERT INTO audit.audit_log (action, resource_type, resource_id, outcome, correlation_id)
+               VALUES ('pam.grant_revoke', 'access_grant', 'nao-e-uuid', 'DENIED', $1)`, [cid]);
+    const rows = await sql("SELECT detail FROM monitor.app_events WHERE kind = 'ACTIVITY' AND correlation_id = $1 ORDER BY id", [cid]);
+    expect(rows.map((r) => r.detail)).toEqual([
+      { resultado: 'DENIED', motivo: 'sem_concessao', alvo: name, tipoAlvo: 'query_template' },
+      { resultado: 'DENIED', tipoAlvo: 'access_grant' },
+    ]);
   });
 
   it('alertas de lock longo e de transação parada, sem repetir na amostra seguinte', async () => {

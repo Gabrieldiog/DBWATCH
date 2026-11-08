@@ -96,12 +96,53 @@ export const ACTION_LABEL: Record<string, string> = {
   'audit.verify': 'Cadeia de auditoria verificada', 'lab.run': 'Experimento do laboratório', 'lab.simulation': 'Simulação iniciada',
 };
 const OUTCOME: Record<string, string> = { SUCCESS: 'deu certo', DENIED: 'negado', FAILURE: 'falhou' };
+
+// PK-25: a frase do evento em português, com quem fez (o gatilho do banco manda só o nome de exibição)
+// [o que fez, o que tentou fazer]
+const VERBO: Record<string, [string, string]> = {
+  'auth.login': ['entrou no sistema', 'entrar no sistema'], 'auth.logout': ['saiu do sistema', 'sair do sistema'],
+  'auth.session_revoke': ['encerrou uma sessão', 'encerrar uma sessão'],
+  'pam.request_create': ['pediu acesso a', 'pedir acesso a'], 'pam.request_approve': ['aprovou o pedido de', 'aprovar o pedido de'],
+  'pam.request_reject': ['rejeitou o pedido de', 'rejeitar o pedido de'], 'pam.request_cancel': ['cancelou o pedido de', 'cancelar o pedido de'],
+  'pam.grant_revoke': ['revogou o acesso a', 'revogar o acesso a'], 'pam.grant_expired': ['encerrou o acesso vencido a', 'encerrar o acesso vencido a'],
+  'pam.query_execute': ['consultou', 'consultar'], 'pam.console_execute': ['executou um comando no console em', 'executar um comando no console em'],
+  'pam.break_glass': ['abriu um acesso de emergência a', 'abrir um acesso de emergência a'], 'pam.break_glass_review': ['revisou a emergência em', 'revisar a emergência em'],
+  'audit.verify': ['verificou a cadeia de auditoria', 'verificar a cadeia de auditoria'], 'lab.run': ['rodou um experimento do laboratório', 'rodar um experimento'],
+  'lab.simulation': ['iniciou a simulação', 'iniciar a simulação'], 'iam.user_create': ['criou uma pessoa', 'criar uma pessoa'],
+  'iam.user_status': ['ativou ou desativou', 'ativar ou desativar'], 'iam.role_assign': ['deu um papel a', 'dar um papel a'],
+  'iam.role_remove': ['tirou um papel de', 'tirar um papel de'], 'iam.sessions_revoke': ['encerrou as sessões de', 'encerrar as sessões de'],
+  'iam.seed_demo': ['recriou os usuários de demonstração', 'recriar os usuários de demonstração'],
+  'iam.acl_create': ['criou uma regra de login', 'criar uma regra de login'], 'iam.acl_delete': ['removeu uma regra de login', 'remover uma regra de login'],
+  'auth.account_locked': ['teve a conta bloqueada por tentativas', 'entrar com a conta bloqueada'], 'authz.denied': ['abriu uma rota', 'abrir uma rota sem permissão'],
+};
+const MOTIVO: Record<string, string> = {
+  grant_expired: 'o acesso tinha expirado', grant_revoked: 'o acesso tinha sido revogado', grant_not_started: 'o acesso ainda não tinha começado',
+  sem_concessao: 'não tinha acesso a esse recurso', senha_incorreta: 'senha incorreta', conta_bloqueada: 'a conta está bloqueada',
+  acl_negado: 'fora do horário ou da rede permitidos', cadeia_integra: 'nenhum registro foi alterado', cadeia_adulterada: 'a cadeia foi adulterada',
+};
+const motivo = (m: unknown) => {
+  const raw = String(m ?? '');
+  if (raw.startsWith('sqlstate:')) return `o banco recusou (SQLSTATE ${raw.slice(9, 14)})`;
+  return MOTIVO[raw] ?? raw;
+};
+
+export function activitySentence(op: string, d: Record<string, unknown>): string {
+  const quem = String(d.quem ?? 'O sistema');
+  const [fez, tentou] = VERBO[op] ?? [`fez: ${(ACTION_LABEL[op] ?? op).toLowerCase()}`, `fazer: ${(ACTION_LABEL[op] ?? op).toLowerCase()}`];
+  const alvo = d.alvo ? ` ${String(d.alvo)}` : '';
+  if (d.resultado === 'SUCCESS') return `${quem} ${fez}${alvo}.`;
+  const por = d.motivo ? `: ${motivo(d.motivo)}` : '';
+  return `${quem} tentou ${tentou}${alvo}, mas ${d.resultado === 'DENIED' ? 'foi negado' : 'falhou'}${por}.`;
+}
+
 export function describeEvent(e: MonitorEvent): [string, string] {
   const d = e.detail;
   if (e.kind === 'LAB') return [String(d.titulo ?? 'LAB'), String(d.texto ?? '')];
   if (e.kind === 'ACTIVITY') {
-    const why = d.motivo ? ` (${String(d.motivo)})` : '';
-    return [ACTION_LABEL[e.operation ?? ''] ?? String(e.operation), `${e.operation}: ${OUTCOME[String(d.resultado)] ?? d.resultado}${why}`];
+    const title = ACTION_LABEL[e.operation ?? ''] ?? String(e.operation);
+    // Eventos gravados antes do PK-25 não têm "quem": mostram a forma antiga em vez de inventar um autor
+    if (!('quem' in d) && !('tipoAlvo' in d)) return [title, `${e.operation}: ${OUTCOME[String(d.resultado)] ?? d.resultado}${d.motivo ? ` (${String(d.motivo)})` : ''}`];
+    return [title, activitySentence(e.operation ?? '', d)];
   }
   switch (e.code) {
     case 'TX_ROLLBACK':
@@ -129,4 +170,27 @@ export function sourceOf(e: Pick<MonitorEvent, 'kind' | 'code'>): ['PostgreSQL' 
   if (e.kind === 'LAB') return ['LAB', 'lab'];
   if (e.kind === 'TX_ROLLBACK' || e.kind === 'ACTIVITY' || e.code === 'BREAK_GLASS') return ['Aplicação', 'app'];
   return ['PostgreSQL', 'db'];
+}
+
+// "Detalhar" de cada evento: o que aconteceu e de onde veio, sem afirmar o que o DBWATCH não vê (PK-25)
+export function explainEvent(e: MonitorEvent): string {
+  const d = e.detail;
+  if (e.kind === 'LAB')
+    return String(d.detalhe ?? 'Passo da simulação, gravado pelo bot no momento em que aconteceu no PostgreSQL. Tudo fica na auditoria marcado como simulação.');
+  if (e.kind === 'ACTIVITY')
+    return `Ação registrada na trilha de auditoria (${e.operation}), protegida por cadeia de hash. Este evento nasceu na mesma transação do registro: se a ação fosse desfeita, ele sumiria junto.${d.motivo ? ` Motivo gravado: ${String(d.motivo)}.` : ''}`;
+  switch (e.code) {
+    case 'DEADLOCK':
+      return 'Duas transações ficaram esperando uma pela outra (cada uma segurava o que a outra queria). O PostgreSQL percebe o ciclo depois do deadlock_timeout e derruba uma delas, a vítima, com o erro 40P01: o que ela tinha feito é desfeito e a outra segue. Este aviso vem do contador de deadlocks do pg_stat_database, lido pelo coletor a cada 5 s. Quais comandos estavam envolvidos fica só no log do servidor, que o DBWATCH não lê; se foi a simulação, o evento "Deadlock: o PostgreSQL escolheu uma vítima" logo antes conta qual transferência caiu.';
+    case 'LOCK_WAIT':
+      return `A sessão ${d.bloqueado} quer uma linha ou tabela que a sessão ${d.bloqueador} está segurando e ficou parada esperando. Visto pelo coletor em pg_locks e pg_blocking_pids(); o grafo de bloqueios mostra quem segura quem.`;
+    case 'IDLE_IN_TRANSACTION':
+      return 'A sessão abriu uma transação e parou sem COMMIT nem ROLLBACK. Enquanto isso, os locks dela continuam presos e podem travar outras sessões. Visto pelo coletor em pg_stat_activity.';
+    case 'TX_ROLLBACK':
+      return `A API abriu uma transação para ${e.operation}, uma regra recusou${e.sqlstate ? ` (SQLSTATE ${e.sqlstate})` : ''} e ela desfez tudo com ROLLBACK: nada pela metade ficou gravado.`;
+    case 'BREAK_GLASS':
+      return 'Alguém abriu um acesso de emergência sem esperar aprovação. É a única exceção à regra de que ninguém decide o próprio pedido, por isso vira alerta e outra pessoa revisa depois.';
+    default:
+      return 'Evento registrado pela aplicação.';
+  }
 }

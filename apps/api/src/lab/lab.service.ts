@@ -84,11 +84,11 @@ export class LabService {
     }
     await guard.query(RESET);
     await this.audit.record({ action: 'lab.simulation', outcome: 'SUCCESS', resourceType: 'lab_simulation', metadata: { cenario: 'fechamento-do-mes' } });
-    const narrate: Narrate = async (severity, titulo, texto, correlationId) => {
+    const narrate: Narrate = async (severity, titulo, texto, correlationId, detalhe) => {
       await this.prisma.$executeRaw`
         INSERT INTO monitor.app_events (kind, code, severity, operation, correlation_id, detail)
         VALUES ('LAB', 'SIM_STEP', ${severity}, 'lab.simulacao', ${correlationId ?? null}::uuid,
-                jsonb_build_object('titulo', ${titulo}::text, 'texto', ${texto}::text))`;
+                jsonb_strip_nulls(jsonb_build_object('titulo', ${titulo}::text, 'texto', ${texto}::text, 'detalhe', ${detalhe ?? null}::text)))`;
     };
     const stepper: Stepper | undefined = stepByStep ? {} : undefined;
     this.stepper = stepper;
