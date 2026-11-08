@@ -19,6 +19,10 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Adicionado
 
+- **PK-20b · Cada tela se explica**
+  - A Visão geral virou o guia do sistema: cada área que a pessoa enxerga (o que é e para quê), os quatro papéis e as permissões em português.
+  - "O que é esta tela?" em Monitor (cada número explicado, inclusive de onde vêm os commits), Laboratório, Pedir acesso, Aprovações, Meus acessos, Auditoria, Usuários (papéis e regras de login) e Sessões.
+
 - **PK-20a · Consultas que se explicam**
   - A tela agrupa as consultas por recurso e diz se você tem acesso e até quando; sem acesso, um link abre o pedido já no recurso certo.
   - Cada consulta tem descrição; cidade e categoria viram listas com os valores que existem, e a API recusa valor fora delas. Quatro consultas novas no catálogo (8 no total).

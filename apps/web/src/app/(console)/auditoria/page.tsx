@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
 import Link from 'next/link';
 import { Badge } from '../../../components/badge';
 import { VerifyButton } from '../../../components/verify-button';
@@ -21,6 +22,10 @@ export default async function Auditoria({ searchParams }: Props) {
         Cada registro guarda o hash do anterior. Ninguém altera nem apaga linhas, nem o próprio sistema; a verificação
         recalcula a cadeia inteira no banco.
       </p>
+      <Explica>
+        <p>Cada linha é uma ação: quem fez, o quê, quando e o resultado (sucesso, negado ou falha). O código da execução liga tudo o que uma mesma requisição gravou.</p>
+        <p>A trilha só cresce: nem a aplicação consegue alterar ou apagar uma linha. Cada registro guarda o hash do anterior; <strong>Verificar integridade</strong> recalcula a cadeia inteira dentro do banco e aponta a primeira linha alterada, se houver.</p>
+      </Explica>
       {me.permissions.includes('audit:verify') && <VerifyButton />}
       <form className="panel row" method="get" action="/auditoria">
         <label className="field">

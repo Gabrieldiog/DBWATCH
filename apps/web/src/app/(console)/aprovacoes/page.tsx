@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Explica } from '../../../components/explica';
 import { ActionButton } from '../../../components/action-button';
 import { Badge } from '../../../components/badge';
 import { approvals, LEVEL, minutes, SENSITIVITY, when, type AccessRequest } from '../../../lib/pam';
@@ -17,6 +18,10 @@ export default async function Aprovacoes() {
     <main className="console-page">
       <h1>Aprovações</h1>
       <p>Pedidos pendentes, dos mais antigos aos mais novos. Os seus não aparecem: ninguém decide o próprio pedido.</p>
+      <Explica>
+        <p>Você decide pedidos de outras pessoas. Ninguém decide o próprio pedido: a API recusa e, mesmo se ela falhasse, uma regra do banco (CHECK) também recusa.</p>
+        <p>Se dois aprovadores clicam juntos, só um vence; o outro recebe o aviso de que o pedido mudou. Recurso de sensibilidade alta precisa de duas pessoas diferentes. Os acessos de emergência (break-glass) aparecem embaixo para revisão.</p>
+      </Explica>
       {queue.length === 0 && <p className="panel">Nenhum pedido esperando decisão.</p>}
       <ul className="cards">
         {queue.map((r) => {
