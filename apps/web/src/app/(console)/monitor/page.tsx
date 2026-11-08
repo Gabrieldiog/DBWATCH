@@ -19,7 +19,8 @@ export default async function Monitor() {
     apiGet<Overview>('/monitor/overview'),
     apiGet<RawPoint[]>('/monitor/series?minutes=30'),
     apiGet<Lock[]>('/monitor/locks'),
-    apiGet<MonitorEvent[]>('/monitor/events?limit=12'),
+    // 200 eventos cobrem o último minuto da tabela dos gráficos; o feed ao vivo usa os 12 mais novos
+    apiGet<MonitorEvent[]>('/monitor/events?limit=200'),
   ]);
   const stale = staleFor(o.sampledAt, Date.now(), EVERY);
   const cache = pick(rows, 'cacheHitPct').findLast((p) => p.v !== null)?.v;
@@ -84,15 +85,15 @@ export default async function Monitor() {
         Cada evento diz a fonte: o PostgreSQL (alertas do coletor), a aplicação (cada ação registrada, rollbacks e break-glass)
         ou o LAB. Quem fez cada ação fica na Auditoria, para quem pode ler a trilha.
       </p>
-      <EventFeed initial={events} canAudit={me.permissions.includes('audit:read')} />
+      <EventFeed initial={events.slice(0, 12)} canAudit={me.permissions.includes('audit:read')} />
       <h2>Últimos 30 minutos no banco da aplicação</h2>
       <p className="note">
         Fonte: PostgreSQL observado (pg_stat_database). A própria coleta grava uma transação por amostra, por isso os
         commits nunca chegam a zero.
       </p>
       <div className="charts">
-        <LineChart title="Commits a cada 5 s" unit="commits" points={pick(rows, 'commits')} />
-        <LineChart title="Rollbacks a cada 5 s" unit="rollbacks" points={pick(rows, 'rollbacks')} />
+        <LineChart title="Commits a cada 5 s" unit="commits" points={pick(rows, 'commits')} events={events} />
+        <LineChart title="Rollbacks a cada 5 s" unit="rollbacks" points={pick(rows, 'rollbacks')} events={events} />
       </div>
     </main>
   );

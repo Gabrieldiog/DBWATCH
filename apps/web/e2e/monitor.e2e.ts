@@ -30,6 +30,10 @@ test('o rollback provocado na API aparece no gráfico do monitor sozinho', async
   await expect
     .poll(async () => (await rows()).some(([at, n]) => at! > before && Number(n) >= 1), { timeout: 20_000 })
     .toBe(true);
+  // PK-27: a linha do intervalo diz o que voltou, pelo evento que o DBWATCH registrou
+  await expect
+    .poll(async () => (await rows()).some(([at, n, what]) => at! > before && Number(n) >= 1 && what!.includes('Rollback na API')), { timeout: 20_000 })
+    .toBe(true);
   // Este mesmo rollback (pelo código da execução, não um de outra rodada) chega pelo SSE, ligado à trilha de auditoria
   // A mesma requisição gera dois eventos: o rollback e a atividade auditada da falha
   const rollback = page.getByRole('listitem').filter({ hasText: 'Rollback na API' }).filter({ has: page.locator(`a[href="/auditoria?correlationId=${correlationId}"]`) });

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, type PointerEvent } from 'react';
-import { linePath, niceMax, summary, time, type Point } from '../lib/monitor';
+import { intervalStory, linePath, niceMax, summary, time, type MonitorEvent, type Point } from '../lib/monitor';
 
 const W = 600;
 const H = 120;
 
 // Uma série por gráfico: commits e rollbacks têm escalas muito diferentes, e dois eixos no mesmo desenho enganam
-export function LineChart({ title, unit, points }: { title: string; unit: string; points: Point[] }) {
+export function LineChart({ title, unit, points, events = [] }: { title: string; unit: 'commits' | 'rollbacks'; points: Point[]; events?: MonitorEvent[] }) {
   const [hover, setHover] = useState<number | null>(null);
   const max = niceMax(points.map((p) => p.v));
   const text = summary(points, unit);
@@ -54,18 +54,34 @@ export function LineChart({ title, unit, points }: { title: string; unit: string
       </p>
       <details>
         <summary>Ver como tabela (último minuto)</summary>
-        <table className="table">
+        <p className="note">
+          O PostgreSQL só conta os {unit}, e atualiza o número com alguns segundos de atraso. A coluna da direita mostra o que o DBWATCH registrou naquele intervalo (ou pouco antes).
+        </p>
+        <table className="table chart-table">
           <thead>
             <tr>
               <th scope="col">Amostra</th>
               <th scope="col">{label}</th>
+              <th scope="col">O que aconteceu</th>
             </tr>
           </thead>
           <tbody>
-            {points.slice(-12).reverse().map((p) => (
+            {intervalStory(points, events, unit).map((p) => (
               <tr key={p.t}>
                 <td data-label="Amostra">{time(p.t)}</td>
                 <td data-label={label}>{p.v ?? 'sem dado (contador reiniciou)'}</td>
+                <td data-label="O que aconteceu">
+                  {p.what.length ? (
+                    <ul>
+                      {p.what.slice(0, 4).map((w, i) => (
+                        <li key={i}>{w}</li>
+                      ))}
+                      {p.what.length > 4 && <li>e mais {p.what.length - 4}</li>}
+                    </ul>
+                  ) : (
+                    '—'
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

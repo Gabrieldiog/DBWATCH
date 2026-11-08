@@ -32,7 +32,7 @@
 ---
 
 > [!IMPORTANT]
-> **Versão 1.1.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 146 testes de API e banco, 55 testes unitários do front e 80 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
+> **Versão 1.1.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 146 testes de API e banco, 58 testes unitários do front e 80 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
 
 ## 💡 O que é o DBWATCH?
 
@@ -335,7 +335,7 @@ O DBWATCH é testado de baixo para cima, sempre contra um **PostgreSQL real**, p
   ╱              Unidade (regras de negócio)           ╲ máquina de estados, expiração, validação
 ```
 
-**Números atuais** (todos rodam no CI a cada PR): 146 testes de API e banco em 27 arquivos, 55 testes unitários do front e 80 testes E2E no Chromium, com axe nos dois temas. Os números de cada pack, com os erros que os testes pegaram antes da entrega, estão no [ROADMAP](docs/ROADMAP.md).
+**Números atuais** (todos rodam no CI a cada PR): 146 testes de API e banco em 27 arquivos, 58 testes unitários do front e 80 testes E2E no Chromium, com axe nos dois temas. Os números de cada pack, com os erros que os testes pegaram antes da entrega, estão no [ROADMAP](docs/ROADMAP.md).
 
 Exemplos de testes da suíte:
 

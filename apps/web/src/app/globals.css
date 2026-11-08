@@ -1323,3 +1323,10 @@ section > .access {
   background-repeat: no-repeat;
   cursor: pointer;
 }
+
+/* PK-27: a tabela dos gráficos explica cada intervalo */
+.chart-table ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}

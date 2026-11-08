@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { ACTION_LABEL, describeEvent, explainEvent, fromStream, layout, linePath, niceMax, pick, sourceOf, staleFor, summary, total } from '../src/lib/monitor';
+import { ACTION_LABEL, describeEvent, explainEvent, fromStream, intervalStory, type MonitorEvent, layout, linePath, niceMax, pick, sourceOf, staleFor, summary, total } from '../src/lib/monitor';
 
 describe('monitor (unitário)', () => {
   it('converte o texto do pg em número e mantém o null do contador reiniciado', () => {
@@ -94,4 +94,36 @@ describe('atividade da auditoria no monitor (unitário)', () => {
     expect(actions.size).toBeGreaterThan(20);
     expect([...actions].filter((a) => !ACTION_LABEL[a])).toEqual([]);
   });
+
+describe('intervalStory: o que aconteceu em cada intervalo (PK-27)', () => {
+  const t = (s: number) => new Date(Date.UTC(2026, 10, 8, 20, 0, s)).toISOString();
+  const ev = (s: number, extra: Partial<MonitorEvent>): MonitorEvent =>
+    ({ id: s, occurredAt: t(s), kind: 'ACTIVITY', code: 'AUDIT', severity: 'info', operation: 'pam.query_execute', sqlstate: null, correlationId: null, detail: { resultado: 'SUCCESS', quem: 'Diego', alvo: 'Clientes', tipoAlvo: 'query_template' }, ...extra });
+  const points = [{ t: t(5), v: 3 }, { t: t(10), v: 1 }, { t: t(15), v: 0 }];
+  const events = [
+    ev(7, {}),
+    ev(8, { kind: 'ALERT', code: 'DEADLOCK', severity: 'high', operation: null, detail: { novos: 1, database: 'dbwatch' } }),
+    ev(9, { code: 'TX_ROLLBACK', kind: 'TX_ROLLBACK', operation: 'iam.user_create', sqlstate: '23505', detail: {} }),
+  ];
+
+  it('commits: cada evento do intervalo vira uma linha, mais novo primeiro, com a coleta do monitor; alertas do coletor ficam fora', () => {
+    const rows = intervalStory(points, events, 'commits');
+    expect(rows.map((r) => r.t)).toEqual([t(15), t(10), t(5)]);
+    expect(rows[1]!.what).toEqual(['Rollback na API', 'Diego consultou Clientes.', 'Coleta do monitor (1 commit a cada amostra)']);
+    expect(rows[0]!.what).toEqual([]); // zero commits e nenhum evento
+  });
+
+  it('rollbacks: só o que voltou; sem evento, a linha admite que o banco só dá o número', () => {
+    const rows = intervalStory([{ t: t(5), v: 1 }, { t: t(10), v: 1 }], events, 'rollbacks');
+    expect(rows[0]!.what).toEqual(['Rollback na API']);
+    expect(rows[1]!.what).toEqual(['Rollback de uma conexão sem evento no DBWATCH: o PostgreSQL só informa o número']);
+  });
+
+  it('rollbacks: o contador do PostgreSQL chega atrasado, e o evento espera até 2 amostras por ele', () => {
+    const late = intervalStory([{ t: t(5), v: 0 }, { t: t(10), v: 0 }, { t: t(15), v: 1 }], events, 'rollbacks');
+    expect(late.map((r) => r.what)).toEqual([['Rollback na API'], [], []]);
+    const tooLate = intervalStory([{ t: t(10), v: 0 }, { t: t(15), v: 0 }, { t: t(20), v: 0 }, { t: t(25), v: 1 }], events, 'rollbacks');
+    expect(tooLate[0]!.what).toEqual(['Rollback de uma conexão sem evento no DBWATCH: o PostgreSQL só informa o número']);
+  });
+});
 });
