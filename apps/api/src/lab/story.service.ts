@@ -71,7 +71,7 @@ export class StoryService {
     await pause(PASSO);
 
     const created = await this.as(diego, starter, () =>
-      this.requests.create({ resourceId: resource.id, accessLevel: 'READ', requestedMinutes: 15, justification: 'Conferir o cadastro de clientes antes da campanha de novembro' }, diego.id),
+      this.requests.create({ resourceId: resource.id, accessLevel: 'READ', requestedMinutes: 15, justification: 'Conferir o cadastro de clientes antes da campanha de novembro', approverId: bruno.id }, diego.id),
     );
     const id = this.must(created).id;
     await narrate('info', `${diego.name} pediu acesso`, 'Leitura em Clientes por 15 min, com justificativa. O pedido nasce Pendente.', created.cid);

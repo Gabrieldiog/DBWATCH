@@ -19,7 +19,7 @@ export default async function Aprovacoes() {
       <h1>Aprovações</h1>
       <p>Pedidos pendentes, dos mais antigos aos mais novos. Os seus não aparecem: ninguém decide o próprio pedido.</p>
       <Explica>
-        <p>Você decide pedidos de outras pessoas. Ninguém decide o próprio pedido: a API recusa e, mesmo se ela falhasse, uma regra do banco (CHECK) também recusa.</p>
+        <p>Cada pedido chega para a pessoa que quem pediu escolheu, e só ela decide (a API recusa e uma regra do banco também). Ninguém decide o próprio pedido: a API recusa e, mesmo se ela falhasse, uma regra do banco (CHECK) também recusa.</p>
         <p>Se dois aprovadores clicam juntos, só um vence; o outro recebe o aviso de que o pedido mudou. Recurso de sensibilidade alta precisa de duas pessoas diferentes. Os acessos de emergência (break-glass) aparecem embaixo para revisão.</p>
       </Explica>
       {queue.length === 0 && <p className="panel">Nenhum pedido esperando decisão.</p>}
@@ -27,6 +27,11 @@ export default async function Aprovacoes() {
         {queue.map((r) => {
           const who = r.requester?.displayName ?? 'Solicitante';
           const iApproved = r.firstApprovedById === me.id;
+          // PK-26: só a pessoa escolhida decide; em sensibilidade alta, a primeira aprovação é de outra pessoa
+          const chosen = r.approver;
+          const firstStep = r.resource.sensitivity === 'HIGH' && !r.firstApprovedById;
+          const mine = !chosen || chosen.id === me.id;
+          const canApprove = firstStep ? chosen?.id !== me.id : mine;
           return (
             <li key={r.id} className="panel">
               <h2>
@@ -36,11 +41,16 @@ export default async function Aprovacoes() {
                 <Badge entry={SENSITIVITY[r.resource.sensitivity]} fallback={r.resource.sensitivity} />{' '}
                 {minutes(r.requestedMinutes)} · pedido em {when(r.createdAt)} {approvals(r) && `· ${approvals(r)}`}
               </p>
+              <p className={mine ? 'access access-ok' : 'access'}>
+                {chosen ? (mine ? 'Enviado para você.' : `Enviado para ${chosen.displayName}: só essa pessoa decide.`) : 'Pedido antigo: qualquer aprovador decide.'}
+                {firstStep && chosen && ` A primeira aprovação precisa ser de outra pessoa; ${chosen.id === me.id ? 'você' : chosen.displayName} dá a final.`}
+              </p>
               <blockquote>{r.justification}</blockquote>
               {iApproved && <p className="notice">Você deu a primeira aprovação. A segunda precisa ser de outra pessoa.</p>}
               <div className="row">
-                <ActionButton label="Aprovar" path={`/requests/${r.id}/approve`} primary disabled={iApproved} />
+                <ActionButton label="Aprovar" path={`/requests/${r.id}/approve`} primary disabled={iApproved || !canApprove} />
                 <ActionButton
+                  disabled={!mine}
                   label="Rejeitar"
                   path={`/requests/${r.id}/reject`}
                   reason={{ title: `Rejeitar o pedido de ${who}`, field: 'note', min: 5 }}

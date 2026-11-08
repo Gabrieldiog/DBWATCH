@@ -13,7 +13,9 @@ export type AccessRequest = {
   resource: { id: string; name: string; sensitivity: string };
   firstApprovedById?: string | null;
   requester?: { displayName: string; email: string };
+  approver?: { id: string; displayName: string } | null;
 };
+export type Approver = { id: string; displayName: string };
 
 export const STATUS: Record<string, [string, Tone]> = {
   PENDING: ['Pendente', 'wait'],

@@ -41,6 +41,7 @@ model User {
   revokedGrants    AccessGrant[]   @relation("Revoker")
   queryExecutions  QueryExecution[]
   breakGlassReviews AccessRequest[] @relation("BreakGlassReviewer")
+  chosenToApprove  AccessRequest[] @relation("ChosenApprover")
 
   @@map("users")
   @@schema("iam")
@@ -199,12 +200,14 @@ model AccessRequest {
   reviewedById     String?       @map("reviewed_by") @db.Uuid
   reviewedAt       DateTime?     @map("reviewed_at") @db.Timestamptz(6)
   reviewNote       String?       @map("review_note")
+  approverId       String?       @map("approver_id") @db.Uuid
   createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   requester        User          @relation("Requester", fields: [requesterId], references: [id], onDelete: Restrict)
   decidedBy        User?         @relation("Decider", fields: [decidedById], references: [id], onDelete: Restrict)
   firstApprovedBy  User?         @relation("FirstApprover", fields: [firstApprovedById], references: [id], onDelete: Restrict)
   reviewedBy       User?         @relation("BreakGlassReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+  approver         User?         @relation("ChosenApprover", fields: [approverId], references: [id], onDelete: Restrict)
   resource         Resource      @relation(fields: [resourceId], references: [id], onDelete: Restrict)
   grant            AccessGrant?
 

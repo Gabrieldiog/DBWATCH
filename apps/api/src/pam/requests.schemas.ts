@@ -7,6 +7,8 @@ export const newRequestSchema = z
     accessLevel: z.enum(['READ', 'WRITE']),
     requestedMinutes: z.number().int().min(5).max(480),
     justification: z.string().trim().min(20).max(500),
+    // PK-26: quem vai decidir; só essa pessoa aprova ou rejeita (a CHECK do banco garante)
+    approverId: z.uuid(),
   })
   .strict();
 export type NewRequest = z.infer<typeof newRequestSchema>;

@@ -22,6 +22,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
   - "Detalhar" em cada evento abre a explicação: o deadlock da simulação diz qual transferência caiu e por quê; o "Deadlock detectado" do contador diz o que o DBWATCH vê e o que não vê.
   - Simulação automática mais lenta (5 s entre as ações do Ato 1 e do Ato 3) e o passo "Teste: o banco também barra" explicado.
 
+- **PK-26 · Quem pede escolhe quem aprova**
+  - "Quem vai aprovar" no pedido, com quem é do papel Aprovação primeiro; só essa pessoa aprova ou rejeita. Em sensibilidade alta, a primeira aprovação é de outra pessoa e a escolhida dá a final.
+  - No banco: `approver_id` com FK e três CHECK (ninguém escolhe a si mesmo; decisão só da escolhida; primeira aprovação de outra pessoa). Pedidos antigos e break-glass ficam sem escolha e seguem a regra de antes.
+  - Aprovações e Meus pedidos mostram para quem o pedido foi.
+
 ## [1.1.0] - 2026-11-08
 
 Tudo o que mudou depois do primeiro uso de verdade: o sistema passou a se demonstrar sozinho, cada tela explica o que é, e o nível Escrita ganhou uso, sempre com o banco decidindo o limite.

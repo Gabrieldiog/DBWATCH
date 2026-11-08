@@ -32,7 +32,7 @@
 ---
 
 > [!IMPORTANT]
-> **Versão 1.1.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 145 testes de API e banco, 55 testes unitários do front e 80 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
+> **Versão 1.1.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 146 testes de API e banco, 55 testes unitários do front e 80 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
 
 ## 💡 O que é o DBWATCH?
 
@@ -99,6 +99,7 @@ Controla **quem pode acessar o quê, por quanto tempo e com aprovação de quem*
 
 - **Ninguém tem acesso permanente** a um recurso sensível. O acesso é pedido, justificado, aprovado e expira sozinho.
 - **Quem pede não aprova.** A separação de funções é garantida por uma `CHECK constraint` no banco, não só por um `if` no código.
+- **Quem pede escolhe quem aprova.** O pedido chega para uma pessoa só, e outra CHECK recusa a decisão de qualquer outra.
 - **Concessões não se sobrepõem.** Uma `EXCLUDE constraint` com intervalos de tempo (`tstzrange`) impede duas concessões ativas do mesmo usuário para o mesmo recurso.
 - **Leitura pelo catálogo.** Com uma concessão de Leitura, o usuário executa apenas **consultas parametrizadas de um catálogo aprovado**, em transação somente leitura, com tempo-limite e limite de linhas.
 - **Console SQL, também na Leitura.** Quem prefere digitar usa o **Console SQL**, com SQL pronto por recurso para ganhar tempo. Quem decide o que o comando alcança é um papel do PostgreSQL por recurso: só a tabela daquele recurso, sem DDL. Com acesso de Leitura a transação é `READ ONLY` e um `UPDATE` volta com o erro `25006` do banco; com Escrita, o comando altera de verdade. Outra tabela ou um `DROP` voltam com `42501`, e o comando inteiro vai para a auditoria.
@@ -334,7 +335,7 @@ O DBWATCH é testado de baixo para cima, sempre contra um **PostgreSQL real**, p
   ╱              Unidade (regras de negócio)           ╲ máquina de estados, expiração, validação
 ```
 
-**Números atuais** (todos rodam no CI a cada PR): 145 testes de API e banco em 27 arquivos, 55 testes unitários do front e 80 testes E2E no Chromium, com axe nos dois temas. Os números de cada pack, com os erros que os testes pegaram antes da entrega, estão no [ROADMAP](docs/ROADMAP.md).
+**Números atuais** (todos rodam no CI a cada PR): 146 testes de API e banco em 27 arquivos, 55 testes unitários do front e 80 testes E2E no Chromium, com axe nos dois temas. Os números de cada pack, com os erros que os testes pegaram antes da entrega, estão no [ROADMAP](docs/ROADMAP.md).
 
 Exemplos de testes da suíte:
 
@@ -446,6 +447,7 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Console SQL também com acesso de Leitura e SQL pronto (PK-23) | ✅ Concluído |
 | Console SQL para quem não é de TI: erro explicado e visual novo (PK-24) | ✅ Concluído |
 | Monitor diz quem fez e explica cada evento (PK-25) | ✅ Concluído |
+| Quem pede escolhe quem aprova, com a regra no banco (PK-26) | ✅ Concluído |
 
 ## 📚 Documentação
 
