@@ -1057,3 +1057,31 @@ dialog::backdrop {
 .break-glass {
   border-left: 4px solid var(--coral);
 }
+
+/* Consultas: os três passos do acesso, e em cada cartão se o acesso está vivo */
+.flow-compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 8px;
+}
+
+@media (max-width: 640px) {
+  .flow-compact {
+    grid-template-columns: 1fr;
+  }
+}
+
+.access {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 4px solid var(--amber);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.access-ok {
+  border-left-color: var(--signal);
+}
+
+section > .access {
+  margin-bottom: 12px;
+}

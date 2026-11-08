@@ -241,6 +241,7 @@ model QueryTemplate {
   resourceId  String           @map("resource_id") @db.Uuid
   accessLevel AccessLevel      @map("access_level")
   title       String
+  description String           @default("")
   sqlText     String           @map("sql_text")
   params      Json             @default("[]")
   maxRows     Int              @map("max_rows")

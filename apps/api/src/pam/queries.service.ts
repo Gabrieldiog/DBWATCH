@@ -8,7 +8,7 @@ import { AuditService } from '../audit/audit.service';
 import type { Env } from '../config/env';
 import { ENV, PrismaService } from '../database/prisma.service';
 
-type Param = { name: string; type: 'text' | 'int' };
+type Param = { name: string; type: 'text' | 'int'; options?: string[]; min?: number; max?: number };
 type Template = { code: string; resourceId: string; sqlText: string; params: unknown; maxRows: number; timeoutMs: number };
 
 const DENIALS: Record<string, string> = {
@@ -18,12 +18,16 @@ const DENIALS: Record<string, string> = {
   grant_not_started: 'Sua concessão ainda não começou',
 };
 
+const field = (f: Param) => {
+  if (f.type === 'int') return z.number().int().min(f.min ?? 0).max(f.max ?? 10_000);
+  // Com lista no catálogo, só vale o que está nela: a tela mostra a lista, mas quem nega é aqui
+  return f.options?.length ? z.enum(f.options as [string, ...string[]]) : z.string().trim().min(1).max(100);
+};
+
 // Cada template declara seus parâmetros; o corpo da requisição precisa bater exatamente com eles
 function parseParams(spec: unknown, raw: unknown): Record<string, string | number> {
   const fields = spec as Param[];
-  const shape = Object.fromEntries(
-    fields.map((f) => [f.name, f.type === 'int' ? z.number().int().min(0).max(10_000) : z.string().trim().min(1).max(100)]),
-  );
+  const shape = Object.fromEntries(fields.map((f) => [f.name, field(f)]));
   const parsed = z.object(shape).strict().safeParse(raw ?? {});
   if (!parsed.success) throw new BadRequestException('Parâmetros inválidos para esta consulta');
   return parsed.data as Record<string, string | number>;
@@ -46,8 +50,8 @@ export class QueriesService implements OnModuleDestroy {
 
   catalog() {
     return this.prisma.queryTemplate.findMany({
-      select: { code: true, title: true, accessLevel: true, params: true, maxRows: true, resource: { select: { id: true, name: true } } },
-      orderBy: { code: 'asc' },
+      select: { code: true, title: true, description: true, accessLevel: true, params: true, maxRows: true, resource: { select: { id: true, name: true } } },
+      orderBy: [{ resource: { name: 'asc' } }, { title: 'asc' }],
     });
   }
 

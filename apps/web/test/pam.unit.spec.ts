@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { approvals, clock, errorMessage, minutes, when } from '../src/lib/pam';
+import { approvals, clock, errorMessage, liveAccess, minutes, when } from '../src/lib/pam';
 
 describe('rótulos de PAM (unitário)', () => {
   it('duração em minutos e horas', () => {
@@ -37,5 +37,14 @@ describe('contagem regressiva (unitário)', () => {
 
   it('nunca mostra tempo negativo', () => {
     expect(clock(-5)).toBe('00:00');
+  });
+});
+
+describe('liveAccess (unitário)', () => {
+  const g = (resource: string, state: string, expiresAt: string) => ({ state, expiresAt, resource: { id: resource, name: resource, sensitivity: 'LOW' } });
+  it('acha o acesso vivo do recurso que vence por último e ignora os mortos e os de outro recurso', () => {
+    const grants = [g('a', 'ACTIVE', '2026-11-08T10:00:00Z'), g('a', 'ACTIVE', '2026-11-08T11:00:00Z'), g('a', 'REVOKED', '2026-11-08T12:00:00Z'), g('b', 'ACTIVE', '2026-11-08T13:00:00Z')];
+    expect(liveAccess(grants, 'a')?.expiresAt).toBe('2026-11-08T11:00:00Z');
+    expect(liveAccess(grants, 'c')).toBeUndefined();
   });
 });

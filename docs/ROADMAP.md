@@ -365,6 +365,14 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** `StoryService` (atos 1 e 3); eventos do LAB com o código da execução (o Monitor mostra "ver na auditoria" para quem tem `audit:read`); a marca `simulacao` em todo registro de auditoria feito pelo bot; verificação da cadeia reaproveitada entre a rota e o bot.
 
+### PK-19a · O bot com mouse ✅
+
+> **Registro de QA (08/11/2026):** pedido do Gabriel: ver o "mouse mexendo" e o sistema sendo usado de verdade. O Playwright dirige um navegador visível pelas telas reais (sem atalho de API, exceto a limpeza inicial do palco), com um cursor e uma legenda desenhados fora do `<body>` do React; o cursor anda em 28 passos até cada alvo e o clique deixa um anel. Execução completa contra a API e o banco locais em 2,6 min (vídeo conferido quadro a quadro: cursor, anel e legenda visíveis; a legenda do ▶ acompanha o evento mais novo do SSE). Contra a VPS, o bot lê as senhas da saída do `db:seed:json` de lá por variável de ambiente (nunca arquivo) e manda o Origin do endereço alvo. Sem mudança em `src`.
+
+### PK-20a · Consultas que se explicam ✅
+
+> **Registro de QA (08/11/2026):** pedido do Gabriel depois de usar a tela: "coloquei Goiânia, deu erro, qual categoria existe?". O erro era o certo (sem concessão), mas a tela não ensinava o caminho. Migration `20261108000000_catalogo`: descrição em cada consulta, rótulo e valores aceitos nos parâmetros (cidades, categorias, intervalo dos números) e quatro consultas novas (clientes por cidade, resumo do catálogo, pedidos de um cliente e os 10 maiores clientes, e-mail mascarado). A API nega valor fora da lista (z.enum) e número fora do intervalo. Na tela, um bloco por recurso diz se o acesso está vivo e até quando; sem acesso, o link abre o pedido já preenchido. T-PAM-12 novo (catálogo com 8 consultas, descrições e rótulos; "Goiania" sem acento é 400, cliente 501 é 400, maiores clientes com e-mail mascarado) e T-SEC-06 atualizado (a injeção agora para no 400, antes do banco). O teste de consultas deixou de depender de outro usuário já existir no banco (falhava num banco recém-criado). Lint, typecheck, 44/44 da web, 138/138 da API e 70/70 E2E; capturas em 1280 e 375 px sem rolagem horizontal. **Na VPS:** tem migration nova.
+
 ### PK-16 · Página de entrada com login ✅
 
 > **Registro de QA (05/11/2026):** pedido do Gabriel depois do deploy: a raiz mostrava só a logo, um botão "Entrar", o link para os testes (vazio em produção) e o seletor de tema. Agora `/` e `/entrar` são a mesma página: apresentação curta, o login já visível, o fluxo pedir, aprovar, usar e expira sozinho, e as seis garantias do banco, cada uma com a regra real das migrations (os textos foram conferidos contra o SQL; a exceção do break-glass está dita). O status do PostgreSQL é lido da API a cada visita. Lint, typecheck, 37/37 testes da web e build; `pnpm test:e2e` com 57/57 duas vezes no Chromium contra a API e o PostgreSQL de verdade, incluindo o teste novo (a raiz mostra o status real e entra direto no painel). A primeira rodada pegou um erro meu: o status do banco também tinha `role="status"` e duplicava a região ao vivo do aviso de sessão; como é calculado uma vez no carregamento, deixou de ser região ao vivo. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal; no celular a ordem é título, login, fluxo e garantias. O radar do login é a única animação, como manda o DESIGN.md. Não houve teste de mutação neste pack.
@@ -455,3 +463,5 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-17e | ✅ Concluído | 07/11/2026 |
 | PK-15 | ✅ Concluído | 07/11/2026 |
 | PK-18 | ✅ Concluído | 07/11/2026 |
+| PK-19a | ✅ Concluído | 08/11/2026 |
+| PK-20a | ✅ Concluído | 08/11/2026 |
