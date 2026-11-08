@@ -47,7 +47,7 @@ O **DBWATCH** une três capacidades:
 - SSO, LDAP ou MFA.
 - Bancos que não sejam PostgreSQL.
 - Alta disponibilidade, multi-tenant e escala horizontal.
-- Execução de SQL arbitrário digitado pelo usuário.
+- Execução de SQL digitado sem limite do banco. *Revisto depois do MVP:* o Console SQL (PK-21 e PK-23) aceita SQL digitado, um comando por vez, mas quem limita é o PostgreSQL: o papel do recurso só alcança a tabela dele, sem DDL, e com acesso de Leitura a transação é `READ ONLY`. As Consultas do catálogo continuam para quem prefere não digitar.
 
 ## 5. Especificação das funcionalidades
 

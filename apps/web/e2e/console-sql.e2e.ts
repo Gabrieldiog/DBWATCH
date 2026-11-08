@@ -9,15 +9,14 @@ test('console SQL: sem escrita leva ao pedido certo; com escrita altera de verda
   await revokeGrants(bruno.request, demoUser('REQUESTER').email);
   await login(page, 'REQUESTER', '/console');
   await page.getByLabel('Recurso').selectOption({ label: 'Clientes' });
-  await expect(page.getByText('Sem acesso de escrita a Clientes agora.')).toBeVisible();
-  await page.getByRole('link', { name: 'Pedir escrita em Clientes' }).click();
+  await expect(page.getByText('Sem acesso a Clientes agora.')).toBeVisible();
+  await page.getByRole('link', { name: 'Pedir acesso a Clientes' }).click();
   await expect(page.getByLabel('Recurso').first().locator('option:checked')).toHaveText(/^Clientes/);
-  await expect(page.getByLabel('Escrita')).toBeChecked();
 
   await approvedGrant(page.request, bruno.request, 'Clientes', 'WRITE');
   await page.goto('/console');
   await page.getByLabel('Recurso').selectOption({ label: 'Clientes' });
-  await expect(page.getByText(/Você tem acesso de escrita a Clientes até/)).toBeVisible();
+  await expect(page.getByText(/Você tem acesso de Escrita a Clientes até/)).toBeVisible();
   const comando = page.getByLabel('Comando SQL (um por vez)');
   const executar = page.getByRole('button', { name: 'Executar no banco' });
 
@@ -38,5 +37,30 @@ test('console SQL: sem escrita leva ao pedido certo; com escrita altera de verda
   await comando.fill("UPDATE loja.clientes SET cidade = 'Aparecida de Goiânia' WHERE id = 7");
   await executar.click();
   await expect(page.locator('form.console-sql').getByRole('status')).toContainText('UPDATE: 1 linha(s)');
+  await revokeGrants(bruno.request, demoUser('REQUESTER').email);
+});
+
+// PK-23: com Leitura o console também serve, mas a transação é somente leitura
+test('console SQL: com Leitura consulta pelo SQL pronto e o banco recusa a alteração (25006)', async ({ page, browser }) => {
+  const bruno = await (await browser.newContext()).newPage();
+  await login(bruno, 'APPROVER');
+  await revokeGrants(bruno.request, demoUser('REQUESTER').email);
+  await login(page, 'REQUESTER', '/console');
+  await approvedGrant(page.request, bruno.request, 'Clientes', 'READ');
+  await page.goto('/console');
+  await page.getByLabel('Recurso').selectOption({ label: 'Clientes' });
+  await expect(page.getByText(/Você tem acesso de Leitura a Clientes até/)).toBeVisible();
+  const form = page.locator('form.console-sql');
+  const executar = page.getByRole('button', { name: 'Executar no banco' });
+
+  await page.getByRole('button', { name: 'Clientes de Goiânia' }).click();
+  await executar.click();
+  await expect(form.getByRole('status')).toContainText('SELECT: 20 linha(s)');
+  await expect(page.getByRole('row').filter({ hasText: 'cliente' }).first()).toBeVisible();
+
+  await page.getByRole('button', { name: 'Mudar a cidade de um cliente' }).click();
+  await executar.click();
+  await expect(form.getByRole('alert')).toContainText('SQLSTATE 25006');
+  await expect(form.getByRole('alert')).toContainText('read-only transaction');
   await revokeGrants(bruno.request, demoUser('REQUESTER').email);
 });

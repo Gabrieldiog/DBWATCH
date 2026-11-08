@@ -42,7 +42,7 @@ Tudo o que for mostrado é **real** e reproduzível. Quando algo for um experime
 
 ### Console SQL com escrita (~1 min)
 
-Diego pede **Escrita** em Clientes (o link do Console já abre o pedido marcado), Bruno aprova, e Diego, no **Console SQL**, aperta "Mudar a cidade de um cliente": o UPDATE roda de verdade e a linha volta na tela. Depois "Apagar pedidos (outra tabela)" e "Apagar a tabela": o PostgreSQL recusa com `42501` e a mensagem dele. O que dizer: "a aplicação não tenta adivinhar se o SQL é perigoso; quem limita é o papel do banco daquele recurso". No Monitor, cada comando aparece como "Comando no console SQL".
+Diego pede **Escrita** em Clientes (com Leitura, o link "Pedir escrita" do Console já abre o pedido marcado), Bruno aprova, e Diego, no **Console SQL**, aperta "Mudar a cidade de um cliente": o UPDATE roda de verdade e a linha volta na tela. Depois "Apagar pedidos (outra tabela)" e "Apagar a tabela": o PostgreSQL recusa com `42501` e a mensagem dele. O que dizer: "a aplicação não tenta adivinhar se o SQL é perigoso; quem limita é o papel do banco daquele recurso". No Monitor, cada comando aparece como "Comando no console SQL".
 
 ### O bot da simulação (LAB, ~55 s)
 

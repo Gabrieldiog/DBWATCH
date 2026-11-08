@@ -1143,3 +1143,9 @@ section > .access {
   font-family: var(--font-mono), monospace;
   font-size: 0.95em;
 }
+
+.console-grupo {
+  flex-basis: 100%;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}

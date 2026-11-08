@@ -17,7 +17,7 @@ export class ConsoleController {
   @Post('execute')
   @HttpCode(200)
   @RequirePermission('query:execute')
-  @ApiOperation({ summary: 'Executa um comando SQL com o acesso de Escrita ao recurso; o papel do banco limita a tabela, um comando por vez' })
+  @ApiOperation({ summary: 'Executa um comando SQL com o acesso ao recurso: Leitura só lê (READ ONLY), Escrita altera; o papel do banco limita a tabela, um comando por vez' })
   execute(@Body() body: unknown, @Req() req: Request) {
     const parsed = consoleSchema.safeParse(body);
     if (!parsed.success) throw new BadRequestException('Informe o recurso e um comando SQL de até 2000 caracteres');

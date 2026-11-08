@@ -393,6 +393,10 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 > **Registro de QA (08/11/2026):** nova área "Console SQL" no menu (quem tem `query:execute`), com o guia da Visão geral e o "O que é esta tela?". O console mostra o acesso de Escrita vivo do recurso escolhido; sem ele, o link abre o pedido já no recurso e com Escrita marcada (`?nivel=WRITE`). Exemplos por recurso, incluindo os que o banco recusa. E2E: o Diego sem escrita cai no pedido certo; com escrita aprovada, o exemplo altera a cidade de verdade, "Apagar pedidos" mostra `SQLSTATE 42501 ... permission denied for table pedidos`, e o teste devolve o dado como era. Dois erros pegos antes da entrega: o anúncio de rota do Next também tem `role="alert"` (o teste passou a olhar só o formulário) e a classe `.console` já era a grade do layout inteiro, o que esticava o formulário (renomeada para `.console-sql`). Axe sem violação séria nos dois temas. Lint, typecheck do repositório inteiro, 48/48 da web, 142/142 da API e 78/78 E2E; capturas em 1280 e 375 px sem rolagem horizontal. O CI do main voltou ao verde com a correção do PK-20b/20c.
 
+### PK-23 · Console SQL também na Leitura ✅
+
+> **Registro de QA (08/11/2026):** pedido do Gabriel: quem tem acesso de Leitura escolhe entre as Consultas prontas e digitar SQL, e o console traz SQL pronto para ganhar tempo. A API passou a aceitar a concessão viva de qualquer nível; com Leitura a transação abre `READ ONLY` antes do comando da pessoa, então desligar o modo depois dá `25001` no próprio banco. Lint, typecheck, 48/48 da web, 144/144 da API e `pnpm test:e2e` com 80/80 contra o PostgreSQL de verdade. Novos testes: T-CON-03 (com Leitura, o SELECT funciona; UPDATE, CTE com UPDATE, `SET TRANSACTION READ WRITE`, `set_config('transaction_read_only')` e outra tabela são recusados pelo banco, e o dado continua igual) e um E2E de Leitura (SQL pronto "Clientes de Goiânia" e a alteração recusada com `25006`). Teste de mutação: abrir sempre `READ WRITE` faz o T-CON-03 falhar. Capturas em 1280 e 375 px sem rolagem horizontal. **Limite que continua:** o papel do recurso só lê a tabela dele, então juntar pedidos com clientes no Financeiro é recusado (é um dos exemplos).
+
 ### PK-22 · Release v1.1.0 ✅
 
 > **Registro de QA (08/11/2026):** README com a versão 1.1.0, os números reais (143 da API em 27 arquivos, 48 unitários e 79 E2E), o Console SQL no Pilar A (o item "nada de SQL livre" deixou de ser verdade e foi reescrito) e duas capturas novas tiradas de execuções reais: o console com o `42501` do banco e o bot parado no passo a passo depois do `23514`. **Erro achado:** os packs depois da 1.0.0 (PK-18 ao PK-19b) estavam anotados dentro da seção 1.0.0 do CHANGELOG; foram para a seção 1.1.0, conferida contra o CHANGELOG da tag. Etiquetas `v1.0.0` (merge do PK-15) e `v1.1.0` criadas pelo Gabriel depois do merge.
@@ -495,3 +499,4 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-21a | ✅ Concluído | 08/11/2026 |
 | PK-21b | ✅ Concluído | 08/11/2026 |
 | PK-22 | ✅ Concluído | 08/11/2026 |
+| PK-23 | ✅ Concluído | 08/11/2026 |

@@ -91,7 +91,7 @@ export function clock(seconds: number): string {
 }
 
 // O acesso vivo a um recurso que mais demora para vencer; sem nenhum, a tela oferece o pedido
-export function liveAccess(grants: Pick<Grant, 'state' | 'expiresAt' | 'resource'>[], resourceId: string) {
+export function liveAccess<G extends Pick<Grant, 'state' | 'expiresAt' | 'resource'>>(grants: G[], resourceId: string): G | undefined {
   return grants
     .filter((g) => g.state === 'ACTIVE' && g.resource.id === resourceId)
     .sort((a, b) => Date.parse(b.expiresAt) - Date.parse(a.expiresAt))[0];
