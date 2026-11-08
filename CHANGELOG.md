@@ -5,17 +5,17 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ## [Não lançado]
 
-## [1.0.0] - 2026-11-07
+## [1.1.0] - 2026-11-08
 
-Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
+Tudo o que mudou depois do primeiro uso de verdade: o sistema passou a se demonstrar sozinho, cada tela explica o que é, e o nível Escrita ganhou uso, sempre com o banco decidindo o limite.
 
 ### Destaques
 
-- **PAM:** pedido justificado, aprovação por outra pessoa (duas para recurso sensível), concessão temporária com expiração pelo relógio do banco, consultas controladas e break-glass revisado depois. A separação de funções e a não sobreposição de concessões são garantidas por CHECK, EXCLUDE, trigger e RLS no PostgreSQL.
-- **Auditoria:** append-only com cadeia de hash verificada dentro do banco, filtros por pessoa, ação, período e código da execução.
-- **Monitor:** amostras reais de `pg_stat_activity`, `pg_locks` e `pg_stat_database` a cada 5 s, grafo de bloqueio, contador de deadlocks e eventos ao vivo por SSE.
-- **Laboratório (LAB):** seis experimentos reais (rollback, espera de lock, deadlock, leitura não repetível, write skew e índices) e um bot que demonstra o sistema sozinho em três atos (acesso, incidente e verificação).
-- **Qualidade:** 137 testes de API e banco, 43 unitários do front e 69 E2E no Chromium com axe, todos no CI; deploy em contêineres na VPS.
+- **Bot da simulação:** o ▶ do Monitor faz um acesso do começo ao fim, o incidente no banco e a verificação da trilha, tudo de verdade; o modo passo a passo para depois de cada ação; e um bot com mouse usa as telas reais num navegador visível.
+- **Console SQL com escrita:** um comando por vez, limitado por um papel do PostgreSQL por recurso (só a tabela do recurso, sem DDL), com o comando inteiro na auditoria.
+- **Monitor com toda ação:** cada registro da auditoria vira um evento ao vivo, por trigger no próprio banco.
+- **Telas que se explicam:** guia na Visão geral, "O que é esta tela?" em cada área e consultas novas com parâmetros em lista.
+- **Qualidade:** 143 testes de API e banco, 48 unitários do front e 79 E2E, todos no CI.
 
 ### Adicionado
 
@@ -49,6 +49,24 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 - **PK-18 · O bot da simulação**
   - O ▶ do Monitor virou uma história em três atos, toda real: Diego pede acesso, tenta aprovar o próprio pedido (a API recusa e, pulando a API, o banco recusa com `23514`), Bruno aprova, Diego consulta; depois o incidente no banco; no fim, Eva verifica a cadeia de hash.
   - O bot age só como os personagens do seed, pelos mesmos serviços das rotas; cada ação fica na auditoria com o autor certo, a marca `simulacao` e o link a partir do Monitor.
+
+### Corrigido
+
+- CI do main vermelho desde o PK-20b: o teste do bot da simulação falhava às vezes (a narração dependia da ordem em que o aviso da conexão derrubada chegava ao Node; agora pergunta à própria conexão), e um teste do PK-20c tinha erro de tipo.
+
+## [1.0.0] - 2026-11-07
+
+Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
+
+### Destaques
+
+- **PAM:** pedido justificado, aprovação por outra pessoa (duas para recurso sensível), concessão temporária com expiração pelo relógio do banco, consultas controladas e break-glass revisado depois. A separação de funções e a não sobreposição de concessões são garantidas por CHECK, EXCLUDE, trigger e RLS no PostgreSQL.
+- **Auditoria:** append-only com cadeia de hash verificada dentro do banco, filtros por pessoa, ação, período e código da execução.
+- **Monitor:** amostras reais de `pg_stat_activity`, `pg_locks` e `pg_stat_database` a cada 5 s, grafo de bloqueio, contador de deadlocks e eventos ao vivo por SSE.
+- **Laboratório (LAB):** seis experimentos reais (rollback, espera de lock, deadlock, leitura não repetível, write skew e índices) e um bot que demonstra o sistema sozinho em três atos (acesso, incidente e verificação).
+- **Qualidade:** 137 testes de API e banco, 43 unitários do front e 69 E2E no Chromium com axe, todos no CI; deploy em contêineres na VPS.
+
+### Adicionado
 
 - **PK-15 · Release e ensaio**
   - Ensaio automatizado da apresentação (`pnpm --filter @dbwatch/web ensaio`): percorre o roteiro no navegador, mede cada bloco e grava o vídeo de backup.
@@ -260,12 +278,12 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Corrigido
 
-- CI do main vermelho desde o PK-20b: o teste do bot da simulação falhava às vezes (a narração dependia da ordem em que o aviso da conexão derrubada chegava ao Node; agora pergunta à própria conexão), e um teste do PK-20c tinha erro de tipo.
 - As telas do Next agora mandam `X-Frame-Options`, `frame-ancestors 'none'`, `nosniff` e `Referrer-Policy`, como a API já fazia.
 - `multer` fixado em 2.5.0 (falha alta de DoS na 2.4.0, não alcançável no DBWATCH); `pnpm audit` passou a rodar no CI.
 - CI vermelho desde o PK-11d: o E2E agora roda num banco limpo (como o da apresentação) e recebe a URL do banco-alvo das consultas.
 - `GET /api/monitor/locks` mostrava a última amostra que teve lock, mesmo quando o bloqueio já tinha acabado; agora lê sempre a amostra mais nova.
 
 
-[Não lançado]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.0.0...HEAD
+[Não lançado]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Gabrieldiog/DBWATCH/releases/tag/v1.0.0
