@@ -63,7 +63,22 @@ Abertura → autoaprovação barrada no banco → corrida de aprovação → adu
 | Um cenário do lab falha | Rodar o mesmo cenário pelo script em `infra/lab/` com dois terminais `psql` (o caminho mais transparente) |
 | Projetor com cores lavadas | Tema claro + zoom maior; os estados também têm ícone e texto |
 
-## 5. Ensaio automatizado e vídeo de backup
+## 5. O bot com mouse (navegador que se usa sozinho)
+
+Um navegador visível abre no notebook e usa as telas de verdade, com um cursor desenhado e uma legenda embaixo: Diego entra e pede acesso, tenta abrir Aprovações (404), Bruno aprova, Diego consulta, Eva filtra a auditoria e verifica a cadeia, Ana roda o deadlock no Laboratório, abre um break-glass e aperta o ▶ do Monitor. Leva uns 2 min 40 s; `BOT_RITMO=1.5` deixa 50% mais lento.
+
+Contra a VPS (as senhas vêm do seed de lá, só no terminal):
+
+```bash
+# na VPS: gera senhas novas e imprime em JSON (derruba as sessões dos usuários demo)
+docker compose -f docker-compose.prod.yml run --rm tools pnpm db:seed:json --permitir-producao
+# no notebook, com o repositório e o pnpm install feitos (uma vez: pnpm --filter @dbwatch/web exec playwright install chromium)
+DBWATCH_URL=http://2.25.95.101:8088 E2E_USERS='<a linha JSON do comando acima>' pnpm --filter @dbwatch/web bot
+```
+
+Em ambiente local, `pnpm --filter @dbwatch/web bot` sobe API e web, gera as senhas e roda. O vídeo de cada execução fica em `apps/web/bot-results/`.
+
+## 6. Ensaio automatizado e vídeo de backup
 
 `pnpm --filter @dbwatch/web ensaio` (com o build feito, como o E2E) percorre a parte do roteiro que acontece na tela, no navegador de verdade, contra a API e o banco de verdade, e grava um vídeo de 1280×720. Os blocos de `psql` (autoaprovação barrada e adulteração) ficam de fora: são mostrados no terminal ao vivo.
 
@@ -83,7 +98,7 @@ Tempos medidos no ensaio de 07/11/2026 (bot de três atos incluído), sem narra�
 
 Conclusão do ensaio: a tela nunca é o gargalo. Os 12 minutos são de fala; se o tempo encurtar, a versão curta cabe com folga.
 
-## 6. Perguntas prováveis da banca
+## 7. Perguntas prováveis da banca
 
 | Pergunta | Resposta curta | Onde está |
 | --- | --- | --- |

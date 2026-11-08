@@ -19,6 +19,9 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Adicionado
 
+- **PK-19a · O bot com mouse**
+  - `pnpm --filter @dbwatch/web bot`: um navegador visível usa as telas reais sozinho, com cursor desenhado e legenda, passando pelas quatro pessoas; funciona local ou apontado para a VPS (`DBWATCH_URL`).
+
 - **PK-18 · O bot da simulação**
   - O ▶ do Monitor virou uma história em três atos, toda real: Diego pede acesso, tenta aprovar o próprio pedido (a API recusa e, pulando a API, o banco recusa com `23514`), Bruno aprova, Diego consulta; depois o incidente no banco; no fim, Eva verifica a cadeia de hash.
   - O bot age só como os personagens do seed, pelos mesmos serviços das rotas; cada ação fica na auditoria com o autor certo, a marca `simulacao` e o link a partir do Monitor.

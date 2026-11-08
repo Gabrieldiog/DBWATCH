@@ -1,6 +1,7 @@
 import { expect, type APIRequestContext } from '@playwright/test';
 
-export const origin = { origin: 'http://localhost:3000' };
+// O bot da apresentação aponta para outro endereço (ex.: a VPS); a API confere o Origin contra o APP_ORIGIN dela
+export const origin = { origin: process.env.DBWATCH_URL ?? 'http://localhost:3000' };
 type Req = { id: string; status: string; resource: { name: string } };
 
 // O banco aceita um pedido pendente por pessoa e recurso: o teste cancela o que sobrou de outra execução

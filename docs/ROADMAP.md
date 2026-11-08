@@ -365,6 +365,10 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 - **Inclui:** `StoryService` (atos 1 e 3); eventos do LAB com o código da execução (o Monitor mostra "ver na auditoria" para quem tem `audit:read`); a marca `simulacao` em todo registro de auditoria feito pelo bot; verificação da cadeia reaproveitada entre a rota e o bot.
 
+### PK-19a · O bot com mouse ✅
+
+> **Registro de QA (08/11/2026):** pedido do Gabriel: ver o "mouse mexendo" e o sistema sendo usado de verdade. O Playwright dirige um navegador visível pelas telas reais (sem atalho de API, exceto a limpeza inicial do palco), com um cursor e uma legenda desenhados fora do `<body>` do React; o cursor anda em 28 passos até cada alvo e o clique deixa um anel. Execução completa contra a API e o banco locais em 2,6 min (vídeo conferido quadro a quadro: cursor, anel e legenda visíveis; a legenda do ▶ acompanha o evento mais novo do SSE). Contra a VPS, o bot lê as senhas da saída do `db:seed:json` de lá por variável de ambiente (nunca arquivo) e manda o Origin do endereço alvo. Sem mudança em `src`.
+
 ### PK-16 · Página de entrada com login ✅
 
 > **Registro de QA (05/11/2026):** pedido do Gabriel depois do deploy: a raiz mostrava só a logo, um botão "Entrar", o link para os testes (vazio em produção) e o seletor de tema. Agora `/` e `/entrar` são a mesma página: apresentação curta, o login já visível, o fluxo pedir, aprovar, usar e expira sozinho, e as seis garantias do banco, cada uma com a regra real das migrations (os textos foram conferidos contra o SQL; a exceção do break-glass está dita). O status do PostgreSQL é lido da API a cada visita. Lint, typecheck, 37/37 testes da web e build; `pnpm test:e2e` com 57/57 duas vezes no Chromium contra a API e o PostgreSQL de verdade, incluindo o teste novo (a raiz mostra o status real e entra direto no painel). A primeira rodada pegou um erro meu: o status do banco também tinha `role="status"` e duplicava a região ao vivo do aviso de sessão; como é calculado uma vez no carregamento, deixou de ser região ao vivo. Capturas em 1280 e 375 px nos dois temas, sem rolagem horizontal; no celular a ordem é título, login, fluxo e garantias. O radar do login é a única animação, como manda o DESIGN.md. Não houve teste de mutação neste pack.
@@ -455,3 +459,4 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-17e | ✅ Concluído | 07/11/2026 |
 | PK-15 | ✅ Concluído | 07/11/2026 |
 | PK-18 | ✅ Concluído | 07/11/2026 |
+| PK-19a | ✅ Concluído | 08/11/2026 |
