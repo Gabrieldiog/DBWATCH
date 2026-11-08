@@ -14,6 +14,8 @@ export async function cancelPending(api: APIRequestContext, resource: string): P
 export async function pendingRequest(api: APIRequestContext, resource: string, level: 'READ' | 'WRITE' = 'READ'): Promise<string> {
   await cancelPending(api, resource);
   const resources = (await (await api.get('/api/resources')).json()) as { id: string; name: string }[];
+  // PK-26: o primeiro da lista é do papel Aprovação (no seed, o Bruno), quem aprova nos testes
+  const [approver] = (await (await api.get('/api/requests/approvers')).json()) as { id: string }[];
   const res = await api.post('/api/requests', {
     headers: origin,
     data: {
@@ -21,6 +23,7 @@ export async function pendingRequest(api: APIRequestContext, resource: string, l
       accessLevel: level,
       requestedMinutes: 15,
       justification: 'Conferir os dados antes da vitrine de sexta',
+      approverId: approver!.id,
     },
   });
   expect(res.status()).toBe(201);

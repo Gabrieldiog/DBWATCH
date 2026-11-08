@@ -2,13 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { minutes, SENSITIVITY, type Resource } from '../lib/pam';
+import { minutes, SENSITIVITY, type Approver, type Resource } from '../lib/pam';
 import { send } from '../lib/send';
 
-export function RequestForm({ resources, initial, level }: { resources: Resource[]; initial?: string; level?: string }) {
+export function RequestForm({ resources, approvers, initial, level }: { resources: Resource[]; approvers: Approver[]; initial?: string; level?: string }) {
   const router = useRouter();
   const [resourceId, setResourceId] = useState(resources.find((r) => r.id === initial)?.id ?? resources[0]?.id ?? '');
   const [text, setText] = useState('');
+  const [approverId, setApproverId] = useState(approvers[0]?.id ?? '');
+  const approver = approvers.find((a) => a.id === approverId);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const max = resources.find((r) => r.id === resourceId)?.maxGrantMinutes ?? 5;
@@ -23,10 +25,11 @@ export function RequestForm({ resources, initial, level }: { resources: Resource
       accessLevel: data.get('accessLevel'),
       requestedMinutes: Number(data.get('requestedMinutes')),
       justification: text,
+      approverId,
     });
     setBusy(false);
     setResult(
-      sent.ok ? { ok: true, message: 'Pedido enviado. Ele aparece abaixo como Pendente.' } : sent,
+      sent.ok ? { ok: true, message: `Pedido enviado para ${approver?.displayName}. Ele aparece abaixo como Pendente.` } : sent,
     );
     if (!sent.ok) return;
     setText('');
@@ -84,12 +87,27 @@ export function RequestForm({ resources, initial, level }: { resources: Resource
             : `${text.length}/500`}
         </small>
       </label>
+      <label className="field">
+        Quem vai aprovar
+        <select value={approverId} onChange={(e) => setApproverId(e.target.value)} required>
+          {approvers.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.displayName}
+            </option>
+          ))}
+        </select>
+        <small>
+          {approver
+            ? `O pedido chega para ${approver.displayName}, e só essa pessoa pode aprovar ou rejeitar.`
+            : 'Ninguém além de você pode aprovar pedidos agora; fale com a administração.'}
+        </small>
+      </label>
       {result && (
         <p className={result.ok ? 'notice' : 'alert'} role={result.ok ? 'status' : 'alert'}>
           {result.message}
         </p>
       )}
-      <button className="button" type="submit" disabled={busy || !resourceId}>
+      <button className="button" type="submit" disabled={busy || !resourceId || !approverId}>
         {busy ? 'Enviando…' : 'Pedir acesso'}
       </button>
     </form>

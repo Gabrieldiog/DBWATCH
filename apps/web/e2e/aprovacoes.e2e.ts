@@ -49,19 +49,24 @@ test('rejeitar pede um motivo num diálogo e o solicitante vê o motivo', async 
   await expect(page.getByText('Motivo: Sem chamado aberto para esse acesso').first()).toBeVisible();
 });
 
-test('recurso HIGH: a mesma pessoa não aprova duas vezes, a segunda aprovação é de outra', async ({ page, browser }) => {
+test('recurso HIGH: a escolhida dá a aprovação final, a primeira é de outra pessoa, e ninguém aprova duas vezes', async ({ page, browser }) => {
   const bruno = await approver(browser);
   await revokeGrants(bruno.request, demoUser('REQUESTER').email);
   await login(page, 'REQUESTER', '/pedidos');
-  const id = await pendingRequest(page.request, 'Financeiro');
+  const id = await pendingRequest(page.request, 'Financeiro'); // enviado para o Bruno
   await bruno.reload();
-  await card(bruno, 'Financeiro').getByRole('button', { name: 'Aprovar' }).click();
-  await expect(card(bruno, 'Financeiro')).toContainText('1 de 2 aprovações');
+  await expect(card(bruno, 'Financeiro')).toContainText('Enviado para você.');
   await expect(card(bruno, 'Financeiro').getByRole('button', { name: 'Aprovar' })).toBeDisabled();
-  expect(await statusOf(page.request, id)).toBe('PENDING');
 
   const carla = await approver(browser, 1);
+  await expect(card(carla, 'Financeiro')).toContainText(/Enviado para .+: só essa pessoa decide/);
   await card(carla, 'Financeiro').getByRole('button', { name: 'Aprovar' }).click();
-  await expect(card(carla, 'Financeiro')).toHaveCount(0);
+  await expect(card(carla, 'Financeiro')).toContainText('1 de 2 aprovações');
+  await expect(card(carla, 'Financeiro').getByRole('button', { name: 'Aprovar' })).toBeDisabled();
+  expect(await statusOf(page.request, id)).toBe('PENDING');
+
+  await bruno.reload();
+  await card(bruno, 'Financeiro').getByRole('button', { name: 'Aprovar' }).click();
+  await expect(card(bruno, 'Financeiro')).toHaveCount(0);
   expect(await statusOf(page.request, id)).toBe('APPROVED');
 });

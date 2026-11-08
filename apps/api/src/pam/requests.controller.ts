@@ -19,6 +19,13 @@ export class RequestsController {
     return this.requests.resources();
   }
 
+  @Get('requests/approvers')
+  @RequirePermission('request:create')
+  @ApiOperation({ summary: 'Quem pode aprovar o meu pedido (id e nome), com o papel Aprovação primeiro' })
+  approvers(@Req() req: Request) {
+    return this.requests.approvers(currentUser(req).id);
+  }
+
   @Post('requests')
   @RequirePermission('request:create')
   @ApiOperation({ summary: 'Pede acesso temporário a um recurso (justificativa de 20 a 500 caracteres)' })
