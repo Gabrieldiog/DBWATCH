@@ -19,6 +19,10 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 
 ### Adicionado
 
+- **PK-20a · Consultas que se explicam**
+  - A tela agrupa as consultas por recurso e diz se você tem acesso e até quando; sem acesso, um link abre o pedido já no recurso certo.
+  - Cada consulta tem descrição; cidade e categoria viram listas com os valores que existem, e a API recusa valor fora delas. Quatro consultas novas no catálogo (8 no total).
+
 - **PK-19a · O bot com mouse**
   - `pnpm --filter @dbwatch/web bot`: um navegador visível usa as telas reais sozinho, com cursor desenhado e legenda, passando pelas quatro pessoas; funciona local ou apontado para a VPS (`DBWATCH_URL`).
 

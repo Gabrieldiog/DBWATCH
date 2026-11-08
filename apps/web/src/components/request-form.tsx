@@ -5,9 +5,9 @@ import { useState, type FormEvent } from 'react';
 import { minutes, SENSITIVITY, type Resource } from '../lib/pam';
 import { send } from '../lib/send';
 
-export function RequestForm({ resources }: { resources: Resource[] }) {
+export function RequestForm({ resources, initial }: { resources: Resource[]; initial?: string }) {
   const router = useRouter();
-  const [resourceId, setResourceId] = useState(resources[0]?.id ?? '');
+  const [resourceId, setResourceId] = useState(resources.find((r) => r.id === initial)?.id ?? resources[0]?.id ?? '');
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);

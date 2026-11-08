@@ -89,3 +89,10 @@ export function clock(seconds: number): string {
   const mmss = `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
   return h ? `${h}:${mmss}` : mmss;
 }
+
+// O acesso vivo a um recurso que mais demora para vencer; sem nenhum, a tela oferece o pedido
+export function liveAccess(grants: Pick<Grant, 'state' | 'expiresAt' | 'resource'>[], resourceId: string) {
+  return grants
+    .filter((g) => g.state === 'ACTIVE' && g.resource.id === resourceId)
+    .sort((a, b) => Date.parse(b.expiresAt) - Date.parse(a.expiresAt))[0];
+}

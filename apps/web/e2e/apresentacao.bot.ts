@@ -76,7 +76,9 @@ test('o DBWATCH se demonstra sozinho', async ({ page }) => {
   await clicar(page, page.getByRole('link', { name: 'Consultas' }));
   await legenda(page, 'Com o acesso vivo, Diego consulta os clientes de Goiânia');
   const consulta = page.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'Clientes de uma cidade (e-mail mascarado)' }) });
-  await digitar(page, consulta.getByLabel('cidade'), 'Goiânia');
+  const cidade = consulta.getByLabel('Cidade');
+  await apontar(page, cidade);
+  await cidade.selectOption('Goiânia');
   await clicar(page, consulta.getByRole('button', { name: 'Executar' }));
   await expect(consulta.getByRole('status')).toContainText(/linha\(s\) em \d+ ms/);
   await legenda(page, 'Só leitura, e-mail mascarado e tempo-limite. A execução tem um código na auditoria');

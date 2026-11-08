@@ -18,7 +18,7 @@ async function withGrant(page: Page, browser: import('@playwright/test').Browser
 test('T-E2E-03 consulta do catálogo com concessão ativa mostra as linhas e o código da execução', async ({ page, browser }) => {
   await withGrant(page, browser, 'Catálogo de produtos');
   const produtos = card(page, 'Produtos de uma categoria');
-  await produtos.getByLabel('categoria').fill('Bebidas');
+  await produtos.getByLabel('Categoria').selectOption('Bebidas');
   await produtos.getByRole('button', { name: 'Executar' }).click();
   await expect(produtos.getByRole('status')).toContainText(/50 linha\(s\) em \d+ ms/);
   await expect(produtos.getByRole('status')).toContainText(UUID);
@@ -29,16 +29,31 @@ test('T-E2E-03 consulta do catálogo com concessão ativa mostra as linhas e o c
 test('consulta lenta é cancelada pelo banco e a tela explica o tempo-limite', async ({ page, browser }) => {
   await withGrant(page, browser, 'Catálogo de produtos');
   const lenta = card(page, 'LAB: relatório que demora (tempo-limite de 1 s)');
-  await lenta.getByLabel('segundos').fill('3');
+  await lenta.getByLabel('Segundos de espera').fill('3');
   await lenta.getByRole('button', { name: 'Executar' }).click();
   await expect(lenta.getByRole('alert')).toHaveText('A consulta passou do tempo-limite e foi cancelada pelo banco.');
   await expect(lenta.getByRole('status')).toContainText(UUID);
 });
 
+// Sem acesso, o cartão mostra o caminho: o link abre o pedido já no recurso certo
+test('sem acesso, a consulta oferece o pedido já preenchido; com acesso, mostra até quando vale', async ({ page, browser }) => {
+  await withGrant(page, browser, '');
+  const bloco = (nome: string) => page.getByRole('region', { name: nome, exact: true });
+  await expect(bloco('Clientes')).toContainText('Sem acesso a Clientes agora.');
+  await bloco('Clientes').getByRole('link', { name: 'Pedir acesso a Clientes' }).click();
+  await expect(page).toHaveURL(/\/pedidos\?recurso=/);
+  await expect(page.getByLabel('Recurso').first().locator('option:checked')).toHaveText(/^Clientes/);
+
+  await withGrant(page, browser, 'Catálogo de produtos');
+  await page.goto('/consultas');
+  await expect(bloco('Catálogo de produtos')).toContainText(/Você tem acesso a Catálogo de produtos até \d{2}\/\d{2}\/\d{4}/);
+  await expect(bloco('Financeiro')).toContainText('Sem acesso a Financeiro agora.');
+});
+
 test('sem concessão viva a API nega e a tela mostra o motivo', async ({ page, browser }) => {
   await withGrant(page, browser, '');
   const clientes = card(page, 'Clientes de uma cidade (e-mail mascarado)');
-  await clientes.getByLabel('cidade').fill('Goiânia');
+  await clientes.getByLabel('Cidade').selectOption('Goiânia');
   await clientes.getByRole('button', { name: 'Executar' }).click();
   await expect(clientes.getByRole('alert')).toHaveText(/concessão/);
   await expect(clientes.getByRole('table')).toHaveCount(0);

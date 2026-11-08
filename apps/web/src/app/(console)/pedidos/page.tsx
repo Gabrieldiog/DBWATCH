@@ -8,7 +8,9 @@ import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Pedir acesso' };
 
-export default async function Pedidos() {
+// ?recurso= vem do botão "Pedir acesso" das Consultas: o formulário já abre no recurso certo
+export default async function Pedidos({ searchParams }: { searchParams: Promise<{ recurso?: string }> }) {
+  const { recurso } = await searchParams;
   const me = await requirePermission('request:create');
   const [resources, mine] = await Promise.all([
     apiGet<Resource[]>('/resources'),
@@ -21,7 +23,7 @@ export default async function Pedidos() {
         O acesso é temporário e passa por aprovação. Recurso de sensibilidade alta precisa de duas pessoas
         diferentes.
       </p>
-      <RequestForm resources={resources} />
+      <RequestForm resources={resources} initial={recurso} />
       {me.permissions.includes('breakglass:use') && (
         <section aria-labelledby="emergencia">
           <h2 id="emergencia">Emergência (break-glass)</h2>

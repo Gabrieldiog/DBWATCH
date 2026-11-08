@@ -29,6 +29,8 @@ describe('consultas controladas no banco-alvo', () => {
 
   beforeAll(async () => {
     app = await createApp(urlFor('dbwatch_app'), { LOGIN_RATE_LIMIT: '1000' });
+    // O grantOn precisa de outra pessoa como aprovadora; num banco recém-criado, ainda não existe nenhuma
+    await loginAs(app, ['APPROVER']);
   });
   afterAll(() => app.close());
 
@@ -71,12 +73,35 @@ describe('consultas controladas no banco-alvo', () => {
     expect(await lastAudit(user.id)).toEqual({ outcome: 'FAILURE', reason: 'sqlstate:57014' });
   });
 
-  it('T-SEC-06 parâmetro com injeção é só um valor; parâmetro extra ou de tipo errado é 400', async () => {
+  it('T-SEC-06 injeção fora da lista do catálogo é 400 antes do banco; parâmetro extra ou de tipo errado é 400', async () => {
     const user = await loginAs(app, ['REQUESTER']);
     await grantOn(user.id, 'Catálogo de produtos');
-    expect((await run(user.cookie, 'produtos_por_categoria', { categoria: "' OR 1=1 --" }).expect(200)).body.rowCount).toBe(0);
+    await run(user.cookie, 'produtos_por_categoria', { categoria: "' OR 1=1 --" }).expect(400);
     await run(user.cookie, 'produtos_por_categoria', { categoria: 'Bebidas', extra: 1 }).expect(400);
     await run(user.cookie, 'relatorio_lento', { segundos: '1; DROP TABLE loja.produtos' }).expect(400);
     await run(user.cookie, 'nao_existe').expect(404);
+  });
+
+  it('T-PAM-12 o catálogo se explica: descrição, rótulos e valores aceitos; a API nega o que está fora deles', async () => {
+    const user = await loginAs(app, ['REQUESTER']);
+    const catalog = (await request(app.getHttpServer()).get('/api/queries').set('Cookie', user.cookie).expect(200)).body as {
+      code: string; description: string; params: { label: string; options?: string[]; min?: number; max?: number }[];
+    }[];
+    expect(catalog).toHaveLength(8);
+    expect(catalog.every((t) => t.description.length > 10 && t.params.every((p) => p.label))).toBe(true);
+    expect(catalog.find((t) => t.code === 'clientes_por_cidade')!.params[0]!.options).toContain('Anápolis');
+    await grantOn(user.id, 'Clientes');
+    await run(user.cookie, 'clientes_por_cidade', { cidade: 'Goiania' }).expect(400); // sem acento não está na lista
+    expect((await run(user.cookie, 'clientes_por_cidade', { cidade: 'Anápolis' }).expect(200)).body.rowCount).toBeGreaterThan(0);
+    expect((await run(user.cookie, 'clientes_por_cidade_total').expect(200)).body.rowCount).toBe(4);
+
+    await grantOn(user.id, 'Financeiro');
+    await run(user.cookie, 'pedidos_de_um_cliente', { cliente: 501 }).expect(400);
+    const pedidos = (await run(user.cookie, 'pedidos_de_um_cliente', { cliente: 7 }).expect(200)).body;
+    expect(pedidos.columns).toEqual(['id', 'valor', 'data']);
+    expect(pedidos.rowCount).toBeGreaterThan(0);
+    const top = (await run(user.cookie, 'maiores_clientes').expect(200)).body;
+    expect(top.rowCount).toBe(10);
+    expect(top.rows.every((r: { email: string }) => /^\w{3}\*\*\*$/.test(r.email))).toBe(true);
   });
 });

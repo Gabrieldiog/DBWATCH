@@ -9,8 +9,9 @@ export type Template = {
   title: string;
   accessLevel: string;
   maxRows: number;
-  params: { name: string; type: 'text' | 'int' }[];
-  resource: { name: string };
+  description: string;
+  params: { name: string; label: string; type: 'text' | 'int'; options?: string[]; min?: number; max?: number }[];
+  resource: { id: string; name: string };
 };
 type Result = { columns: string[]; rows: Record<string, unknown>[]; rowCount: number; truncated: boolean; durationMs: number };
 
@@ -31,15 +32,25 @@ export function QueryCard({ q }: { q: Template }) {
   const result = sent?.ok ? (sent.data as Result) : null;
   return (
     <li className="panel">
-      <h2>{q.title}</h2>
+      <h3>{q.title}</h3>
+      <p>{q.description}</p>
       <p className="note">
-        {q.resource.name} · {LEVEL[q.accessLevel]} · até {q.maxRows} linhas
+        {LEVEL[q.accessLevel]} · até {q.maxRows} {q.maxRows === 1 ? 'linha' : 'linhas'}
       </p>
       <form className="row" onSubmit={run}>
         {q.params.map((p) => (
           <label key={p.name} className="field">
-            {p.name}
-            <input name={p.name} type={p.type === 'int' ? 'number' : 'text'} min={0} maxLength={100} required />
+            {p.label}
+            {p.options ? (
+              <select name={p.name}>
+                {p.options.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
+              </select>
+            ) : (
+              <input name={p.name} type={p.type === 'int' ? 'number' : 'text'} min={p.min ?? 0} max={p.max} maxLength={100} required />
+            )}
+            {p.type === 'int' && p.max !== undefined && <small className="note">De {p.min ?? 0} a {p.max}</small>}
           </label>
         ))}
         <button type="submit" className="button" disabled={busy}>

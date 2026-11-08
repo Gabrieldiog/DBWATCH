@@ -67,7 +67,7 @@ test('ensaio do roteiro da apresentação', async ({ page, browser }) => {
     await narrar(page, 4);
     await page.goto('/consultas');
     const card = page.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'Clientes de uma cidade (e-mail mascarado)' }) });
-    await card.getByLabel('cidade').fill('Goiânia');
+    await card.getByLabel('Cidade').selectOption('Goiânia');
     await card.getByRole('button', { name: 'Executar' }).click();
     await expect(card.getByRole('status')).toContainText(/linha\(s\) em \d+ ms/);
     await narrar(page, 4);
