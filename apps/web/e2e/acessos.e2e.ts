@@ -39,7 +39,9 @@ test('revogar pede motivo e o acesso some na hora para o dono', async ({ page, b
   await expect(row).toHaveCount(0);
 
   await page.reload();
-  await expect(page.getByRole('row').filter({ hasText: 'Clientes' }).first()).toContainText('Revogado');
+  // PK-28: o revogado sai de "Valendo agora" e vai para o histórico recolhido
+  await page.getByText(/^Acessos encerrados/).click();
+  await expect(page.locator('details.mais-antigos').getByRole('row').filter({ hasText: 'Clientes' }).first()).toContainText('Revogado');
   const mine = (await (await page.request.get('/api/grants/mine')).json()) as { id: string; state: string }[];
   expect(mine.find((g) => g.id === id)?.state).toBe('REVOKED');
 });

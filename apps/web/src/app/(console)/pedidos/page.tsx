@@ -71,7 +71,7 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
                   <td data-label="Nível e duração">
                     {LEVEL[r.accessLevel]} · {minutes(r.requestedMinutes)}
                   </td>
-                  <td data-label="Quem aprova">{r.approver?.displayName ?? 'Qualquer aprovador'}</td>
+                  <td data-label="Quem aprova">{r.approver?.displayName ?? (r.breakGlass ? 'Emergência, sem aprovação' : 'Qualquer aprovador')}</td>
                   <td data-label="Pedido em">{when(r.createdAt)}</td>
                   <td data-label="Estado">
                     <Badge entry={STATUS[r.status]} fallback={r.status} /> {approvals(r)}

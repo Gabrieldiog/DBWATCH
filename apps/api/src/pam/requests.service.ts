@@ -6,7 +6,7 @@ import type { NewRequest } from './requests.schemas';
 
 const FIELDS = {
   id: true, accessLevel: true, requestedMinutes: true, justification: true, status: true,
-  createdAt: true, decidedAt: true, decisionNote: true, firstApprovedAt: true, resource: { select: { id: true, name: true, sensitivity: true } },
+  createdAt: true, decidedAt: true, decisionNote: true, firstApprovedAt: true, breakGlass: true, resource: { select: { id: true, name: true, sensitivity: true } },
   approver: { select: { id: true, displayName: true } },
 } as const;
 

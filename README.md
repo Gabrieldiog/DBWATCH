@@ -448,6 +448,7 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Console SQL para quem não é de TI: erro explicado e visual novo (PK-24) | ✅ Concluído |
 | Monitor diz quem fez e explica cada evento (PK-25) | ✅ Concluído |
 | Quem pede escolhe quem aprova, com a regra no banco (PK-26) | ✅ Concluído |
+| Commits e rollbacks com o porquê e telas mais compactas (PK-27, PK-28) | ✅ Concluído |
 
 ## 📚 Documentação
 

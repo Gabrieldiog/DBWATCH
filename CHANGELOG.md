@@ -31,6 +31,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
   - "Ver como tabela" ganhou a coluna "O que aconteceu": os eventos que o DBWATCH registrou em cada intervalo de 5 s (quem fez o quê, passos da simulação, a coleta do monitor).
   - O rollback é ligado ao evento que voltou mesmo quando o contador do PostgreSQL chega na amostra seguinte; sem evento, a linha diz que o banco só informa o número.
 
+- **PK-28 · Telas mais compactas**
+  - Laboratório e Consultas com cartões em grade (o que abre resultado ocupa a linha inteira) e nome curto em cada experimento.
+  - Pedir acesso e Emergência em duas colunas; Meus acessos separa "Valendo agora" do histórico recolhido; históricos longos mostram os 8 mais recentes.
+  - "O que é esta tela?" e as frases de abertura mais curtas; pedidos de emergência dizem "Emergência, sem aprovação".
+
 ## [1.1.0] - 2026-11-08
 
 Tudo o que mudou depois do primeiro uso de verdade: o sistema passou a se demonstrar sozinho, cada tela explica o que é, e o nível Escrita ganhou uso, sempre com o banco decidindo o limite.

@@ -14,6 +14,7 @@ export type AccessRequest = {
   firstApprovedById?: string | null;
   requester?: { displayName: string; email: string };
   approver?: { id: string; displayName: string } | null;
+  breakGlass?: boolean;
 };
 export type Approver = { id: string; displayName: string };
 
