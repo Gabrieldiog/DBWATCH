@@ -9,7 +9,7 @@
 
 **Gerenciamento de acessos privilegiados e monitoramento de PostgreSQL, com cada ação registrada em uma trilha de auditoria protegida.**
 
-[![Versão](https://img.shields.io/badge/versão-1.1.0-2EEDC0?style=flat-square&labelColor=050E1E)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/versão-1.2.0-2EEDC0?style=flat-square&labelColor=050E1E)](CHANGELOG.md)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-19D3D0?style=flat-square&logo=postgresql&logoColor=white&labelColor=050E1E)](docs/DATA_MODEL.md)
 [![NestJS](https://img.shields.io/badge/API-NestJS-FD6A62?style=flat-square&logo=nestjs&logoColor=white&labelColor=050E1E)](docs/ARCHITECTURE.md)
 [![Next.js](https://img.shields.io/badge/Web-Next.js-E4EEF7?style=flat-square&logo=nextdotjs&logoColor=white&labelColor=050E1E)](docs/DESIGN.md)
@@ -32,7 +32,7 @@
 ---
 
 > [!IMPORTANT]
-> **Versão 1.1.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 146 testes de API e banco, 58 testes unitários do front e 80 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
+> **Versão 1.2.0, pronta para a apresentação de 11/11/2026.** Tudo o que o README descreve está implementado e testado contra um PostgreSQL 16 de verdade: 146 testes de API e banco, 58 testes unitários do front e 80 testes no navegador (fluxos e acessibilidade). Os limites conhecidos estão em [SECURITY §7](docs/SECURITY.md#7-limites-conhecidos).
 
 ## 💡 O que é o DBWATCH?
 
@@ -427,7 +427,7 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | **P1 · Segurança e persistência** | PK-03 a PK-07 | Auditoria protegida, autenticação, RBAC, solicitações e aprovações, concessões temporárias e consultas controladas |
 | **P2 · Monitoramento** | PK-08 a PK-12 | Coletor, laboratório, interface completa e dashboard com motion |
 | **P3 · Refinamento** | PK-13 a PK-15 | QA final, deploy na VPS, release v1.0 e ensaio da apresentação |
-| **P4 · Depois do primeiro uso** | PK-16 a PK-23 | Entrada com login, bot da simulação (automático, passo a passo e com mouse), telas que se explicam, Monitor com toda ação, console SQL com escrita, release v1.1 e console também na leitura |
+| **P4 · Depois do primeiro uso** | PK-16 a PK-29 | Entrada com login, bot da simulação (automático, passo a passo e com mouse), telas que se explicam, Monitor com toda ação, console SQL com escrita, release v1.1, console para quem não é de TI, Monitor que explica, escolha de quem aprova e release v1.2 |
 
 ## 📊 Status de implementação
 
@@ -448,6 +448,8 @@ Apresentação: **11 de novembro de 2026**. O plano completo, com dependências 
 | Console SQL para quem não é de TI: erro explicado e visual novo (PK-24) | ✅ Concluído |
 | Monitor diz quem fez e explica cada evento (PK-25) | ✅ Concluído |
 | Quem pede escolhe quem aprova, com a regra no banco (PK-26) | ✅ Concluído |
+| Commits e rollbacks com o porquê e telas mais compactas (PK-27, PK-28) | ✅ Concluído |
+| Release v1.2.0 (PK-29) | ✅ Concluído |
 
 ## 📚 Documentação
 

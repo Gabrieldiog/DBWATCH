@@ -1330,3 +1330,57 @@ section > .access {
   padding-left: 18px;
   font-size: 14px;
 }
+
+/* PK-28: telas mais compactas. Cartões em grade (o que abre resultado ocupa a linha inteira) e formulário em colunas */
+.cards-grid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.cards-grid > .panel {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+}
+
+.cards-grid > .panel > * + * {
+  margin-top: 8px;
+}
+
+.cards-grid h2,
+.cards-grid h3 {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.cards-grid > .panel > .button,
+.cards-grid > .panel > form {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.cards-grid > .panel:has(table, .steps, .alert) {
+  grid-column: 1 / -1;
+}
+
+.cards-grid > .panel > .button {
+  align-self: flex-start;
+}
+
+@media (min-width: 900px) {
+  .form-colunas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+  }
+
+  .form-colunas > .field-larga,
+  .form-colunas > .button,
+  .form-colunas > [role] {
+    grid-column: 1 / -1;
+  }
+}
+
+.mais-antigos {
+  margin-top: 8px;
+}

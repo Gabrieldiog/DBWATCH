@@ -13,8 +13,8 @@ export default async function Consultas() {
     <main className="console-page">
       <h1>Consultas</h1>
       <p>
-        Aqui se leem os dados da loja fictícia, mas só com um acesso aprovado e ainda vivo para o recurso da consulta.
-        Nem o administrador vê dados sem isso: quem administra o sistema não é dono dos dados.
+        Perguntas prontas sobre a loja fictícia. Só funcionam com um acesso aprovado e vivo ao recurso, até para quem
+        administra o sistema.
       </p>
       <ol className="flow flow-compact" aria-label="Como consultar">
         <li>
@@ -31,8 +31,8 @@ export default async function Consultas() {
         </li>
       </ol>
       <p className="note">
-        Por que não tem um campo de SQL livre? Quem aprova precisa saber exatamente o que vai poder ser feito. Aqui você só
-        escolhe um valor; o comando é sempre o do catálogo, e o valor vai separado do SQL ($1).
+        Aqui você só escolhe um valor: o comando é sempre o do catálogo, e o valor vai separado do SQL ($1). Prefere
+        digitar? Use o <Link href="/console">Console SQL</Link>.
       </p>
       {/* Um bloco por recurso, com o acesso dito uma vez; a consulta do LAB vai por último */}
       {[...new Map(catalog.map((q) => [q.resource.id, q.resource])).values()].map((r) => {
@@ -48,7 +48,7 @@ export default async function Consultas() {
                 Sem acesso a {r.name} agora. <Link href={`/pedidos?recurso=${r.id}`}>Pedir acesso a {r.name}</Link>
               </p>
             )}
-            <ul className="cards">
+            <ul className="cards cards-grid">
               {queries.map((q) => (
                 <QueryCard key={q.code} q={q} />
               ))}

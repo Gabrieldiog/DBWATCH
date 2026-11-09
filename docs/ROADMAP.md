@@ -393,9 +393,17 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 > **Registro de QA (08/11/2026):** nova área "Console SQL" no menu (quem tem `query:execute`), com o guia da Visão geral e o "O que é esta tela?". O console mostra o acesso de Escrita vivo do recurso escolhido; sem ele, o link abre o pedido já no recurso e com Escrita marcada (`?nivel=WRITE`). Exemplos por recurso, incluindo os que o banco recusa. E2E: o Diego sem escrita cai no pedido certo; com escrita aprovada, o exemplo altera a cidade de verdade, "Apagar pedidos" mostra `SQLSTATE 42501 ... permission denied for table pedidos`, e o teste devolve o dado como era. Dois erros pegos antes da entrega: o anúncio de rota do Next também tem `role="alert"` (o teste passou a olhar só o formulário) e a classe `.console` já era a grade do layout inteiro, o que esticava o formulário (renomeada para `.console-sql`). Axe sem violação séria nos dois temas. Lint, typecheck do repositório inteiro, 48/48 da web, 142/142 da API e 78/78 E2E; capturas em 1280 e 375 px sem rolagem horizontal. O CI do main voltou ao verde com a correção do PK-20b/20c.
 
-### PK-27 · Commits e rollbacks com o porquê
+### PK-29 · Release v1.2.0 ✅
 
-> **Registro de QA (08/11/2026):** pedido do Gabriel: a tabela dos gráficos tinha só hora e número. A função pura `intervalStory` cruza cada amostra com os eventos do mesmo intervalo (4 testes unitários). **Achado no E2E:** o rollback provocado aparecia na amostra seguinte à do evento, porque o PostgreSQL 15+ manda os contadores de cada conexão para o `pg_stat_database` com alguns segundos de atraso; o evento que voltou agora espera até 2 amostras pelo contador, e a tabela explica o atraso. Lint, typecheck e 58/58 da web. A rodada completa da API e do E2E foi interrompida porque o Docker do ambiente de testes parou no meio; a validação completa fica com o CI do PR, que roda tudo.
+> **Registro (09/11/2026):** CHANGELOG com a seção 1.2.0 (PK-23 ao PK-28) e os links de comparação, `package.json` e selo do README em 1.2.0. Só documentação e versão; os números são os do CI do PK-28. Etiqueta `v1.2.0` criada pelo Gabriel depois do merge.
+
+### PK-28 · Telas mais compactas ✅
+
+> **Registro de QA (09/11/2026):** pedido do Gabriel: Laboratório, Sessões, Pedir acesso, Meus acessos e Consultas estavam "muito grandes pra pouca coisa". Capturas de antes e depois em 1280 px: o Laboratório caiu de 2.443 px para cerca de 1.400 px de altura e as Consultas de 2.578 px para cerca de 1.900 px; em 375 px, sem rolagem horizontal. **Erro achado nas capturas:** pedidos de emergência apareciam como "Qualquer aprovador"; a lista de pedidos passou a trazer `breakGlass`. **Achado no E2E:** o acesso revogado foi para o histórico recolhido, e o teste passou a abrir esse histórico. Lint, typecheck, 58/58 da web, 146/146 da API e `pnpm test:e2e` com 80/80, inclusive o axe nas telas.
+
+### PK-27 · Commits e rollbacks com o porquê ✅
+
+> **Registro de QA (08/11/2026):** pedido do Gabriel: a tabela dos gráficos tinha só hora e número. A função pura `intervalStory` cruza cada amostra com os eventos do mesmo intervalo (4 testes unitários). **Achado no E2E:** o rollback provocado aparecia na amostra seguinte à do evento, porque o PostgreSQL 15+ manda os contadores de cada conexão para o `pg_stat_database` com alguns segundos de atraso; o evento que voltou agora espera até 2 amostras pelo contador, e a tabela explica o atraso. Lint, typecheck e 58/58 da web. A rodada completa da API e do E2E foi interrompida porque o Docker do ambiente de testes parou no meio; a validação completa ficou com o CI, verde no PR e no main (146 da API e 80 E2E).
 
 ### PK-26 · Quem pede escolhe quem aprova ✅
 
@@ -519,4 +527,6 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-24 | ✅ Concluído | 08/11/2026 |
 | PK-25 | ✅ Concluído | 08/11/2026 |
 | PK-26 | ✅ Concluído | 08/11/2026 |
-| PK-27 | 🔄 Validando no CI | 08/11/2026 |
+| PK-27 | ✅ Concluído | 08/11/2026 |
+| PK-28 | ✅ Concluído | 09/11/2026 |
+| PK-29 | ✅ Concluído | 09/11/2026 |

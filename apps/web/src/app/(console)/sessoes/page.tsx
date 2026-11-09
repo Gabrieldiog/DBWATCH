@@ -15,12 +15,9 @@ export default async function Sessoes() {
   return (
     <main className="console-page">
       <h1>Minhas sessões</h1>
-      <p>
-        Onde sua conta está aberta agora. Esqueceu um computador logado? Encerre aqui: a sessão é revogada no banco e
-        o próximo clique naquele aparelho volta para o login.
-      </p>
+      <p>Onde sua conta está aberta agora. Esqueceu um computador logado? Encerre aqui.</p>
       <Explica>
-        <p>A sessão fica guardada no banco, não só no navegador. Por isso dá para encerrar um aparelho à distância: a linha recebe a data de revogação e o próximo clique naquele aparelho volta para o login.</p>
+        <p>A sessão fica guardada no banco, não só no navegador: encerrar grava a revogação, e o próximo clique naquele aparelho volta para o login.</p>
       </Explica>
       <div className="table-wrap">
         <table className="table">

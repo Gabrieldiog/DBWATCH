@@ -13,7 +13,7 @@ test('deadlock pela tela: uma sessão recebe 40P01 e a execução entra no hist�
   await expect(deadlock.locator('.step-error')).toHaveCount(1);
   await expect(deadlock.locator('.step-error')).toContainText('erro 40P01');
   const id = (await status.textContent())!.match(/#(\d+)/)![1];
-  await expect(page.getByRole('row').filter({ hasText: `#${id}` })).toContainText('deadlock');
+  await expect(page.getByRole('row').filter({ hasText: `#${id}` })).toContainText('Deadlock');
   await expect(deadlock.getByText('O que isso mostra:')).toBeVisible();
 
   // O contador nativo do pg_stat_database sobe e o monitor mostra na amostra seguinte

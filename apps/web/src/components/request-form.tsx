@@ -38,7 +38,7 @@ export function RequestForm({ resources, approvers, initial, level }: { resource
   }
 
   return (
-    <form className="panel form" onSubmit={submit}>
+    <form className="panel form form-colunas" onSubmit={submit}>
       <label className="field">
         Recurso
         <select value={resourceId} onChange={(e) => setResourceId(e.target.value)} required>
@@ -49,6 +49,21 @@ export function RequestForm({ resources, approvers, initial, level }: { resource
             </option>
           ))}
         </select>
+      </label>
+      <label className="field">
+        Quem vai aprovar
+        <select value={approverId} onChange={(e) => setApproverId(e.target.value)} required>
+          {approvers.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.displayName}
+            </option>
+          ))}
+        </select>
+        <small>
+          {approver
+            ? `O pedido chega para ${approver.displayName}, e só essa pessoa pode aprovar ou rejeitar.`
+            : 'Ninguém além de você pode aprovar pedidos agora; fale com a administração.'}
+        </small>
       </label>
       <fieldset className="field">
         <legend>Nível</legend>
@@ -71,7 +86,7 @@ export function RequestForm({ resources, approvers, initial, level }: { resource
           required
         />
       </label>
-      <label className="field">
+      <label className="field field-larga">
         Justificativa
         <textarea
           value={text}
@@ -85,21 +100,6 @@ export function RequestForm({ resources, approvers, initial, level }: { resource
           {text.trim().length < 20
             ? `Faltam ${20 - text.trim().length} caracteres`
             : `${text.length}/500`}
-        </small>
-      </label>
-      <label className="field">
-        Quem vai aprovar
-        <select value={approverId} onChange={(e) => setApproverId(e.target.value)} required>
-          {approvers.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.displayName}
-            </option>
-          ))}
-        </select>
-        <small>
-          {approver
-            ? `O pedido chega para ${approver.displayName}, e só essa pessoa pode aprovar ou rejeitar.`
-            : 'Ninguém além de você pode aprovar pedidos agora; fale com a administração.'}
         </small>
       </label>
       {result && (

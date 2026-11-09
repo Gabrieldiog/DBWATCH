@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import { Explica } from '../../../components/explica';
 import { Badge } from '../../../components/badge';
 import { LabRunner } from '../../../components/lab-runner';
-import { OUTCOME, type RunRow, type Scenario } from '../../../lib/lab';
+import { NOME, OUTCOME, type RunRow, type Scenario } from '../../../lib/lab';
 import { when } from '../../../lib/pam';
 import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Laboratório' };
+const RECENT = 8;
 
 export default async function Laboratorio() {
   await requirePermission('lab:run');
@@ -27,20 +28,19 @@ export default async function Laboratorio() {
     <main className="console-page">
       <h1>Laboratório</h1>
       <p>
-        Experimentos provocados de propósito, com duas conexões reais (sessões A e B) e o papel <code>dbwatch_lab</code>,
-        que só enxerga o schema <code>lab</code>. Os dados são fictícios e voltam ao ponto inicial antes de cada execução.
-        Um experimento por vez no banco inteiro.
+        Seis experimentos de verdade no PostgreSQL, com duas conexões (sessões A e B) disputando as mesmas linhas num
+        schema separado, com dados fictícios. Um por vez no banco inteiro.
       </p>
       <Explica>
-        <p>Cada experimento abre duas conexões reais (sessões A e B) num schema separado, <code>lab</code>, e faz as duas disputarem as mesmas linhas. A linha do tempo mostra cada comando com o tempo e o erro que o banco devolveu.</p>
-        <p>Serve para provar ao vivo o que a disciplina ensina: atomicidade (rollback), espera de lock, deadlock (<code>40P01</code>), níveis de isolamento e índices. Tudo rotulado LAB, porque é provocado de propósito.</p>
+        <p>Cada um prova um conceito: rollback, espera de lock, deadlock (<code>40P01</code>), isolamento e índices. A linha do tempo mostra cada comando, o tempo e o erro que o banco devolveu.</p>
       </Explica>
-      <ul className="cards">
+      <ul className="cards cards-grid">
         {scenarios.map((s) => (
           <LabRunner key={s.name} scenario={s} />
         ))}
       </ul>
       <h2>Últimas execuções</h2>
+      {runs.length > RECENT && <p className="note">As {RECENT} mais recentes. Todas ficam registradas na auditoria.</p>}
       {runs.length === 0 ? (
         <p className="panel">Nenhuma execução ainda. Cada experimento rodado aqui fica registrado no banco e na auditoria.</p>
       ) : (
@@ -56,10 +56,10 @@ export default async function Laboratorio() {
               </tr>
             </thead>
             <tbody>
-              {runs.map((r) => (
+              {runs.slice(0, RECENT).map((r) => (
                 <tr key={r.id}>
                   <td data-label="Execução">#{r.id}</td>
-                  <td data-label="Cenário">{r.scenario}</td>
+                  <td data-label="Cenário">{NOME[r.scenario] ?? r.scenario}</td>
                   <td data-label="Quando">{when(r.startedAt)}</td>
                   <td data-label="Resultado">
                     <Badge entry={OUTCOME[r.outcome]} fallback={r.outcome} />

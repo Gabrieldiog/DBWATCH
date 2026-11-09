@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { CONCEPT, OUTCOME, outcomeOf, rowsText, slow, type Run, type Scenario } from '../lib/lab';
+import { CONCEPT, NOME, OUTCOME, outcomeOf, rowsText, slow, type Run, type Scenario } from '../lib/lab';
 import { send } from '../lib/send';
 import { Badge } from './badge';
 
@@ -25,8 +25,10 @@ export function LabRunner({ scenario }: { scenario: Scenario }) {
 
   return (
     <li className="panel">
-      <span className="badge badge-wait">LAB</span>
-      <h2>{scenario.title}</h2>
+      <h2>
+        <span className="badge badge-wait">LAB</span> {NOME[scenario.name] ?? scenario.name}
+      </h2>
+      <p>{scenario.title}</p>
       <button type="button" className="button" onClick={start} disabled={busy}>
         {busy ? 'Rodando no banco…' : 'Rodar experimento'}
       </button>

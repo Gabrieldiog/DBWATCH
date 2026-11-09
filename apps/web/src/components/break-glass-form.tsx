@@ -33,7 +33,7 @@ export function BreakGlassForm({ resources }: { resources: Resource[] }) {
   }
 
   return (
-    <form className="panel form break-glass" onSubmit={submit}>
+    <form className="panel form form-colunas break-glass" onSubmit={submit}>
       <label className="field">
         Recurso
         <select name="resourceId" required>
@@ -48,7 +48,7 @@ export function BreakGlassForm({ resources }: { resources: Resource[] }) {
         Duração em minutos (de 5 a 15)
         <input name="minutes" type="number" min={5} max={15} defaultValue={10} required />
       </label>
-      <label className="field">
+      <label className="field field-larga">
         O que está acontecendo (40 caracteres ou mais, vai para a auditoria)
         <textarea value={text} onChange={(e) => setText(e.target.value)} minLength={40} maxLength={500} rows={3} required />
         <small className="note">{text.trim().length} de 40</small>
