@@ -5,6 +5,18 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ## [Não lançado]
 
+## [1.2.0] - 2026-11-09
+
+Feita depois do teste na VPS, pensando em quem não é de TI: o console explica o erro do banco em português, o Monitor diz quem fez cada coisa e por quê, e o pedido de acesso chega só para quem foi escolhido, com a regra no banco.
+
+### Destaques
+
+- **Console SQL para todos:** com Leitura também dá para digitar SQL (a transação é `READ ONLY`), com SQL pronto por recurso e o erro do PostgreSQL explicado em português, com o original embaixo.
+- **Monitor que explica:** todo evento diz quem fez e em qual recurso; "Detalhar" conta o que aconteceu, e a tabela dos gráficos diz o que houve em cada intervalo de 5 s.
+- **Quem pede escolhe quem aprova:** só a pessoa escolhida decide, garantido por três CHECK no banco.
+- **Telas mais compactas:** cartões em grade, formulários em colunas e históricos recolhidos.
+- **Qualidade:** 146 testes de API e banco, 58 unitários do front e 80 E2E, todos no CI.
+
 ### Adicionado
 
 - **PK-23 · Console SQL também na Leitura**
@@ -315,6 +327,7 @@ Primeira versão completa, para a apresentação no InovaTech 2026 (11/11/2026).
 - `GET /api/monitor/locks` mostrava a última amostra que teve lock, mesmo quando o bloqueio já tinha acabado; agora lê sempre a amostra mais nova.
 
 
-[Não lançado]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.1.0...HEAD
+[Não lançado]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Gabrieldiog/DBWATCH/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Gabrieldiog/DBWATCH/releases/tag/v1.0.0
