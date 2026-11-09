@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: 'Meus acessos' };
 
 // Com "everyone", mostra de quem é cada acesso e o botão de revogar (só para quem tem grant:revoke)
 function GrantTable({ grants, everyone }: { grants: Grant[]; everyone?: boolean }) {
-  if (grants.length === 0) return <p className="panel">{everyone ? 'Nenhum acesso ativo agora.' : 'Você ainda não recebeu nenhum acesso.'}</p>;
+  if (grants.length === 0) return <p className="panel">{everyone ? 'Nenhum acesso ativo agora.' : 'Nenhum acesso valendo agora.'}</p>;
   return (
     <div className="table-wrap">
       <table className="table">
@@ -63,14 +63,25 @@ export default async function Acessos() {
     apiGet<Grant[]>('/grants/mine'),
     canRevoke ? apiGet<Grant[]>('/grants/active') : Promise.resolve([]),
   ]);
+  // PK-28: o que vale agora fica em cima; o histórico (revogados e vencidos) fica recolhido
+  const live = mine.filter((g) => g.state === 'ACTIVE' || g.state === 'SCHEDULED');
+  const past = mine.filter((g) => !live.includes(g));
   return (
     <main className="console-page">
       <h1>Meus acessos</h1>
-      <p>O prazo é contado pelo relógio do banco: se o sistema parar, o acesso vence do mesmo jeito.</p>
+      <p>Cada acesso vence sozinho pelo relógio do banco, mesmo se o sistema parar.</p>
       <Explica>
-        <p>Cada acesso tem início e fim. O prazo é contado pelo relógio do banco, então vence na hora mesmo se o sistema parar. Quem aprova pode revogar antes. O banco também impede dois acessos da mesma pessoa ao mesmo recurso no mesmo período (EXCLUDE).</p>
+        <p>Quem aprova pode revogar antes. O banco impede dois acessos da mesma pessoa ao mesmo recurso no mesmo período (EXCLUDE).</p>
       </Explica>
-      <GrantTable grants={mine} />
+      <h2>Valendo agora</h2>
+      <GrantTable grants={live} />
+      {past.length > 0 && (
+        <details className="mais-antigos">
+          <summary>Acessos encerrados ({past.length})</summary>
+          <GrantTable grants={past.slice(0, 10)} />
+          {past.length > 10 && <p className="note">Os 10 mais recentes. Todos ficam na auditoria.</p>}
+        </details>
+      )}
       {canRevoke && (
         <>
           <h2>Acessos ativos de todos</h2>

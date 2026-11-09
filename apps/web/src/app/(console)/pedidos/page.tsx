@@ -8,6 +8,7 @@ import { approvals, LEVEL, minutes, STATUS, when, type AccessRequest, type Appro
 import { apiGet, requirePermission } from '../../../lib/session';
 
 export const metadata: Metadata = { title: 'Pedir acesso' };
+const RECENT = 8;
 
 // ?recurso= (e ?nivel=WRITE, do console) vêm dos links "Pedir acesso": o formulário já abre no recurso e no nível certos
 export default async function Pedidos({ searchParams }: { searchParams: Promise<{ recurso?: string; nivel?: string }> }) {
@@ -27,12 +28,9 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
       </p>
       <Explica>
         <ul>
-          <li><strong>Recurso:</strong> uma parte dos dados da loja fictícia (Catálogo, Clientes ou Financeiro).</li>
-          <li><strong>Sensibilidade:</strong> baixa e média precisam de uma aprovação; alta precisa de duas pessoas diferentes.</li>
-          <li><strong>Duração máxima:</strong> quanto mais sensível o dado, menor o tempo (Catálogo 2 h, Clientes 1 h, Financeiro 30 min). O acesso some sozinho no fim.</li>
-          <li><strong>Leitura ou escrita:</strong> as consultas do catálogo são só de leitura; o nível escrita fica registrado no pedido.</li>
-          <li><strong>Quem vai aprovar:</strong> só a pessoa escolhida decide; o banco recusa a decisão de qualquer outra.</li>
-          <li>Um pedido pendente por recurso: o banco recusa o segundo.</li>
+          <li><strong>Quanto mais sensível, menos tempo:</strong> Catálogo até 2 h, Clientes 1 h, Financeiro 30 min. O acesso some sozinho no fim.</li>
+          <li><strong>Leitura</strong> só consulta; <strong>Escrita</strong> também altera, pelo Console SQL.</li>
+          <li><strong>O banco garante:</strong> só a pessoa escolhida decide, e há um pedido pendente por recurso.</li>
         </ul>
       </Explica>
       <RequestForm resources={resources} approvers={approvers} initial={recurso} level={nivel} />
@@ -48,6 +46,7 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
         </section>
       )}
       <h2>Meus pedidos</h2>
+      {mine.length > RECENT && <p className="note">Os {RECENT} mais recentes. Todos ficam na auditoria.</p>}
       {mine.length === 0 ? (
         <p className="panel">Você ainda não fez nenhum pedido.</p>
       ) : (
@@ -66,7 +65,7 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
               </tr>
             </thead>
             <tbody>
-              {mine.map((r) => (
+              {mine.slice(0, RECENT).map((r) => (
                 <tr key={r.id}>
                   <td data-label="Recurso">{r.resource.name}</td>
                   <td data-label="Nível e duração">

@@ -4,6 +4,11 @@ import type { Tone } from './pam';
 export type Step = { at: number; session: 'A' | 'B'; sql?: string; note?: string; ms?: number; result?: 'ok' | 'erro'; sqlstate?: string; rows?: Record<string, unknown>[] };
 export type Run = { id: number; scenario: string; outcome: string; steps: Step[] };
 export type Scenario = { name: string; title: string };
+// Nome curto de cada experimento, para o cartão e o histórico (o título longo vem da API)
+export const NOME: Record<string, string> = {
+  'transferencia-falha': 'Transferência com falha', 'espera-de-lock': 'Espera por lock', deadlock: 'Deadlock',
+  'leitura-nao-repetivel': 'Leitura não repetível', 'write-skew': 'Write skew', indices: 'Índices',
+};
 export type RunRow = { id: number; scenario: string; startedAt: string; outcome: string; steps: number };
 
 export const OUTCOME: Record<string, [string, Tone]> = {
