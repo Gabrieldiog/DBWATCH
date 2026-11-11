@@ -22,7 +22,9 @@ test('T-E2E-04 auditora filtra pelo código da execução e verifica a integrida
   await expect(rows).toHaveCount(1);
   await expect(rows).toContainText(demoUser('REQUESTER').email);
   await expect(rows).toContainText('Sucesso');
-  await expect(rows).toContainText('"linhas":50');
+  // PK-31: os dados técnicos ficam em "Ver dados", em pares nome e valor
+  await rows.getByText('Ver dados').click();
+  await expect(rows.locator('dl')).toContainText('linhas50');
 
   await page.getByRole('button', { name: 'Verificar integridade' }).click();
   await expect(page.getByRole('main').getByRole('status')).toHaveText(/Cadeia íntegra: \d+ registros conferidos/);

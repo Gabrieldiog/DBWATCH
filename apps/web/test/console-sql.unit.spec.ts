@@ -18,7 +18,7 @@ describe('explicarErro: o console fala com quem não é de TI (PK-24)', () => {
     expect(outra.texto).toContain('só alcança a tabela loja.produtos');
     expect(explicarErro(banco('42501', 'must be owner of table clientes'), 'Clientes').titulo).toBe('Criar ou apagar tabelas não é permitido');
     expect(explicarErro(banco('42501', 'permission denied for schema loja'), 'Clientes').titulo).toBe('Criar ou apagar tabelas não é permitido');
-    expect(explicarErro(banco('42501', 'permission denied for table pedidos'), 'Financeiro').texto).toContain('TRUNCATE');
+    expect(explicarErro(banco('42501', 'permission denied for table pedidos'), 'Financeiro').texto).toContain('Apagar linhas (DELETE)');
   });
 
   it('erros comuns de quem está aprendendo SQL viram uma frase; o desconhecido não inventa motivo', () => {

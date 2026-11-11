@@ -12,10 +12,10 @@ type Param = { name: string; type: 'text' | 'int'; options?: string[]; min?: num
 type Template = { code: string; resourceId: string; sqlText: string; params: unknown; maxRows: number; timeoutMs: number };
 
 const DENIALS: Record<string, string> = {
-  sem_concessao: 'Você não tem concessão para este recurso',
-  grant_expired: 'Sua concessão expirou; peça acesso de novo',
-  grant_revoked: 'Sua concessão foi revogada',
-  grant_not_started: 'Sua concessão ainda não começou',
+  sem_concessao: 'Você ainda não tem acesso a este recurso. Peça acesso e espere a aprovação',
+  grant_expired: 'Seu acesso a este recurso expirou; peça acesso de novo',
+  grant_revoked: 'Seu acesso a este recurso foi revogado',
+  grant_not_started: 'Seu acesso a este recurso ainda não começou',
 };
 
 const field = (f: Param) => {

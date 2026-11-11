@@ -68,10 +68,10 @@ export function RequestForm({ resources, approvers, initial, level }: { resource
       <fieldset className="field">
         <legend>Nível</legend>
         <label>
-          <input type="radio" name="accessLevel" value="READ" defaultChecked={level !== 'WRITE'} /> Leitura
+          <input type="radio" name="accessLevel" value="READ" defaultChecked={level !== 'WRITE'} /> Leitura (só consultar)
         </label>
         <label>
-          <input type="radio" name="accessLevel" value="WRITE" defaultChecked={level === 'WRITE'} /> Escrita
+          <input type="radio" name="accessLevel" value="WRITE" defaultChecked={level === 'WRITE'} /> Leitura e escrita (consultar, incluir e alterar)
         </label>
       </fieldset>
       <label className="field">

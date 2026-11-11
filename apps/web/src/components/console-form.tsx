@@ -9,7 +9,7 @@ import { send, type Sent } from '../lib/send';
 export type ConsoleResource = { id: string; name: string; access?: { level: 'READ' | 'WRITE'; expiresAt: string } };
 type Result = { level: 'READ' | 'WRITE'; command: string; rowCount: number; columns: string[]; rows: Record<string, unknown>[]; truncated: boolean; durationMs: number };
 
-const NIVEL = { READ: 'Leitura', WRITE: 'Escrita' };
+const NIVEL = { READ: 'Leitura', WRITE: 'Leitura e escrita' };
 
 // O navegador só manda o recurso e o texto; quem decide o que o comando pode fazer é o papel do banco daquele recurso
 export function ConsoleForm({ resources }: { resources: ConsoleResource[] }) {
@@ -48,7 +48,7 @@ export function ConsoleForm({ resources }: { resources: ConsoleResource[] }) {
       </fieldset>
 
       {resource?.access?.level === 'WRITE' ? (
-        <p className="access access-ok">Acesso de <strong>Escrita</strong> a {nome} até {when(resource.access.expiresAt)}: pode consultar e alterar a tabela loja.{TABELA[nome]}.</p>
+        <p className="access access-ok">Acesso de <strong>Leitura e escrita</strong> a {nome} até {when(resource.access.expiresAt)}: pode consultar, incluir e alterar a tabela loja.{TABELA[nome]}.</p>
       ) : resource?.access ? (
         <p className="access access-ok">
           Acesso de <strong>Leitura</strong> a {nome} até {when(resource.access.expiresAt)}: pode consultar a tabela loja.{TABELA[nome]}; alterar, não.{' '}

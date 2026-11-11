@@ -83,7 +83,7 @@ export default async function Monitor() {
       <h2>Eventos ao vivo</h2>
       <p className="note">
         Cada evento diz a fonte: o PostgreSQL (alertas do coletor), a aplicação (cada ação registrada, rollbacks e break-glass)
-        ou o LAB. Quem fez cada ação fica na Auditoria, para quem pode ler a trilha.
+        ou o LAB. Cada ação diz quem fez; clique em Detalhar para ver o que aconteceu.
       </p>
       <EventFeed initial={events.slice(0, 12)} canAudit={me.permissions.includes('audit:read')} />
       <h2>Últimos 30 minutos no banco da aplicação</h2>

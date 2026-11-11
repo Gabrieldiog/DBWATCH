@@ -5,6 +5,21 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e
 
 ## [Não lançado]
 
+### Mudado
+
+- **PK-30 · Consultas mais limpas e Escrita sem DELETE**
+  - Escrita passa a incluir e alterar, sem apagar: o papel do recurso perdeu o `DELETE` (menor privilégio; um `DELETE` sem `WHERE` esvaziaria a tabela). Rode `pnpm db:target` para aplicar num banco que já existe.
+  - O resultado das Consultas abre numa janela por cima, sem esticar os cartões; o aviso de sem acesso fica em português claro, com o link para pedir.
+  - O nível aparece como "Leitura" e "Leitura e escrita".
+
+- **PK-31 · Auditoria mais legível**
+  - Filtros em grade, com a ação escolhida numa lista em português.
+  - Coluna "O que aconteceu": a ação em português, o motivo traduzido e o código técnico pequeno; os dados técnicos ficam em "Ver dados", em pares nome e valor, no lugar do JSON cru.
+
+- **PK-32 · README com as telas de agora**
+  - Capturas novas do Console SQL, da simulação passo a passo, do Laboratório e da Auditoria, tiradas do sistema rodando.
+  - Seção do Monitor com quem fez, o Detalhar e a retenção de 7 dias; textos do Monitor e do Console alinhados com "Leitura e escrita".
+
 ## [1.2.0] - 2026-11-09
 
 Feita depois do teste na VPS, pensando em quem não é de TI: o console explica o erro do banco em português, o Monitor diz quem fez cada coisa e por quê, e o pedido de acesso chega só para quem foi escolhido, com a regra no banco.

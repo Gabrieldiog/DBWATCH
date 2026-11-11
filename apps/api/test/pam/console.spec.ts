@@ -53,6 +53,7 @@ describe('console SQL com leitura e escrita (PK-21, PK-23)', () => {
       expect((await run(user.cookie, clientes, text).expect(400)).body.message).toMatch(new RegExp(`SQLSTATE ${sqlstate}\\): .*${why}`));
     const [{ total }] = await target('SELECT count(*)::int AS total FROM loja.pedidos');
     await refused('DELETE FROM loja.pedidos', '42501', 'permission denied for table pedidos'); // Clientes não alcança o Financeiro
+    await refused('DELETE FROM loja.clientes WHERE id = 7', '42501', 'permission denied for table clientes'); // PK-30: Escrita não apaga
     await refused('DROP TABLE loja.clientes', '42501', 'must be owner');
     await refused('TRUNCATE loja.clientes', '42501', 'permission denied for table clientes');
     await refused('CREATE TABLE loja.invasora (id int)', '42501', 'permission denied for schema loja');
