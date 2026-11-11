@@ -393,6 +393,10 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 
 > **Registro de QA (08/11/2026):** nova área "Console SQL" no menu (quem tem `query:execute`), com o guia da Visão geral e o "O que é esta tela?". O console mostra o acesso de Escrita vivo do recurso escolhido; sem ele, o link abre o pedido já no recurso e com Escrita marcada (`?nivel=WRITE`). Exemplos por recurso, incluindo os que o banco recusa. E2E: o Diego sem escrita cai no pedido certo; com escrita aprovada, o exemplo altera a cidade de verdade, "Apagar pedidos" mostra `SQLSTATE 42501 ... permission denied for table pedidos`, e o teste devolve o dado como era. Dois erros pegos antes da entrega: o anúncio de rota do Next também tem `role="alert"` (o teste passou a olhar só o formulário) e a classe `.console` já era a grade do layout inteiro, o que esticava o formulário (renomeada para `.console-sql`). Axe sem violação séria nos dois temas. Lint, typecheck do repositório inteiro, 48/48 da web, 142/142 da API e 78/78 E2E; capturas em 1280 e 375 px sem rolagem horizontal. O CI do main voltou ao verde com a correção do PK-20b/20c.
 
+### PK-32 · README com as telas de agora ✅
+
+> **Registro (11/11/2026):** quatro capturas refeitas por um roteiro temporário do Playwright contra a API e o PostgreSQL de verdade (console com o `42501` explicado, simulação parada no teste do banco com o Detalhar aberto, deadlock do laboratório e a auditoria nova com a cadeia verificada). As capturas mostraram dois textos velhos, corrigidos aqui: o Monitor ainda dizia que quem fez ficava só na Auditoria, e o Console chamava o nível de "Escrita".
+
 ### PK-31 · Auditoria mais legível ✅
 
 > **Registro de QA (11/11/2026):** pedido do Gabriel: "a visão da auditoria tá muito ruim". Mesma consulta e mesma API; muda só a tela: filtros em grade, ação numa lista com os nomes do Monitor, motivo traduzido pela mesma função do Monitor e os metadados num `dl` recolhido. O axe cobrou que o `dl` só aceita `div` como agrupador, e foi assim que ficou. O T-E2E-04 abre "Ver dados" e confere o par linhas 50. Capturas em 1280 e 375 px, sem rolagem horizontal.
@@ -540,3 +544,4 @@ Dividido em três packs para caber no limite de 400 linhas cada.
 | PK-29 | ✅ Concluído | 09/11/2026 |
 | PK-30 | ✅ Concluído | 11/11/2026 |
 | PK-31 | ✅ Concluído | 11/11/2026 |
+| PK-32 | ✅ Concluído | 11/11/2026 |

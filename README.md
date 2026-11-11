@@ -166,9 +166,9 @@ Capturas de um banco recém-criado, com os usuários fictícios da demonstraçã
 | ![Página inicial com o status real do banco e o login](docs/assets/telas/entrada.png) | ![Monitor durante o incidente simulado: o grafo mostra o relatório bloqueando o caixa e os eventos chegam ao vivo](docs/assets/telas/monitor-incidente.png) |
 | **Entrada:** o status do PostgreSQL é medido a cada visita, e cada promessa aponta para a regra SQL que a garante | **Monitor:** o incidente simulado (LAB) com o grafo de bloqueio vindo de `pg_locks` e o `55P03` chegando pelo SSE |
 | ![Laboratório: deadlock com a linha do tempo das duas sessões e o 40P01](docs/assets/telas/laboratorio-deadlock.png) | ![Auditoria com a cadeia de hash verificada](docs/assets/telas/auditoria.png) |
-| **Laboratório:** duas sessões reais se travam e o PostgreSQL derruba uma com `40P01` | **Auditoria:** a verificação recalcula a cadeia de hash inteira dentro do banco |
-| ![Console SQL: com escrita em Clientes, o DELETE em pedidos volta com 42501 do banco](docs/assets/telas/console-sql.png) | ![Simulação passo a passo: o bot parou depois de o banco recusar a autoaprovação com 23514](docs/assets/telas/simulacao-passo.png) |
-| **Console SQL:** com Escrita em Clientes, apagar pedidos volta com `42501`, a recusa é do papel do banco | **Simulação passo a passo:** o bot age, para e espera; o banco acabou de barrar a autoaprovação com `23514` |
+| **Laboratório:** duas sessões reais se travam e o PostgreSQL derruba uma com `40P01` | **Auditoria:** filtros em grade, a ação em português e a verificação da cadeia de hash inteira dentro do banco |
+| ![Console SQL: com leitura e escrita em Clientes, apagar um cliente volta com 42501 e o erro explicado em português](docs/assets/telas/console-sql.png) | ![Simulação passo a passo: o banco recusou a autoaprovação com 23514 e o Detalhar explica por quê](docs/assets/telas/simulacao-passo.png) |
+| **Console SQL:** com leitura e escrita em Clientes, apagar volta com `42501`; o erro vem em português, com a resposta do banco embaixo | **Simulação passo a passo:** o bot pulou a API de propósito, o banco recusou com `23514` e o "Detalhar" explica cada evento, com quem fez |
 
 ## 🏗️ Arquitetura
 
@@ -262,6 +262,8 @@ O monitor responde a perguntas que um DBA faz durante um incidente:
 - **Quem está bloqueando quem?** A cadeia de bloqueio montada com `pg_blocking_pids()`, desenhada como um grafo animado.
 - **O banco está saudável?** Taxa de commits × rollbacks, deadlocks no período, *cache hit ratio* e tabelas com muitos *seq scans*.
 - **O que a aplicação viu?** Erros por SQLSTATE, transações mais lentas e rollbacks por operação.
+- **Quem fez e por quê?** Cada ação auditada vira um evento ao vivo com o nome de quem fez e o recurso (por trigger no banco); "Detalhar" explica o evento, e a tabela de commits e rollbacks diz o que aconteceu em cada intervalo de 5 s.
+- **O banco não enche:** as amostras e os eventos do monitor ficam 7 dias; a auditoria fica para sempre.
 
 Como funciona por baixo:
 

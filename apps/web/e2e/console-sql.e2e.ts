@@ -16,7 +16,7 @@ test('console SQL: sem escrita leva ao pedido certo; com escrita altera de verda
   await approvedGrant(page.request, bruno.request, 'Clientes', 'WRITE');
   await page.goto('/console');
   await page.getByRole('radio', { name: /^Clientes/ }).check();
-  await expect(page.getByText(/Acesso de Escrita a Clientes até/)).toBeVisible();
+  await expect(page.getByText(/Acesso de Leitura e escrita a Clientes até/)).toBeVisible();
   const comando = page.getByLabel('Seu comando SQL (um por vez)');
   const executar = page.getByRole('button', { name: 'Executar no banco' });
 
