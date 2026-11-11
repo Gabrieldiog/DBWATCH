@@ -120,7 +120,7 @@ const MOTIVO: Record<string, string> = {
   sem_concessao: 'não tinha acesso a esse recurso', senha_incorreta: 'senha incorreta', conta_bloqueada: 'a conta está bloqueada',
   acl_negado: 'fora do horário ou da rede permitidos', cadeia_integra: 'nenhum registro foi alterado', cadeia_adulterada: 'a cadeia foi adulterada',
 };
-const motivo = (m: unknown) => {
+export const motivo = (m: unknown) => {
   const raw = String(m ?? '');
   if (raw.startsWith('sqlstate:')) return `o banco recusou (SQLSTATE ${raw.slice(9, 14)})`;
   return MOTIVO[raw] ?? raw;
