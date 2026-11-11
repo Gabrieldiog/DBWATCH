@@ -1359,7 +1359,7 @@ section > .access {
   padding-top: 8px;
 }
 
-.cards-grid > .panel:has(table, .steps, .alert) {
+.cards-grid > .panel:has(> .table-wrap, .steps) {
   grid-column: 1 / -1;
 }
 
@@ -1383,4 +1383,30 @@ section > .access {
 
 .mais-antigos {
   margin-top: 8px;
+}
+
+/* PK-30: resultado das consultas numa janela por cima, com a tabela rolando dentro dela */
+dialog.resultado {
+  width: min(960px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+dialog.resultado::backdrop {
+  background: rgb(6 22 27 / 55%);
+}
+
+.resultado-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.resultado-topo h3 {
+  margin: 0;
 }

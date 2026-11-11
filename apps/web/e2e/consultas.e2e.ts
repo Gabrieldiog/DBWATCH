@@ -55,7 +55,9 @@ test('sem concessão viva a API nega e a tela mostra o motivo', async ({ page, b
   const clientes = card(page, 'Clientes de uma cidade (e-mail mascarado)');
   await clientes.getByLabel('Cidade').selectOption('Goiânia');
   await clientes.getByRole('button', { name: 'Executar' }).click();
-  await expect(clientes.getByRole('alert')).toHaveText(/concessão/);
+  // O motivo depende do histórico do Diego no banco (nunca teve acesso, ou teve e expirou ou foi revogado)
+  await expect(clientes.getByRole('alert')).toContainText(/Você ainda não tem acesso a este recurso|Seu acesso a este recurso (expirou|foi revogado)/);
+  await expect(clientes.getByRole('link', { name: 'Pedir acesso a Clientes' })).toBeVisible();
   await expect(clientes.getByRole('table')).toHaveCount(0);
 });
 

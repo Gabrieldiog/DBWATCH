@@ -26,7 +26,7 @@ export function explicarErro(message: string, recurso: string): Explicado {
   if (code === '42501' && /must be owner|permission denied for schema/.test(original))
     return r('Criar ou apagar tabelas não é permitido', 'Pelo console ninguém muda a estrutura do banco: só os dados da tabela do recurso.');
   if (code === '42501' && outra)
-    return r(`Esse comando não é permitido em ${outra}`, 'Dá para consultar, incluir, alterar e apagar linhas; esvaziar a tabela inteira de uma vez (TRUNCATE) não.');
+    return r(`Esse comando não é permitido em ${outra}`, 'Com Escrita dá para consultar, incluir e alterar linhas. Apagar linhas (DELETE) ou esvaziar a tabela (TRUNCATE), não.');
   if (code === '42501') return r('O banco não deu permissão para isso', 'O papel do seu acesso não pode executar esse comando.');
   if (code === '42601' && /multiple commands/.test(original))
     return r('Mande um comando por vez', 'O console executa um comando de cada vez. Separe e execute um depois do outro.');
@@ -67,6 +67,7 @@ export const EXEMPLOS: Record<string, Grupo[]> = {
       ['Mudar a cidade de um cliente', "UPDATE loja.clientes SET cidade = 'Anápolis' WHERE id = 7 RETURNING id, nome, cidade"],
     ] },
     { nome: 'O banco recusa', dica: 'Para ver a proteção funcionando', tom: 'recusa', itens: [
+      ['Apagar um cliente', 'DELETE FROM loja.clientes WHERE id = 7'],
       ['Apagar pedidos (outra tabela)', 'DELETE FROM loja.pedidos WHERE id = 1'],
       ['Apagar a tabela', 'DROP TABLE loja.clientes'],
     ] },

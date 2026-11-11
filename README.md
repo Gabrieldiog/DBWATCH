@@ -102,7 +102,7 @@ Controla **quem pode acessar o quê, por quanto tempo e com aprovação de quem*
 - **Quem pede escolhe quem aprova.** O pedido chega para uma pessoa só, e outra CHECK recusa a decisão de qualquer outra.
 - **Concessões não se sobrepõem.** Uma `EXCLUDE constraint` com intervalos de tempo (`tstzrange`) impede duas concessões ativas do mesmo usuário para o mesmo recurso.
 - **Leitura pelo catálogo.** Com uma concessão de Leitura, o usuário executa apenas **consultas parametrizadas de um catálogo aprovado**, em transação somente leitura, com tempo-limite e limite de linhas.
-- **Console SQL, também na Leitura.** Quem prefere digitar usa o **Console SQL**, com SQL pronto por recurso para ganhar tempo. Quem decide o que o comando alcança é um papel do PostgreSQL por recurso: só a tabela daquele recurso, sem DDL. Com acesso de Leitura a transação é `READ ONLY` e um `UPDATE` volta com o erro `25006` do banco; com Escrita, o comando altera de verdade. Outra tabela ou um `DROP` voltam com `42501`, e o comando inteiro vai para a auditoria.
+- **Console SQL, também na Leitura.** Quem prefere digitar usa o **Console SQL**, com SQL pronto por recurso para ganhar tempo. Quem decide o que o comando alcança é um papel do PostgreSQL por recurso: só a tabela daquele recurso, sem DDL. Com acesso de Leitura a transação é `READ ONLY` e um `UPDATE` volta com o erro `25006` do banco; com Escrita, o comando inclui e altera de verdade, mas não apaga (`DELETE` também volta com `42501`). Outra tabela ou um `DROP` voltam com `42501`, e o comando inteiro vai para a auditoria.
 - **Tudo vai para a auditoria:** pedidos, aprovações, negações, revogações, expirações e tentativas negadas.
 
 ### Pilar B: Database Monitor

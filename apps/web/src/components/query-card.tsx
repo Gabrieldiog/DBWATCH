@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import Link from 'next/link';
+import { useRef, useState, type FormEvent } from 'react';
 import { LEVEL } from '../lib/pam';
 import { send, type Sent } from '../lib/send';
 
@@ -19,14 +20,18 @@ type Result = { columns: string[]; rows: Record<string, unknown>[]; rowCount: nu
 export function QueryCard({ q }: { q: Template }) {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
+  // PK-30: o resultado abre numa janela por cima (dialog nativo: Esc fecha, o foco volta ao botão); os cartões não mudam de tamanho
+  const dialog = useRef<HTMLDialogElement>(null);
 
   async function run(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const params = Object.fromEntries(q.params.map((p) => [p.name, p.type === 'int' ? Number(form.get(p.name)) : form.get(p.name)]));
     setBusy(true);
-    setSent(await send(`/queries/${q.code}/execute`, { params }));
+    const answer = await send(`/queries/${q.code}/execute`, { params });
+    setSent(answer);
     setBusy(false);
+    if (answer.ok) dialog.current?.showModal();
   }
 
   const result = sent?.ok ? (sent.data as Result) : null;
@@ -60,40 +65,58 @@ export function QueryCard({ q }: { q: Template }) {
       {sent && !sent.ok && (
         <p className="alert" role="alert">
           {sent.message}
+          {/acesso a este recurso/.test(sent.message) && (
+            <>
+              {' '}
+              <Link href={`/pedidos?recurso=${q.resource.id}`}>Pedir acesso a {q.resource.name}</Link>
+            </>
+          )}
         </p>
       )}
-      {sent?.requestId && (
+      {sent && !sent.ok && sent.requestId && (
         <p className="note" role="status">
-          {result && `${result.rowCount} linha(s) em ${result.durationMs} ms${result.truncated ? ', cortado no limite' : ''} · `}
           código da execução <code>{sent.requestId}</code>
         </p>
       )}
-      {result && (
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                {result.columns.map((c) => (
-                  <th key={c} scope="col">
-                    {c}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {result.rows.map((row, i) => (
-                <tr key={i}>
-                  {result.columns.map((c) => (
-                    <td key={c} data-label={c}>
-                      {String(row[c] ?? '')}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <dialog ref={dialog} className="resultado" aria-label="Resultado da consulta">
+        <div className="resultado-topo">
+          <h3>{q.title}</h3>
+          <button type="button" className="button button-quiet button-small" onClick={() => dialog.current?.close()}>
+            Fechar
+          </button>
         </div>
-      )}
+        {result && (
+          <>
+            <p className="note" role="status">
+              {result.rowCount} linha(s) em {result.durationMs} ms{result.truncated ? ', cortado no limite' : ''} · código da execução <code>{sent?.requestId}</code>
+            </p>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    {result.columns.map((c) => (
+                      <th key={c} scope="col">
+                        {c}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.rows.map((row, i) => (
+                    <tr key={i}>
+                      {result.columns.map((c) => (
+                        <td key={c} data-label={c}>
+                          {String(row[c] ?? '')}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </dialog>
     </li>
   );
 }

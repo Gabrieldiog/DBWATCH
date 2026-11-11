@@ -29,7 +29,7 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
       <Explica>
         <ul>
           <li><strong>Quanto mais sensível, menos tempo:</strong> Catálogo até 2 h, Clientes 1 h, Financeiro 30 min. O acesso some sozinho no fim.</li>
-          <li><strong>Leitura</strong> só consulta; <strong>Escrita</strong> também altera, pelo Console SQL.</li>
+          <li><strong>Leitura</strong> só consulta; <strong>Leitura e escrita</strong> também inclui e altera, pelo Console SQL. Apagar, ninguém apaga.</li>
           <li><strong>O banco garante:</strong> só a pessoa escolhida decide, e há um pedido pendente por recurso.</li>
         </ul>
       </Explica>

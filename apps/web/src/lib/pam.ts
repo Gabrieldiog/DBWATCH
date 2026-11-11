@@ -31,7 +31,7 @@ export const SENSITIVITY: Record<string, [string, Tone]> = {
   HIGH: ['Alta', 'bad'],
 };
 
-export const LEVEL: Record<string, string> = { READ: 'Leitura', WRITE: 'Escrita' };
+export const LEVEL: Record<string, string> = { READ: 'Leitura', WRITE: 'Leitura e escrita' };
 
 export function minutes(total: number): string {
   if (total < 60) return `${total} min`;
